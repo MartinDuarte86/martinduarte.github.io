@@ -72,11 +72,11 @@
     .trust-grid,.contact-grid { grid-template-columns:1fr 1fr; } .service-grid { grid-template-columns:minmax(0,1fr) 280px; align-items:start; } .results-grid,.case-grid { grid-template-columns:repeat(3,minmax(0,1fr)); } .content-grid { grid-template-columns:1.08fr .92fr; } .resource-list { display:grid; gap:1rem; }
     .service-list { margin:0; padding:0; list-style:none; display:grid; gap:.85rem; } .service-list li { position:relative; padding-left:1.15rem; color:#d5dde9; } .service-list li::before { content:""; position:absolute; left:0; top:.66rem; width:.42rem; height:.42rem; border-radius:999px; background:linear-gradient(135deg,var(--accent),var(--accent2)); }
     .content-card img { margin-top:1.2rem; border-radius:22px; border:1px solid rgba(255,255,255,.08); } .contact-card { background:radial-gradient(circle at 15% 10%, rgba(63,224,181,.18), transparent 25%),linear-gradient(135deg, rgba(18,35,53,.98), rgba(11,21,35,.96)); }
-    .mobile-panel { display:none; padding:0 0 1rem; } .mobile-panel nav { display:grid; gap:.5rem; padding-top:.5rem; } .mobile-panel a { padding:.85rem 1rem; border-radius:16px; background:rgba(255,255,255,.04); border:1px solid rgba(255,255,255,.06); }
+    .mobile-panel { display:none !important; padding:0 0 1rem; } .mobile-panel nav { display:grid; gap:.5rem; padding-top:.5rem; } .mobile-panel a { padding:.85rem 1rem; border-radius:16px; background:rgba(255,255,255,.04); border:1px solid rgba(255,255,255,.06); }
     .site-footer { padding:1.6rem 0 2.5rem; border-top:1px solid rgba(255,255,255,.06); } .footer-grid { grid-template-columns:1fr auto; align-items:center; } .footer-links { justify-content:flex-end; color:#cfdae8; }
     .floating { position:fixed; right:1.5rem; bottom:1.5rem; z-index:20; gap:.7rem; background:linear-gradient(135deg,#1ccf90 0%,#0ea86f 100%); color:#fff; border-color:rgba(255,255,255,.16); box-shadow:0 18px 40px rgba(13,81,57,.35); }
     @media (max-width:1120px) { .hero-grid,.trust-grid,.service-grid,.results-grid,.case-grid,.content-grid,.contact-grid,.footer-grid { grid-template-columns:1fr; } }
-    @media (max-width:860px) { .nav,.header-link { display:none; } .menu-button { display:inline-flex; } }
+    @media (max-width:860px) { .nav,.header-link { display:none; } .menu-button { display:inline-flex; } .mobile-panel[data-open="true"] { display:block !important; } }
     @media (max-width:640px) { .wrap { width:min(calc(100% - 1.2rem), var(--max)); } h1 { font-size:clamp(2.7rem,15vw,4.2rem); } .floating span:last-child { display:none; } }
   </style>
 </head>
@@ -98,7 +98,7 @@
       <a class="button-secondary header-link" href="https://www.linkedin.com/in/martinduarte/" target="_blank" rel="noopener noreferrer">Ver LinkedIn</a>
       <button class="menu-button" type="button" aria-expanded="false" aria-controls="mobile-nav" aria-label="Abrir menu"><span aria-hidden="true">+</span></button>
     </div>
-    <div class="wrap mobile-panel" id="mobile-nav" hidden>
+    <div class="wrap mobile-panel" id="mobile-nav" data-open="false">
       <nav aria-label="Navegacion movil">
         <a href="#services">Servicios</a>
         <a href="#trust">Por que trabajar conmigo</a>
@@ -217,13 +217,13 @@
         const isOpen = menuButton.getAttribute("aria-expanded") === "true";
         menuButton.setAttribute("aria-expanded", String(!isOpen));
         menuButton.innerHTML = !isOpen ? "<span aria-hidden=\"true\">&times;</span>" : "<span aria-hidden=\"true\">+</span>";
-        mobilePanel.hidden = isOpen;
+        mobilePanel.setAttribute("data-open", String(!isOpen));
       });
       mobilePanel.querySelectorAll("a").forEach((link) => {
         link.addEventListener("click", () => {
           menuButton.setAttribute("aria-expanded", "false");
           menuButton.innerHTML = "<span aria-hidden=\"true\">+</span>";
-          mobilePanel.hidden = true;
+          mobilePanel.setAttribute("data-open", "false");
         });
       });
     }
