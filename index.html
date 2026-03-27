@@ -1,0 +1,189 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Martin Duarte | Enterprise Data Architect</title>
+  <meta
+    name="description"
+    content="Martin Duarte ayuda a organizaciones a diseñar plataformas de datos modernas, arquitecturas cloud escalables y estrategias de modernización."
+  />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet" />
+  <style>
+    :root { --bg:#07111f; --panel:rgba(12,23,38,.8); --border:rgba(159,198,255,.18); --text:#f5f7fb; --muted:#a8b7ca; --accent:#78d7ff; --accent2:#3fe0b5; --max:1180px; --radius:28px; }
+    * { box-sizing:border-box; } html { scroll-behavior:smooth; } body { margin:0; font-family:"Instrument Sans",sans-serif; color:var(--text); background:radial-gradient(circle at top left, rgba(63,224,181,.12), transparent 28%),radial-gradient(circle at 85% 12%, rgba(111,135,255,.18), transparent 26%),linear-gradient(180deg,#08121f 0%,#050b15 100%); }
+    body::before { content:""; position:fixed; inset:0; pointer-events:none; background-image:linear-gradient(rgba(255,255,255,.025) 1px, transparent 1px),linear-gradient(90deg, rgba(255,255,255,.025) 1px, transparent 1px); background-size:42px 42px; mask-image:radial-gradient(circle at center, black, transparent 85%); opacity:.4; }
+    a { color:inherit; text-decoration:none; } img { display:block; max-width:100%; } h1,h2,h3,.brand strong { font-family:"Space Grotesk",sans-serif; letter-spacing:-.04em; }
+    .wrap { width:min(calc(100% - 2rem), var(--max)); margin:0 auto; } .eyebrow,.meta { text-transform:uppercase; letter-spacing:.18em; font-size:.75rem; color:var(--accent); }
+    .site-header { position:sticky; top:0; z-index:20; backdrop-filter:blur(18px); background:rgba(7,17,31,.72); border-bottom:1px solid rgba(255,255,255,.06); }
+    .site-header .wrap { display:flex; align-items:center; justify-content:space-between; gap:1rem; padding:1rem 0; } .brand { display:flex; flex-direction:column; gap:.15rem; } .brand span,.nav { color:#cfdae8; }
+    .nav { display:flex; gap:1.5rem; } .button,.button-secondary,.button-whatsapp { display:inline-flex; align-items:center; justify-content:center; min-height:48px; padding:.85rem 1.3rem; border-radius:999px; font-weight:600; transition:transform 180ms ease; }
+    .button:hover,.button-secondary:hover,.button-whatsapp:hover,.floating:hover { transform:translateY(-1px); } .button { color:#08121f; background:linear-gradient(135deg,#fff 0%,#d8ecff 100%); } .button-secondary { border:1px solid rgba(255,255,255,.18); background:rgba(255,255,255,.03); } .button-whatsapp { border:1px solid rgba(63,224,181,.24); color:#d8fff4; background:rgba(63,224,181,.12); }
+    .hero { padding:5.5rem 0 3.5rem; } .hero-grid,.service-grid,.insight-grid,.contact-grid,.use-grid,.journey-grid { display:grid; gap:1rem; } .hero-grid { align-items:center; grid-template-columns:1.15fr .85fr; }
+    h1 { margin:0; font-size:clamp(3rem, 8vw, 5.7rem); line-height:.95; } h2 { margin:.4rem 0 0; font-size:clamp(2rem, 4vw, 3.5rem); } h3 { margin:0; font-size:1.5rem; }
+    .hero-role { margin-top:1rem; font-size:clamp(1.15rem, 3vw, 2rem); color:#cde9ff; } .hero-tags,.hero-actions,.content-tags,.contact-actions { display:flex; flex-wrap:wrap; gap:.75rem; }
+    .chip,.pill,.content-tags span { padding:.55rem .85rem; border-radius:999px; border:1px solid rgba(255,255,255,.08); background:rgba(255,255,255,.05); font-size:.78rem; }
+    .chip { border-color:rgba(120,215,255,.2); background:rgba(120,215,255,.08); color:#d5f3ff; } .lead,p { color:var(--muted); line-height:1.75; } .lead { font-size:1.08rem; max-width:44rem; }
+    .hero-card,.card,.contact-card { border:1px solid var(--border); border-radius:var(--radius); background:var(--panel); box-shadow:0 12px 36px rgba(0,0,0,.18); } .hero-card { overflow:hidden; padding:1.2rem; } .hero-card img { height:460px; object-fit:cover; border-radius:22px; }
+    section { padding:4rem 0; } .section-head { max-width:46rem; margin-bottom:2rem; }
+    .journey-grid { grid-template-columns:repeat(5, minmax(0,1fr)); } .journey-card,.use-card,.mini-card { padding:1.5rem; } .journey-number { font-family:"Space Grotesk",sans-serif; font-size:2rem; color:var(--accent); }
+    .services { display:grid; gap:1rem; } .service-card { padding:2rem; background:linear-gradient(180deg, rgba(15,29,47,.95), rgba(10,20,35,.95)); } .service-grid { grid-template-columns:minmax(0,1.15fr) minmax(280px,.85fr); align-items:start; }
+    .service-subtitle { margin-top:.6rem; color:#d4e7f9; font-weight:500; } .service-list { margin:0; padding:0; list-style:none; display:grid; gap:.85rem; } .service-list li { position:relative; padding-left:1.2rem; color:#d5dde9; } .service-list li::before { content:""; position:absolute; left:0; top:.68rem; width:.45rem; height:.45rem; border-radius:999px; background:linear-gradient(135deg,var(--accent),var(--accent2)); }
+    .use-grid { grid-template-columns:repeat(3, minmax(0,1fr)); } .insight-hero,.featured { padding:2rem; } .insight-hero { background:radial-gradient(circle at top right, rgba(120,215,255,.16), transparent 30%),linear-gradient(135deg, rgba(14,24,39,.96), rgba(17,35,60,.94)); } .insight-grid { grid-template-columns:.95fr 1.05fr; } .mini-grid { display:grid; gap:1rem; grid-template-columns:repeat(2, minmax(0,1fr)); }
+    .contact-card { padding:2.4rem; background:radial-gradient(circle at 15% 10%, rgba(63,224,181,.18), transparent 25%),linear-gradient(135deg, rgba(18,35,53,.98), rgba(11,21,35,.96)); }
+    .floating { position:fixed; right:1.5rem; bottom:1.5rem; z-index:15; display:inline-flex; align-items:center; gap:.7rem; padding:.95rem 1.15rem; border-radius:999px; background:linear-gradient(135deg,#1ccf90 0%,#0ea86f 100%); color:white; border:1px solid rgba(255,255,255,.16); box-shadow:0 18px 40px rgba(13,81,57,.35); font-weight:700; }
+    @media (max-width:1120px) { .hero-grid,.service-grid,.insight-grid,.use-grid,.journey-grid { grid-template-columns:1fr; } .journey-grid { grid-template-columns:repeat(2, minmax(0,1fr)); } }
+    @media (max-width:840px) { .nav { display:none; } .mini-grid { grid-template-columns:1fr; } .hero { padding-top:4rem; } }
+    @media (max-width:640px) { .wrap { width:min(calc(100% - 1.2rem), var(--max)); } .journey-grid { grid-template-columns:1fr; } .hero-card img { height:320px; } .floating span:last-child { display:none; } }
+  </style>
+</head>
+<body>
+  <header class="site-header">
+    <div class="wrap">
+      <div class="brand">
+        <strong>Martin Duarte</strong>
+        <span>Enterprise Data Architect</span>
+      </div>
+      <nav class="nav" aria-label="Navegación principal">
+        <a href="#services">Servicios</a>
+        <a href="#usecases">Casos de uso</a>
+        <a href="#insights">Insights</a>
+        <a href="#contact">Contacto</a>
+      </nav>
+      <a class="button-secondary" href="#contact">Conversemos</a>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero">
+      <div class="wrap hero-grid">
+        <div>
+          <div class="eyebrow">Arquitectura de datos para crecimiento real</div>
+          <h1>Martin Duarte</h1>
+          <div class="hero-role">Enterprise Data Architect</div>
+          <div class="hero-tags">
+            <span class="chip">Modern Data Platforms</span>
+            <span class="chip">Lakehouse</span>
+            <span class="chip">Cloud Architecture</span>
+          </div>
+          <p class="lead">Ayudo a organizaciones a diseñar plataformas de datos modernas, reducir complejidad técnica y construir una arquitectura lista para analítica avanzada, modernización cloud y crecimiento sostenido.</p>
+          <div class="hero-actions">
+            <a class="button" href="#services">Ver servicios</a>
+            <a class="button-secondary" href="#contact">Agendar conversación</a>
+            <a class="button-secondary" href="https://www.linkedin.com/" target="_blank" rel="noopener noreferrer">Saber más sobre mí</a>
+          </div>
+        </div>
+        <div class="hero-card">
+          <img src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?q=80&w=1600&auto=format&fit=crop" alt="Visual de arquitectura y análisis de datos" />
+          <p>Imagen temporal. Podemos reemplazarla luego por tu foto profesional o un visual de marca.</p>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <div class="wrap">
+        <div class="section-head">
+          <div class="eyebrow">Architecture Journey</div>
+          <h2>Cómo evoluciona una arquitectura de datos</h2>
+          <p>Un marco visual para mostrar cómo un assessment inicial se convierte en una hoja de ruta clara, una arquitectura objetivo y liderazgo continuo para la evolución de la plataforma.</p>
+        </div>
+        <div class="journey-grid">
+          <a class="card journey-card" href="#service-assessment"><div class="journey-number">01</div><h3>Diagnose the Current Architecture</h3><p>Analizar el ecosistema actual, sus riesgos, costos y puntos de fricción.</p></a>
+          <a class="card journey-card" href="#service-blueprint"><div class="journey-number">02</div><h3>Define the Target Architecture</h3><p>Diseñar una arquitectura objetivo lógica y física alineada al negocio.</p></a>
+          <a class="card journey-card" href="#service-strategy"><div class="journey-number">03</div><h3>Design the Data Platform Strategy</h3><p>Seleccionar tecnologías, integraciones y modelo operativo de plataforma.</p></a>
+          <a class="card journey-card" href="#service-modernization"><div class="journey-number">04</div><h3>Plan the Modernization</h3><p>Definir una estrategia de migración y un roadmap de implementación realista.</p></a>
+          <a class="card journey-card" href="#service-fractional"><div class="journey-number">05</div><h3>Provide Continuous Leadership</h3><p>Acompañar decisiones de arquitectura y evolución continua del ecosistema.</p></a>
+        </div>
+      </div>
+    </section>
+
+    <section id="services">
+      <div class="wrap">
+        <div class="section-head">
+          <div class="eyebrow">Servicios</div>
+          <h2>Enterprise Data Architecture Services</h2>
+          <p>Consultoría enfocada en evaluar, diseñar y evolucionar arquitecturas de datos empresariales con claridad técnica y visión de negocio.</p>
+        </div>
+        <div class="services">
+          <article class="card service-card" id="service-assessment"><div class="service-grid"><div><h3>Data Architecture Assessment</h3><div class="service-subtitle">Current Data Architecture Diagnosis</div><p>Diagnóstico integral del ecosistema de datos para entender el estado actual de la arquitectura, sus riesgos técnicos y las oportunidades de evolución.</p></div><ul class="service-list"><li>Mapa de arquitectura actual</li><li>Evaluación de pipelines y ETL</li><li>Identificación de riesgos técnicos</li><li>Análisis de costos cloud</li><li>Roadmap inicial de evolución</li></ul></div></article>
+          <article class="card service-card" id="service-blueprint"><div class="service-grid"><div><h3>Enterprise Data Architecture Blueprint</h3><div class="service-subtitle">Target Enterprise Data Architecture Design</div><p>Diseño de la arquitectura objetivo alineada con las necesidades analíticas y de negocio de la organización.</p></div><ul class="service-list"><li>Arquitectura lógica</li><li>Arquitectura física</li><li>Definición de componentes</li><li>Modelo de datos</li><li>Estándares de arquitectura</li></ul></div></article>
+          <article class="card service-card" id="service-strategy"><div class="service-grid"><div><h3>Data Platform Strategy</h3><div class="service-subtitle">Enterprise Data Platform Strategy</div><p>Definición estratégica de la plataforma de datos moderna incluyendo arquitectura, tecnologías y modelo operativo.</p></div><ul class="service-list"><li>Diseño de plataforma</li><li>Selección de tecnologías</li><li>Arquitectura de integración</li><li>Estrategia de ingesta de datos</li><li>Modelo de operación</li></ul></div></article>
+          <article class="card service-card" id="service-modernization"><div class="service-grid"><div><h3>Data Platform Modernization Program</h3><div class="service-subtitle">Data Platform Modernization</div><p>Programa estructurado para evolucionar plataformas legacy hacia arquitecturas modernas basadas en cloud y lakehouse.</p></div><ul class="service-list"><li>Estrategia de migración</li><li>Arquitectura target</li><li>Plan de modernización</li><li>Roadmap de implementación</li></ul></div></article>
+          <article class="card service-card" id="service-fractional"><div class="service-grid"><div><h3>Fractional Enterprise Data Architect</h3><div class="service-subtitle">Ongoing Architecture Leadership</div><p>Liderazgo arquitectónico continuo para organizaciones que necesitan dirección estratégica en su ecosistema de datos sin sumar una estructura fija full time.</p></div><ul class="service-list"><li>Revisiones de arquitectura</li><li>Mentoring de equipos</li><li>Decisiones tecnológicas</li><li>Roadmap evolutivo</li></ul></div></article>
+        </div>
+      </div>
+    </section>
+
+    <section id="usecases">
+      <div class="wrap">
+        <div class="section-head">
+          <div class="eyebrow">Casos de uso</div>
+          <h2>Dónde genero valor</h2>
+          <p>Situaciones típicas donde las organizaciones necesitan claridad estratégica, criterio técnico y una arquitectura preparada para escalar.</p>
+        </div>
+        <div class="use-grid">
+          <article class="card use-card"><h3>Modernización de Data Warehouse</h3><p>Migración de arquitecturas legacy hacia plataformas cloud modernas con foco en escalabilidad y simplicidad operacional.</p></article>
+          <article class="card use-card"><h3>Arquitectura de Plataforma Lakehouse</h3><p>Diseño de plataformas modernas utilizando tecnologías como Databricks, Snowflake o enfoques lakehouse empresariales.</p></article>
+          <article class="card use-card"><h3>Arquitectura de Datos en Cloud</h3><p>Definición de arquitecturas en AWS o Azure para analítica avanzada, crecimiento del negocio y reducción de fricción técnica.</p></article>
+          <article class="card use-card"><h3>Optimización de Costos</h3><p>Revisión de plataformas existentes para mejorar eficiencia y bajar costos cloud sin comprometer capacidad analítica.</p></article>
+          <article class="card use-card"><h3>Arquitectura para Analítica Avanzada</h3><p>Preparación del ecosistema para machine learning, inteligencia artificial y workloads analíticos de mayor complejidad.</p></article>
+          <article class="card use-card"><h3>Gobierno y Evolución de Plataforma</h3><p>Definición de estándares, decisiones de diseño y un camino evolutivo sostenible para equipos de datos en crecimiento.</p></article>
+        </div>
+      </div>
+    </section>
+
+    <section id="insights">
+      <div class="wrap">
+        <div class="section-head">
+          <div class="eyebrow">Insights</div>
+          <h2>Artículos y publicaciones</h2>
+          <p>Un espacio para posicionar experiencia, compartir aprendizajes reales y convertir tus ideas en contenido que genere autoridad.</p>
+        </div>
+        <article class="card insight-hero">
+          <div class="insight-grid">
+            <div>
+              <div class="meta"><span class="pill">Último artículo de LinkedIn</span> LinkedIn Article · Próximamente</div>
+              <h3 style="margin-top:1rem;">Tu artículo más importante va a vivir acá</h3>
+              <p class="lead">Esta sección está pensada para destacar la publicación o artículo más relevante y transformarlo en una pieza central de autoridad dentro de tu web.</p>
+              <a class="button" href="https://www.linkedin.com/" target="_blank" rel="noopener noreferrer">Ver en LinkedIn</a>
+            </div>
+            <div class="card" style="padding:1.5rem; background:rgba(5,12,22,.32);">
+              <div class="eyebrow">Contenido</div>
+              <h3>Ideas y experiencia en arquitectura de datos</h3>
+              <p>Acá podés publicar artículos técnicos, reflexiones estratégicas y aprendizajes sobre modernización, cloud, lakehouse y arquitectura empresarial.</p>
+              <div class="content-tags"><span>Todos</span><span>Data Architecture</span><span>Cloud &amp; Lakehouse</span><span>Modernization</span><span>LinkedIn Post</span></div>
+            </div>
+          </div>
+        </article>
+        <div class="insight-grid" style="margin-top:1rem;">
+          <article class="card featured"><div class="meta"><span class="pill">Artículo destacado</span> Data Architecture · Próximamente</div><h3 style="margin-top:1rem;">Cómo evaluar una arquitectura de datos antes de modernizar una plataforma</h3><p>Un ejemplo de contenido profundo para explicar assessment, arquitectura objetivo, riesgos y costos antes de iniciar una transformación.</p><a href="#">Leer artículo completo</a></article>
+          <div class="mini-grid">
+            <article class="card mini-card"><div class="meta"><span class="pill">Publicación</span> LinkedIn Post</div><h3 style="margin-top:1rem;">Reflexiones breves sobre modernización y cloud</h3><p>Contenido ejecutivo y corto para compartir puntos de vista y aprendizajes.</p><a href="#">Ver publicación</a></article>
+            <article class="card mini-card"><div class="meta"><span class="pill">Artículo</span> Cloud &amp; Lakehouse</div><h3 style="margin-top:1rem;">Buenas prácticas para plataformas modernas</h3><p>Una pieza enfocada en decisiones de diseño y escalabilidad real.</p><a href="#">Leer artículo</a></article>
+            <article class="card mini-card"><div class="meta"><span class="pill">Artículo</span> Modernization</div><h3 style="margin-top:1rem;">Cuándo modernizar y cuándo rediseñar completo</h3><p>Diferenciar mejoras incrementales de transformaciones de mayor impacto.</p><a href="#">Leer artículo</a></article>
+            <article class="card mini-card"><div class="meta"><span class="pill">Publicación</span> LinkedIn Post</div><h3 style="margin-top:1rem;">Señales de que tu ecosistema necesita assessment</h3><p>Ideas concretas para detectar deuda técnica y problemas de escalabilidad.</p><a href="#">Ver publicación</a></article>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="contact">
+      <div class="wrap">
+        <div class="contact-card">
+          <div class="eyebrow">Contacto</div>
+          <h2>Conversemos sobre tu arquitectura de datos</h2>
+          <p>Si tu organización está evaluando modernizar su plataforma o necesita claridad arquitectónica, podemos empezar con una conversación simple y concreta.</p>
+          <div class="contact-actions">
+            <a class="button" href="mailto:contact@example.com">Agendar conversación</a>
+            <a class="button-whatsapp" href="https://wa.me/5490000000000?text=Hola%20Martin%2C%20vi%20tu%20pagina%20web%20y%20me%20gustaria%20conversar%20sobre%20arquitectura%20de%20datos%20para%20mi%20organizacion." target="_blank" rel="noopener noreferrer">Contactar por WhatsApp</a>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <a class="floating" href="https://wa.me/5490000000000?text=Hola%20Martin%2C%20vi%20tu%20pagina%20web%20y%20me%20gustaria%20conversar%20sobre%20arquitectura%20de%20datos%20para%20mi%20organizacion." target="_blank" rel="noopener noreferrer" aria-label="Contactar por WhatsApp"><span>W</span><span>WhatsApp</span></a>
+</body>
+</html>
