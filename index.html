@@ -103,12 +103,14 @@
     .service-list { margin:0; padding:0; list-style:none; display:grid; gap:.85rem; } .service-list li { position:relative; padding-left:1.15rem; color:#d5dde9; } .service-list li::before { content:""; position:absolute; left:0; top:.66rem; width:.42rem; height:.42rem; border-radius:999px; background:linear-gradient(135deg,var(--accent),var(--accent2)); }
     .service-card { height:100%; }
     .content-card img { margin-top:1.2rem; border-radius:22px; border:1px solid rgba(255,255,255,.08); } .contact-card { background:radial-gradient(circle at 15% 10%, rgba(63,224,181,.18), transparent 25%),linear-gradient(135deg, rgba(18,35,53,.98), rgba(11,21,35,.96)); } #contact .contact-grid { grid-template-columns:1fr; }
+    .about-card { margin-top:1.25rem; padding:1.5rem; border:1px solid rgba(255,255,255,.08); border-radius:24px; background:linear-gradient(135deg, rgba(255,255,255,.05), rgba(255,255,255,.03)); }
+    .about-card h3 { margin-bottom:.85rem; }
     .blog-placeholder { border:1px dashed rgba(120,215,255,.28); border-radius:22px; padding:1.4rem; background:rgba(255,255,255,.03); }
     .blog-placeholder strong { display:block; margin-bottom:.45rem; color:#eef6ff; font-size:1.05rem; }
     .mobile-panel { display:none !important; padding:0 0 1rem; } .mobile-panel nav { display:grid; gap:.5rem; padding-top:.5rem; } .mobile-panel a { padding:.85rem 1rem; border-radius:16px; background:rgba(255,255,255,.04); border:1px solid rgba(255,255,255,.06); }
     .site-footer { padding:1.6rem 0 2.5rem; border-top:1px solid rgba(255,255,255,.06); } .footer-grid { grid-template-columns:1fr auto; align-items:center; } .footer-links { justify-content:flex-end; color:#cfdae8; }
     .floating-contact { position:fixed; right:1.5rem; bottom:1.5rem; z-index:20; display:flex; flex-direction:column; align-items:flex-end; gap:.7rem; }
-    .floating-trigger { gap:.7rem; background:linear-gradient(135deg,#1ccf90 0%,#0ea86f 100%); color:#fff; border-color:rgba(255,255,255,.16); box-shadow:0 18px 40px rgba(13,81,57,.35); cursor:pointer; }
+    .floating-trigger { gap:.7rem; background:rgba(255,255,255,.08); color:#eef6ff; border-color:rgba(120,215,255,.28); box-shadow:0 18px 40px rgba(4,11,22,.35); cursor:pointer; backdrop-filter:blur(12px); }
     .floating-panel { display:none; flex-direction:column; gap:.55rem; padding:.75rem; border-radius:22px; border:1px solid rgba(255,255,255,.1); background:rgba(8,18,31,.94); box-shadow:0 18px 40px rgba(0,0,0,.28); min-width:220px; }
     .floating-contact[data-open="true"] .floating-panel { display:flex; }
     .floating-link { justify-content:flex-start; gap:.7rem; min-height:44px; padding:.8rem 1rem; border-color:rgba(255,255,255,.1); background:rgba(255,255,255,.04); color:#eef6ff; }
@@ -211,6 +213,12 @@
               </div>
             </div>
           </div>
+          <div class="about-card">
+            <div class="eyebrow">Mi perfil</div>
+            <h3>Martin Duarte, consultor en arquitectura de datos</h3>
+            <p>Como Enterprise Data Architect y consultor de plataformas de datos, me especializo en el diseno, modernizacion y optimizacion de arquitecturas de datos empresariales, con foco en plataformas cloud, arquitecturas Lakehouse y estrategias de eficiencia operativa y costos.</p>
+            <p class="lead">Trabajo con organizaciones de servicios financieros, retail, energia y fintech para ayudarlas a ganar escalabilidad, eficiencia y mas valor de negocio a partir de decisiones arquitectonicas claras. A lo largo de mi trayectoria lidere evaluaciones de arquitectura, automatizacion de procesos de ingenieria de datos con IA y optimizacion de costos en entornos cloud, siempre con un enfoque colaborativo y orientado a resultados.</p>
+          </div>
         </div>
         <aside class="hero-card" aria-label="Resumen de propuesta">
           <div class="eyebrow">Donde suelo aportar mas valor</div>
@@ -223,10 +231,10 @@
     <section id="trust">
       <div class="wrap">
         <div class="eyebrow">Por que trabajar conmigo</div>
-        <h2>Direccion arquitectonica para empresas que necesitan claridad antes de escalar</h2>
+        <h2>Claridad tecnica para decidir mejor y ejecutar con menos friccion</h2>
         <div class="trust-grid" style="margin-top:1rem;">
-          <article class="trust-card"><h3>Lo que aporto</h3><p class="lead">Combino criterio tecnico, priorizacion ejecutiva y una mirada de evolucion de plataforma para evitar inversiones desordenadas.</p><div class="micro-list"><span class="tag">Assessment</span><span class="tag">Blueprint</span><span class="tag">Roadmap</span><span class="tag">Decision support</span><span class="tag">Acompanamiento fractional</span></div></article>
-          <article class="trust-card"><h3>Contextos donde agrego valor</h3><p class="lead">Trabajo sobre arquitectura de datos, cloud y analitica avanzada en escenarios donde hay que equilibrar urgencia, escalabilidad y simplicidad operativa.</p><div class="micro-list"><span class="tag">AWS y Azure</span><span class="tag">Databricks y Snowflake</span><span class="tag">Lakehouse</span><span class="tag">Pipelines y ETL</span><span class="tag">Modernizacion de data warehouse</span></div></article>
+          <article class="trust-card"><h3>Lo que aporto</h3><p class="lead">Traduzco complejidad tecnica en una hoja de ruta clara para negocio y tecnologia.</p><div class="micro-list"><span class="tag">Assessment</span><span class="tag">Blueprint</span><span class="tag">Roadmap</span><span class="tag">Decision support</span></div></article>
+          <article class="trust-card"><h3>Donde suelo ayudar mas</h3><p class="lead">En plataformas con costos altos, integraciones fragiles o crecimiento sin una arquitectura clara.</p><div class="micro-list"><span class="tag">Cloud</span><span class="tag">Data Platform</span><span class="tag">ETL</span><span class="tag">Modernizacion</span></div></article>
         </div>
       </div>
     </section>
