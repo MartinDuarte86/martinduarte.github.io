@@ -58,7 +58,7 @@
     .skip-link { position:absolute; left:1rem; top:-3rem; z-index:50; padding:.8rem 1rem; border-radius:999px; background:#fff; color:#08121f; font-weight:700; } .skip-link:focus { top:1rem; }
     .wrap { width:min(calc(100% - 2rem), var(--max)); margin:0 auto; } .eyebrow,.meta { text-transform:uppercase; letter-spacing:.18em; font-size:.75rem; color:var(--accent); }
     .site-header { position:sticky; top:0; z-index:30; backdrop-filter:blur(18px); background:rgba(7,17,31,.72); border-bottom:1px solid rgba(255,255,255,.06); } .site-header .wrap { display:flex; align-items:center; justify-content:space-between; gap:1rem; padding:1rem 0; }
-    .brand { display:flex; flex-direction:column; gap:.15rem; } .brand span,.nav { color:#cfdae8; } .nav,.hero-actions,.proof-row,.micro-list,.contact-actions,.footer-links { display:flex; flex-wrap:wrap; gap:.75rem; } .nav { gap:1.25rem; }
+    .brand { display:flex; flex-direction:column; gap:.15rem; } .brand span,.nav { color:#cfdae8; } .nav,.hero-actions,.proof-row,.micro-list,.contact-actions,.footer-links,.stack-strip { display:flex; flex-wrap:wrap; gap:.75rem; } .nav { gap:1.25rem; }
     .button,.button-secondary,.button-soft,.menu-button,.floating { display:inline-flex; align-items:center; justify-content:center; min-height:48px; padding:.85rem 1.3rem; border-radius:999px; font-weight:600; border:1px solid transparent; transition:transform 180ms ease; }
     .button:hover,.button-secondary:hover,.button-soft:hover,.menu-button:hover,.floating:hover { transform:translateY(-1px); } .button { color:#08121f; background:linear-gradient(135deg,#fff 0%,#d8ecff 100%); } .button-secondary { border-color:rgba(255,255,255,.18); background:rgba(255,255,255,.03); } .button-soft { border-color:rgba(63,224,181,.28); background:rgba(63,224,181,.1); color:#d8fff4; }
     .menu-button { display:none; width:48px; padding:0; background:rgba(255,255,255,.04); border-color:rgba(255,255,255,.12); color:var(--text); } a:focus-visible,button:focus-visible { outline:3px solid rgba(120,215,255,.65); outline-offset:3px; }
@@ -73,6 +73,17 @@
     .metric strong { font-size:2rem; line-height:1; }
     .metric span { color:#d4e6f7; line-height:1.4; }
     .proof-item,.contact-rail,.resource-card,.trust-card,.service-card,.result-card,.case-card,.content-card { border:1px solid rgba(255,255,255,.08); border-radius:22px; background:rgba(255,255,255,.04); } .proof-row { margin-top:1.2rem; } .proof-item { flex:1 1 160px; min-width:0; padding:1rem; }
+    .stack-intro { margin-top:1.4rem; }
+    .stack-strip { align-items:center; gap:.85rem; margin-top:.9rem; }
+    .stack-item { display:inline-flex; align-items:center; gap:.7rem; padding:.72rem .95rem; border-radius:18px; border:1px solid rgba(255,255,255,.1); background:rgba(255,255,255,.04); color:#dbe8f5; }
+    .stack-icon { width:2rem; height:2rem; display:inline-flex; align-items:center; justify-content:center; border-radius:12px; font-size:.72rem; font-weight:700; letter-spacing:.06em; color:#07111f; }
+    .stack-label { font-size:.86rem; letter-spacing:.06em; text-transform:uppercase; }
+    .stack-icon.aws { background:#ffb866; }
+    .stack-icon.azure { background:#7ed4ff; }
+    .stack-icon.databricks { background:#ff8b78; }
+    .stack-icon.snowflake { background:#7ee7ff; }
+    .stack-icon.python { background:#ffe082; }
+    .stack-icon.node { background:#8ee08c; }
     .case-card { display:flex; flex-direction:column; gap:.8rem; }
     .case-actions { margin-top:1rem; }
     .case-tech { display:flex; flex-wrap:wrap; gap:.55rem; margin-top:auto; padding-top:1rem; border-top:1px solid rgba(255,255,255,.08); }
@@ -132,6 +143,17 @@
             <div class="proof-item"><strong>De diagnostico a roadmap</strong><p>Transformo problemas difusos de plataforma en decisiones claras.</p></div>
             <div class="proof-item"><strong>Lenguaje tecnico y de negocio</strong><p>Traduzco complejidad para liderazgo y equipos.</p></div>
             <div class="proof-item"><strong>Foco en evolucion real</strong><p>Priorizo impacto, factibilidad y adopcion progresiva.</p></div>
+          </div>
+          <div class="stack-intro">
+            <div class="eyebrow">Tecnologias con las que trabajo</div>
+            <div class="stack-strip" aria-label="Tecnologias principales">
+              <span class="stack-item"><span class="stack-icon aws" aria-hidden="true">AWS</span><span class="stack-label">AWS</span></span>
+              <span class="stack-item"><span class="stack-icon azure" aria-hidden="true">AZ</span><span class="stack-label">Azure</span></span>
+              <span class="stack-item"><span class="stack-icon databricks" aria-hidden="true">DBX</span><span class="stack-label">Databricks</span></span>
+              <span class="stack-item"><span class="stack-icon snowflake" aria-hidden="true">SNW</span><span class="stack-label">Snowflake</span></span>
+              <span class="stack-item"><span class="stack-icon python" aria-hidden="true">PY</span><span class="stack-label">Python</span></span>
+              <span class="stack-item"><span class="stack-icon node" aria-hidden="true">ND</span><span class="stack-label">Node.js</span></span>
+            </div>
           </div>
         </div>
         <aside class="hero-card" aria-label="Resumen de propuesta">
