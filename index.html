@@ -59,8 +59,8 @@
     .wrap { width:min(calc(100% - 2rem), var(--max)); margin:0 auto; } .eyebrow,.meta { text-transform:uppercase; letter-spacing:.18em; font-size:.75rem; color:var(--accent); }
     .site-header { position:sticky; top:0; z-index:30; backdrop-filter:blur(18px); background:rgba(7,17,31,.72); border-bottom:1px solid rgba(255,255,255,.06); } .site-header .wrap { display:flex; align-items:center; justify-content:space-between; gap:1rem; padding:1rem 0; }
     .brand { display:flex; flex-direction:column; gap:.15rem; } .brand span,.nav { color:#cfdae8; } .nav,.hero-actions,.proof-row,.micro-list,.contact-actions,.footer-links,.stack-strip,.profile-tag-row { display:flex; flex-wrap:wrap; gap:.75rem; } .nav { gap:1.25rem; }
-    .button,.button-secondary,.button-soft,.menu-button,.floating { display:inline-flex; align-items:center; justify-content:center; min-height:48px; padding:.85rem 1.3rem; border-radius:999px; font-weight:600; border:1px solid transparent; transition:transform 180ms ease; }
-    .button:hover,.button-secondary:hover,.button-soft:hover,.menu-button:hover,.floating:hover { transform:translateY(-1px); } .button { color:#08121f; background:linear-gradient(135deg,#fff 0%,#d8ecff 100%); } .button-secondary { border-color:rgba(255,255,255,.18); background:rgba(255,255,255,.03); } .button-soft { border-color:rgba(63,224,181,.28); background:rgba(63,224,181,.1); color:#d8fff4; }
+    .button,.button-secondary,.button-soft,.menu-button,.floating-trigger,.floating-link { display:inline-flex; align-items:center; justify-content:center; min-height:48px; padding:.85rem 1.3rem; border-radius:999px; font-weight:600; border:1px solid transparent; transition:transform 180ms ease; }
+    .button:hover,.button-secondary:hover,.button-soft:hover,.menu-button:hover,.floating-trigger:hover,.floating-link:hover { transform:translateY(-1px); } .button { color:#08121f; background:linear-gradient(135deg,#fff 0%,#d8ecff 100%); } .button-secondary { border-color:rgba(255,255,255,.18); background:rgba(255,255,255,.03); } .button-soft { border-color:rgba(63,224,181,.28); background:rgba(63,224,181,.1); color:#d8fff4; }
     .menu-button { display:none; width:48px; padding:0; background:rgba(255,255,255,.04); border-color:rgba(255,255,255,.12); color:var(--text); } a:focus-visible,button:focus-visible { outline:3px solid rgba(120,215,255,.65); outline-offset:3px; }
     section { padding:4.5rem 0; } .hero { padding:5.5rem 0 3.6rem; } .hero-grid,.trust-grid,.service-grid,.results-grid,.case-grid,.content-grid,.contact-grid,.footer-grid { display:grid; gap:1rem; } .hero-grid { grid-template-columns:minmax(0,1.08fr) minmax(320px,.92fr); align-items:start; gap:1.5rem; }
     h1 { margin:0; font-size:clamp(3rem,8vw,5.4rem); line-height:.94; } h2 { margin:.35rem 0 0; font-size:clamp(2rem,4vw,3.3rem); } h3 { margin:0; font-size:1.4rem; } .lead { margin-top:1rem; font-size:1.05rem; max-width:44rem; }
@@ -107,10 +107,16 @@
     .blog-placeholder strong { display:block; margin-bottom:.45rem; color:#eef6ff; font-size:1.05rem; }
     .mobile-panel { display:none !important; padding:0 0 1rem; } .mobile-panel nav { display:grid; gap:.5rem; padding-top:.5rem; } .mobile-panel a { padding:.85rem 1rem; border-radius:16px; background:rgba(255,255,255,.04); border:1px solid rgba(255,255,255,.06); }
     .site-footer { padding:1.6rem 0 2.5rem; border-top:1px solid rgba(255,255,255,.06); } .footer-grid { grid-template-columns:1fr auto; align-items:center; } .footer-links { justify-content:flex-end; color:#cfdae8; }
-    .floating { position:fixed; right:1.5rem; bottom:1.5rem; z-index:20; gap:.7rem; background:linear-gradient(135deg,#1ccf90 0%,#0ea86f 100%); color:#fff; border-color:rgba(255,255,255,.16); box-shadow:0 18px 40px rgba(13,81,57,.35); }
+    .floating-contact { position:fixed; right:1.5rem; bottom:1.5rem; z-index:20; display:flex; flex-direction:column; align-items:flex-end; gap:.7rem; }
+    .floating-trigger { gap:.7rem; background:linear-gradient(135deg,#1ccf90 0%,#0ea86f 100%); color:#fff; border-color:rgba(255,255,255,.16); box-shadow:0 18px 40px rgba(13,81,57,.35); cursor:pointer; }
+    .floating-panel { display:none; flex-direction:column; gap:.55rem; padding:.75rem; border-radius:22px; border:1px solid rgba(255,255,255,.1); background:rgba(8,18,31,.94); box-shadow:0 18px 40px rgba(0,0,0,.28); min-width:220px; }
+    .floating-contact[data-open="true"] .floating-panel { display:flex; }
+    .floating-link { justify-content:flex-start; gap:.7rem; min-height:44px; padding:.8rem 1rem; border-color:rgba(255,255,255,.1); background:rgba(255,255,255,.04); color:#eef6ff; }
+    .floating-link strong { font-size:.95rem; }
+    .floating-emoji { font-size:1rem; line-height:1; }
     @media (max-width:1120px) { .hero-grid,.trust-grid,.service-grid,.results-grid,.case-grid,.content-grid,.contact-grid,.footer-grid,.stack-strip,.logo-grid { grid-template-columns:1fr; } .hero-card { width:100%; justify-self:stretch; } }
     @media (max-width:860px) { .nav,.header-link { display:none; } .menu-button { display:inline-flex; } .mobile-panel[data-open="true"] { display:block !important; } }
-    @media (max-width:640px) { .wrap { width:min(calc(100% - 1.2rem), var(--max)); } h1 { font-size:clamp(2.7rem,15vw,4.2rem); } .floating span:last-child { display:none; } }
+    @media (max-width:640px) { .wrap { width:min(calc(100% - 1.2rem), var(--max)); } h1 { font-size:clamp(2.7rem,15vw,4.2rem); } .floating-trigger span:last-child { display:none; } .floating-panel { min-width:190px; } }
   </style>
 </head>
 <body>
@@ -122,22 +128,24 @@
         <span>Consultor en Arquitectura de Datos</span>
       </div>
       <nav class="nav" aria-label="Navegacion principal">
-        <a href="#services">Servicios</a>
         <a href="#trust">Por que trabajar conmigo</a>
-        <a href="#cases">Casos</a>
+        <a href="#services">Servicios</a>
+        <a href="#results">Resultados esperables</a>
+        <a href="#cases">Casos de uso</a>
         <a href="#blog">Blog</a>
-        <a href="https://wa.me/541124851496?text=Hola%20Martin%2C%20vi%20tu%20web%20y%20me%20gustaria%20conversar%20sobre%20arquitectura%20de%20datos." target="_blank" rel="noopener noreferrer">WhatsApp</a>
+        <a href="#contact">Contacto</a>
       </nav>
       <a class="button-secondary header-link" href="https://calendly.com/martynduarte/sample-30min" target="_blank" rel="noopener noreferrer">Reservar reunion</a>
       <button class="menu-button" type="button" aria-expanded="false" aria-controls="mobile-nav" aria-label="Abrir menu"><span aria-hidden="true">+</span></button>
     </div>
     <div class="wrap mobile-panel" id="mobile-nav" data-open="false">
       <nav aria-label="Navegacion movil">
-        <a href="#services">Servicios</a>
         <a href="#trust">Por que trabajar conmigo</a>
-        <a href="#cases">Casos</a>
+        <a href="#services">Servicios</a>
+        <a href="#results">Resultados esperables</a>
+        <a href="#cases">Casos de uso</a>
         <a href="#blog">Blog</a>
-        <a href="https://wa.me/541124851496?text=Hola%20Martin%2C%20vi%20tu%20web%20y%20me%20gustaria%20conversar%20sobre%20arquitectura%20de%20datos." target="_blank" rel="noopener noreferrer">WhatsApp</a>
+        <a href="#contact">Contacto</a>
         <a href="https://calendly.com/martynduarte/sample-30min" target="_blank" rel="noopener noreferrer">Reservar reunion</a>
       </nav>
     </div>
@@ -235,7 +243,7 @@
         </div>
       </div>
     </section>
-    <section>
+    <section id="results">
       <div class="wrap">
         <div class="eyebrow">Resultados esperables</div>
         <h2>Lo que suele cambiar cuando la arquitectura deja de ser un freno</h2>
@@ -288,13 +296,22 @@
   <footer class="site-footer">
     <div class="wrap footer-grid">
       <p>Martin Duarte | Arquitectura de datos, modernizacion de plataformas y decisiones de arquitectura con foco en negocio.</p>
-      <div class="footer-links"><a href="#services">Servicios</a><a href="#cases">Casos</a><a href="#blog">Blog</a><a href="#contact">Contacto</a></div>
+      <div class="footer-links"><a href="#trust">Por que trabajar conmigo</a><a href="#services">Servicios</a><a href="#results">Resultados</a><a href="#cases">Casos</a><a href="#blog">Blog</a><a href="#contact">Contacto</a></div>
     </div>
   </footer>
-  <a class="floating" href="https://wa.me/541124851496?text=Hola%20Martin%2C%20vi%20tu%20web%20y%20me%20gustaria%20conversar%20sobre%20arquitectura%20de%20datos." target="_blank" rel="noopener noreferrer" aria-label="Contactar por WhatsApp"><span>WA</span><span>WhatsApp</span></a>
+  <div class="floating-contact" data-open="false">
+    <div class="floating-panel" aria-label="Opciones de contacto">
+      <a class="floating-link" href="https://wa.me/541124851496?text=Hola%20Martin%2C%20vi%20tu%20web%20y%20me%20gustaria%20conversar%20sobre%20arquitectura%20de%20datos." target="_blank" rel="noopener noreferrer"><span class="floating-emoji" aria-hidden="true">&#128172;</span><strong>Escribirme por WhatsApp</strong></a>
+      <a class="floating-link" href="https://www.linkedin.com/in/martinduarte/" target="_blank" rel="noopener noreferrer"><span class="floating-emoji" aria-hidden="true">in</span><strong>LinkedIn</strong></a>
+      <a class="floating-link" href="https://calendly.com/martynduarte/sample-30min" target="_blank" rel="noopener noreferrer"><span class="floating-emoji" aria-hidden="true">&#128197;</span><strong>Reservar reunion</strong></a>
+    </div>
+    <button class="floating-trigger" type="button" aria-expanded="false" aria-label="Abrir opciones de contacto"><span aria-hidden="true">&#128172;</span><span>Contactame</span></button>
+  </div>
   <script>
     const menuButton = document.querySelector(".menu-button");
     const mobilePanel = document.getElementById("mobile-nav");
+    const floatingContact = document.querySelector(".floating-contact");
+    const floatingTrigger = document.querySelector(".floating-trigger");
     if (menuButton && mobilePanel) {
       menuButton.addEventListener("click", () => {
         const isOpen = menuButton.getAttribute("aria-expanded") === "true";
@@ -308,6 +325,19 @@
           menuButton.innerHTML = "<span aria-hidden=\"true\">+</span>";
           mobilePanel.setAttribute("data-open", "false");
         });
+      });
+    }
+    if (floatingContact && floatingTrigger) {
+      floatingTrigger.addEventListener("click", () => {
+        const isOpen = floatingContact.getAttribute("data-open") === "true";
+        floatingContact.setAttribute("data-open", String(!isOpen));
+        floatingTrigger.setAttribute("aria-expanded", String(!isOpen));
+      });
+      document.addEventListener("click", (event) => {
+        if (!floatingContact.contains(event.target)) {
+          floatingContact.setAttribute("data-open", "false");
+          floatingTrigger.setAttribute("aria-expanded", "false");
+        }
       });
     }
   </script>
