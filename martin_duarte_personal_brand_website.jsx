@@ -23,6 +23,17 @@ export default function MartinDuarteWebsite() {
       ],
     },
     {
+      title: "Estrategia de plataforma de datos",
+      description:
+        "Defino la estrategia de plataforma para alinear tecnologia, integraciones y modelo operativo.",
+      bullets: [
+        "Seleccion de tecnologias",
+        "Estrategia de integracion",
+        "Modelo operativo",
+        "Capacidades prioritarias",
+      ],
+    },
+    {
       title: "Roadmap de modernizacion",
       description:
         "Plan accionable, por etapas, para evolucionar la plataforma sin detener la operacion.",
@@ -43,6 +54,36 @@ export default function MartinDuarteWebsite() {
         "Alineacion con negocio",
         "Evolucion de arquitectura",
       ],
+    },
+  ];
+
+  const cases = [
+    {
+      title: "Modernizacion de plataforma heredada",
+      problem: "Base historica costosa y dificil de escalar.",
+      intervention: "Assessment, arquitectura objetivo y roadmap.",
+      outcome: "Menos riesgo tecnico y mejor visibilidad de prioridades.",
+    },
+    {
+      title: "Plataforma que crecio sin estandar",
+      problem: "Pipelines e integraciones acumuladas sin una arquitectura coherente.",
+      intervention: "Ordenamiento de componentes y modelo operativo.",
+      outcome: "Menos complejidad y decisiones tecnicas mas consistentes.",
+    },
+    {
+      title: "Base insuficiente para analitica avanzada",
+      problem: "El negocio quiere acelerar IA o analitica sin una base madura.",
+      intervention: "Evaluacion de brechas y priorizacion de capacidades.",
+      outcome: "Hoja de ruta mas solida antes de nuevas inversiones.",
+    },
+    {
+      title: "Plataforma de gastos personales",
+      problem:
+        "Construir una aplicacion clara para registrar, ordenar y analizar gastos personales sin friccion.",
+      intervention:
+        "Diseno de una plataforma enfocada en estructura de datos, categorias y una base preparada para evolucionar funcionalidades financieras.",
+      outcome:
+        "Una experiencia simple para el usuario final y una arquitectura mas ordenada para seguir escalando el producto.",
     },
   ];
 
@@ -109,6 +150,20 @@ export default function MartinDuarteWebsite() {
               </article>
             ))}
           </div>
+        </section>
+
+        <section className="grid gap-4 lg:grid-cols-2 xl:grid-cols-4">
+          {cases.map((item) => (
+            <article key={item.title} className="rounded-[28px] border border-white/10 bg-white/5 p-8">
+              <h3 className="font-['Space_Grotesk'] text-2xl">{item.title}</h3>
+              <p className="mt-4 text-sm font-semibold text-white">Problema</p>
+              <p className="mt-1 text-slate-300">{item.problem}</p>
+              <p className="mt-4 text-sm font-semibold text-white">Intervencion</p>
+              <p className="mt-1 text-slate-300">{item.intervention}</p>
+              <p className="mt-4 text-sm font-semibold text-white">Resultado esperado</p>
+              <p className="mt-1 text-slate-300">{item.outcome}</p>
+            </article>
+          ))}
         </section>
       </main>
     </div>
