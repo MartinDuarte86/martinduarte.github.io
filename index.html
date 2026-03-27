@@ -97,7 +97,9 @@
     .trust-grid,.contact-grid { grid-template-columns:1fr 1fr; } .service-grid { grid-template-columns:repeat(2,minmax(0,1fr)); align-items:stretch; } .results-grid,.case-grid { grid-template-columns:repeat(3,minmax(0,1fr)); } .content-grid { grid-template-columns:1.08fr .92fr; } .resource-list { display:grid; gap:1rem; }
     .service-list { margin:0; padding:0; list-style:none; display:grid; gap:.85rem; } .service-list li { position:relative; padding-left:1.15rem; color:#d5dde9; } .service-list li::before { content:""; position:absolute; left:0; top:.66rem; width:.42rem; height:.42rem; border-radius:999px; background:linear-gradient(135deg,var(--accent),var(--accent2)); }
     .service-card { height:100%; }
-    .content-card img { margin-top:1.2rem; border-radius:22px; border:1px solid rgba(255,255,255,.08); } .contact-card { background:radial-gradient(circle at 15% 10%, rgba(63,224,181,.18), transparent 25%),linear-gradient(135deg, rgba(18,35,53,.98), rgba(11,21,35,.96)); }
+    .content-card img { margin-top:1.2rem; border-radius:22px; border:1px solid rgba(255,255,255,.08); } .contact-card { background:radial-gradient(circle at 15% 10%, rgba(63,224,181,.18), transparent 25%),linear-gradient(135deg, rgba(18,35,53,.98), rgba(11,21,35,.96)); } #contact .contact-grid { grid-template-columns:1fr; }
+    .blog-placeholder { border:1px dashed rgba(120,215,255,.28); border-radius:22px; padding:1.4rem; background:rgba(255,255,255,.03); }
+    .blog-placeholder strong { display:block; margin-bottom:.45rem; color:#eef6ff; font-size:1.05rem; }
     .mobile-panel { display:none !important; padding:0 0 1rem; } .mobile-panel nav { display:grid; gap:.5rem; padding-top:.5rem; } .mobile-panel a { padding:.85rem 1rem; border-radius:16px; background:rgba(255,255,255,.04); border:1px solid rgba(255,255,255,.06); }
     .site-footer { padding:1.6rem 0 2.5rem; border-top:1px solid rgba(255,255,255,.06); } .footer-grid { grid-template-columns:1fr auto; align-items:center; } .footer-links { justify-content:flex-end; color:#cfdae8; }
     .floating { position:fixed; right:1.5rem; bottom:1.5rem; z-index:20; gap:.7rem; background:linear-gradient(135deg,#1ccf90 0%,#0ea86f 100%); color:#fff; border-color:rgba(255,255,255,.16); box-shadow:0 18px 40px rgba(13,81,57,.35); }
@@ -118,10 +120,10 @@
         <a href="#services">Servicios</a>
         <a href="#trust">Por que trabajar conmigo</a>
         <a href="#cases">Casos</a>
-        <a href="#insights">Contenido</a>
-        <a href="#contact">Contacto</a>
+        <a href="#blog">Blog</a>
+        <a href="https://wa.me/541124851496?text=Hola%20Martin%2C%20vi%20tu%20web%20y%20me%20gustaria%20conversar%20sobre%20arquitectura%20de%20datos." target="_blank" rel="noopener noreferrer">WhatsApp</a>
       </nav>
-      <a class="button-secondary header-link" href="https://www.linkedin.com/in/martinduarte/" target="_blank" rel="noopener noreferrer">Ver LinkedIn</a>
+      <a class="button-secondary header-link" href="https://calendly.com/martynduarte/sample-30min" target="_blank" rel="noopener noreferrer">Reservar reunion</a>
       <button class="menu-button" type="button" aria-expanded="false" aria-controls="mobile-nav" aria-label="Abrir menu"><span aria-hidden="true">+</span></button>
     </div>
     <div class="wrap mobile-panel" id="mobile-nav" data-open="false">
@@ -129,8 +131,9 @@
         <a href="#services">Servicios</a>
         <a href="#trust">Por que trabajar conmigo</a>
         <a href="#cases">Casos</a>
-        <a href="#insights">Contenido</a>
-        <a href="#contact">Contacto</a>
+        <a href="#blog">Blog</a>
+        <a href="https://wa.me/541124851496?text=Hola%20Martin%2C%20vi%20tu%20web%20y%20me%20gustaria%20conversar%20sobre%20arquitectura%20de%20datos." target="_blank" rel="noopener noreferrer">WhatsApp</a>
+        <a href="https://calendly.com/martynduarte/sample-30min" target="_blank" rel="noopener noreferrer">Reservar reunion</a>
       </nav>
     </div>
   </header>
@@ -253,12 +256,12 @@
         </div>
       </div>
     </section>
-    <section id="insights">
+    <section id="blog">
       <div class="wrap">
-        <div class="eyebrow">Contenido</div>
-        <h2>Contenido pensado para generar confianza antes de la primera conversacion</h2>
+        <div class="eyebrow">Blog</div>
+        <h2>Contenido para compartir criterio, casos y aprendizajes de arquitectura</h2>
         <div class="content-grid" style="margin-top:1rem;">
-          <article class="content-card"><div class="pill">Publicacion destacada</div><h3>Arquitectura de datos: de diagnostico a roadmap</h3><p class="lead">Una sintesis visual de como convierto un assessment inicial en una arquitectura objetivo y un plan de evolucion entendible para negocio y tecnologia.</p><a class="button" href="https://www.linkedin.com/in/martinduarte/" target="_blank" rel="noopener noreferrer">Ver publicaciones en LinkedIn</a><img src="Post%20Linkedln/14-03-2026.png" alt="Preview de una publicacion de Martin Duarte sobre arquitectura de datos" loading="lazy" /></article>
+          <article class="content-card"><div class="pill">En construccion</div><h3>Muy pronto vas a encontrar articulos y puntos de vista sobre arquitectura</h3><p class="lead">Esta seccion va a reunir publicaciones sobre modernizacion de plataformas, decisiones de arquitectura, cloud, gobierno de datos y aprendizajes de proyectos reales.</p><div class="blog-placeholder"><strong>Proximo contenido</strong><p>Analisis de arquitectura, frameworks de decision, casos de uso, buenas practicas y criterios para modernizar sin sumar complejidad.</p></div><a class="button" href="https://www.linkedin.com/in/martinduarte/" target="_blank" rel="noopener noreferrer">Ver publicaciones en LinkedIn</a></article>
           <div class="resource-list">
             <article class="resource-card"><div class="pill">Tema 01</div><h3>Como evaluar una arquitectura antes de modernizar</h3><p>Que conviene revisar primero para no saltar directo a herramientas o migraciones.</p></article>
             <article class="resource-card"><div class="pill">Tema 02</div><h3>Senales de que la plataforma necesita orden</h3><p>Costo creciente, integraciones fragiles y pipelines complejos son sintomas frecuentes.</p></article>
@@ -271,8 +274,7 @@
       <div class="wrap">
         <div class="contact-card">
           <div class="contact-grid">
-            <div><div class="eyebrow">Contacto</div><h2>Si estas evaluando modernizar tu plataforma de datos, conversemos</h2><p class="lead">Podemos tener una primera conversacion simple para entender tu contexto, ordenar prioridades y ver si tiene sentido trabajar juntos en arquitectura, modernizacion o evolucion de plataforma.</p><div class="contact-actions"><a class="button" href="https://wa.me/541124851496?text=Hola%20Martin%2C%20vi%20tu%20web%20y%20me%20gustaria%20conversar%20sobre%20arquitectura%20de%20datos." target="_blank" rel="noopener noreferrer">Escribirme por WhatsApp</a><a class="button-secondary" href="https://www.linkedin.com/in/martinduarte/" target="_blank" rel="noopener noreferrer">Conectar por LinkedIn</a></div></div>
-            <aside class="contact-rail"><div class="eyebrow">Podemos conversar sobre</div><p class="lead">El estado actual de tu plataforma, una estrategia de modernizacion por etapas, la arquitectura objetivo que necesitarias o el acompanamiento arquitectonico para tomar mejores decisiones.</p></aside>
+            <div><div class="eyebrow">Contacto</div><h2>Si estas evaluando modernizar tu plataforma de datos, conversemos</h2><p class="lead">Podemos tener una primera conversacion simple para entender tu contexto, ordenar prioridades y ver si tiene sentido trabajar juntos en arquitectura, modernizacion o evolucion de plataforma.</p><div class="contact-actions"><a class="button" href="https://wa.me/541124851496?text=Hola%20Martin%2C%20vi%20tu%20web%20y%20me%20gustaria%20conversar%20sobre%20arquitectura%20de%20datos." target="_blank" rel="noopener noreferrer">Escribirme por WhatsApp</a><a class="button-secondary" href="https://www.linkedin.com/in/martinduarte/" target="_blank" rel="noopener noreferrer">Conectar por LinkedIn</a><a class="button-soft" href="https://calendly.com/martynduarte/sample-30min" target="_blank" rel="noopener noreferrer">Reservar reunion</a></div></div>
           </div>
         </div>
       </div>
@@ -280,8 +282,8 @@
   </main>
   <footer class="site-footer">
     <div class="wrap footer-grid">
-      <p>Martin Duarte · Arquitectura de datos, modernizacion de plataformas y decisiones de arquitectura con foco en negocio.</p>
-      <div class="footer-links"><a href="#services">Servicios</a><a href="#cases">Casos</a><a href="#contact">Contacto</a></div>
+      <p>Martin Duarte | Arquitectura de datos, modernizacion de plataformas y decisiones de arquitectura con foco en negocio.</p>
+      <div class="footer-links"><a href="#services">Servicios</a><a href="#cases">Casos</a><a href="#blog">Blog</a><a href="#contact">Contacto</a></div>
     </div>
   </footer>
   <a class="floating" href="https://wa.me/541124851496?text=Hola%20Martin%2C%20vi%20tu%20web%20y%20me%20gustaria%20conversar%20sobre%20arquitectura%20de%20datos." target="_blank" rel="noopener noreferrer" aria-label="Contactar por WhatsApp"><span>WA</span><span>WhatsApp</span></a>
