@@ -1,0 +1,76 @@
+%PDF-1.4
+%‚„œ”
+1 0 obj
+<< /Type /Catalog /Pages 2 0 R >>
+endobj
+2 0 obj
+<< /Type /Pages /Count 1 /Kids [3 0 R] >>
+endobj
+3 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 4 0 R /F2 5 0 R >> >> /Contents 6 0 R >>
+endobj
+4 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>
+endobj
+5 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold >>
+endobj
+6 0 obj
+<< /Length 3614 >>
+stream
+BT /F2 18 Tf 1 0 0 1 42 750 Tm (App Summary) Tj ET
+BT /F1 9 Tf 1 0 0 1 42 730 Tm (Repository-based one-page overview) Tj ET
+BT /F2 12 Tf 1 0 0 1 42 706 Tm (What It Is) Tj ET
+BT /F1 10 Tf 1 0 0 1 42 690 Tm (This repo contains an authenticated web app that combines Eisenhower-style task) Tj ET
+BT /F1 10 Tf 1 0 0 1 42 678 Tm (management with budget, expense, and investment tracking in a single interface.) Tj ET
+BT /F1 10 Tf 1 0 0 1 42 666 Tm (The frontend is served as static files, while an Express backend exposes APIs for auth,) Tj ET
+BT /F1 10 Tf 1 0 0 1 42 654 Tm (tasks, teams, expenses, investments, and budgeting.) Tj ET
+BT /F2 12 Tf 1 0 0 1 42 638 Tm (Who It's For) Tj ET
+BT /F1 10 Tf 1 0 0 1 42 622 Tm (Not found in repo. Inferred from the UI labels and data models: an individual user managing) Tj ET
+BT /F1 10 Tf 1 0 0 1 42 610 Tm (personal tasks and finances, with optional team/task assignment support.) Tj ET
+BT /F2 12 Tf 1 0 0 1 42 594 Tm (What It Does) Tj ET
+BT /F1 10 Tf 1 0 0 1 46 578 Tm (- JWT-based register/login/logout and session check endpoints.) Tj ET
+BT /F1 10 Tf 1 0 0 1 46 564 Tm (- Eisenhower-style task board with backlog, in-progress, calendar, and) Tj ET
+BT /F1 10 Tf 1 0 0 1 46 552 Tm (  completed-history views.) Tj ET
+BT /F1 10 Tf 1 0 0 1 46 538 Tm (- Task metadata such as category, due datetime, team, assignee, ordering, and) Tj ET
+BT /F1 10 Tf 1 0 0 1 46 526 Tm (  completion state.) Tj ET
+BT /F1 10 Tf 1 0 0 1 46 512 Tm (- Team creation plus member assignment for shared task coordination.) Tj ET
+BT /F1 10 Tf 1 0 0 1 46 498 Tm (- Budget module with cuentas, categorias, monthly budgets, gastos, and dashboard) Tj ET
+BT /F1 10 Tf 1 0 0 1 46 486 Tm (  summaries.) Tj ET
+BT /F1 10 Tf 1 0 0 1 46 472 Tm (- Investment module with activos, sectores, transactions, portfolio totals,) Tj ET
+BT /F1 10 Tf 1 0 0 1 46 460 Tm (  liquidity, and charts.) Tj ET
+BT /F1 10 Tf 1 0 0 1 46 446 Tm (- Health check plus a protected internal price-refresh endpoint scheduled by Vercel) Tj ET
+BT /F1 10 Tf 1 0 0 1 46 434 Tm (  cron.) Tj ET
+BT /F2 12 Tf 1 0 0 1 42 418 Tm (How It Works) Tj ET
+BT /F1 10 Tf 1 0 0 1 46 402 Tm (- UI: `public/index.html` loads `public/app.js` and component scripts, then calls) Tj ET
+BT /F1 10 Tf 1 0 0 1 46 390 Tm (  `/api/...` with `fetch` using same-origin requests and a bearer token/cookie session.) Tj ET
+BT /F1 10 Tf 1 0 0 1 46 376 Tm (- Server: `server.js` serves `public/`, validates JWT auth, and implements API routes.) Tj ET
+BT /F1 10 Tf 1 0 0 1 46 364 Tm (  `api/index.js` exports the Express app for Vercel.) Tj ET
+BT /F1 10 Tf 1 0 0 1 46 350 Tm (- Data: `database/db.js` picks SQLite locally or PostgreSQL in production. SQLite) Tj ET
+BT /F1 10 Tf 1 0 0 1 46 338 Tm (  bootstraps via `database/migrate.js`; PostgreSQL schema is represented in) Tj ET
+BT /F1 10 Tf 1 0 0 1 46 326 Tm (  `prisma/schema.prisma` and `database/postgres/001_bootstrap.sql`.) Tj ET
+BT /F1 10 Tf 1 0 0 1 46 312 Tm (- Hosting flow: `vercel.json` rewrites all paths to `api/index.js` and schedules) Tj ET
+BT /F1 10 Tf 1 0 0 1 46 300 Tm (  `/api/internal/refresh-prices` once daily.) Tj ET
+BT /F2 12 Tf 1 0 0 1 42 284 Tm (How To Run) Tj ET
+BT /F1 10 Tf 1 0 0 1 46 268 Tm (- Run `npm install`.) Tj ET
+BT /F1 10 Tf 1 0 0 1 46 254 Tm (- Create `.env` from `.env.example`.) Tj ET
+BT /F1 10 Tf 1 0 0 1 46 240 Tm (- Set at least `JWT_SECRET` \(32+ chars\). Keep `DB_DRIVER=sqlite` for the simplest local) Tj ET
+BT /F1 10 Tf 1 0 0 1 46 228 Tm (  run.) Tj ET
+BT /F1 10 Tf 1 0 0 1 46 214 Tm (- Run `npm start`.) Tj ET
+BT /F1 10 Tf 1 0 0 1 46 200 Tm (- Open `http://localhost:3010`.) Tj ET
+endstream
+endobj
+xref
+0 7
+0000000000 65535 f 
+0000000015 00000 n 
+0000000064 00000 n 
+0000000121 00000 n 
+0000000257 00000 n 
+0000000327 00000 n 
+0000000402 00000 n 
+trailer
+<< /Size 7 /Root 1 0 R >>
+startxref
+4068
+%%EOF
