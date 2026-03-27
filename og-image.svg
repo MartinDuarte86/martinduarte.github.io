@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" role="img" aria-label="Martin Duarte">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#08121f"/>
+      <stop offset="100%" stop-color="#050b15"/>
+    </linearGradient>
+    <linearGradient id="line" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#78d7ff"/>
+      <stop offset="100%" stop-color="#3fe0b5"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="630" fill="url(#bg)"/>
+  <circle cx="970" cy="120" r="180" fill="#78d7ff" opacity="0.12"/>
+  <circle cx="180" cy="90" r="140" fill="#3fe0b5" opacity="0.12"/>
+  <rect x="78" y="82" width="1044" height="466" rx="28" fill="#0b1729" stroke="#ffffff" stroke-opacity="0.14"/>
+  <text x="118" y="180" fill="#78d7ff" font-family="Arial, sans-serif" font-size="28" letter-spacing="6">CONSULTOR EN ARQUITECTURA DE DATOS</text>
+  <text x="118" y="286" fill="#f5f7fb" font-family="Arial, sans-serif" font-size="72" font-weight="700">Martin Duarte</text>
+  <text x="118" y="356" fill="#d3deed" font-family="Arial, sans-serif" font-size="36">Modernizacion de plataformas de datos,</text>
+  <text x="118" y="404" fill="#d3deed" font-family="Arial, sans-serif" font-size="36">arquitectura cloud y roadmaps ejecutables.</text>
+  <rect x="118" y="454" width="324" height="54" rx="27" fill="none" stroke="url(#line)" stroke-width="2"/>
+  <text x="148" y="489" fill="#f5f7fb" font-family="Arial, sans-serif" font-size="24">martinduarte.com</text>
+</svg>
