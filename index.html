@@ -1,374 +1,549 @@
-<!doctype html>
-<html lang="es">
+<!DOCTYPE html>
+<html lang="es" class="scroll-smooth">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Martin Duarte | Enterprise Data Architect</title>
-  <meta name="description" content="Martin Duarte ayuda a empresas a modernizar su plataforma de datos, reducir complejidad tecnica y definir una hoja de ruta clara para escalar." />
-  <meta name="keywords" content="arquitectura de datos, consultor arquitectura de datos, modernizacion de plataformas de datos, cloud data architecture, lakehouse" />
-  <meta name="theme-color" content="#07111f" />
-  <meta name="robots" content="index,follow" />
-  <link rel="canonical" href="https://martinduarte.com/" />
-  <meta property="og:type" content="website" />
-  <meta property="og:locale" content="es_AR" />
-  <meta property="og:site_name" content="Martin Duarte" />
-  <meta property="og:title" content="Martin Duarte | Enterprise Data Architect" />
-  <meta property="og:description" content="Arquitectura, modernizacion y roadmaps ejecutables para plataformas de datos." />
-  <meta property="og:url" content="https://martinduarte.com/" />
-  <meta property="og:image" content="https://martinduarte.com/og-image.svg" />
-  <meta name="twitter:card" content="summary_large_image" />
-  <meta name="twitter:title" content="Martin Duarte | Enterprise Data Architect" />
-  <meta name="twitter:description" content="Arquitectura, modernizacion y roadmaps ejecutables para plataformas de datos." />
-  <meta name="twitter:image" content="https://martinduarte.com/og-image.svg" />
-  <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
-  <link rel="manifest" href="/site.webmanifest" />
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet" />
-  <script type="application/ld+json">
-    {
-      "@context": "https://schema.org",
-      "@graph": [
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Martin Duarte | Enterprise Data Architect & AI Strategist</title>
+    <meta name="description" content="Arquitectura de datos, modernizacion cloud, integracion enterprise y estrategias de IA para companias que necesitan evolucionar con orden, resiliencia y foco en negocio.">
+    <meta name="robots" content="index,follow">
+    <meta name="theme-color" content="#0F172A">
+    <link rel="canonical" href="https://martinduarte.com/">
+    <meta property="og:type" content="website">
+    <meta property="og:locale" content="es_AR">
+    <meta property="og:title" content="Martin Duarte | Enterprise Data Architect & AI Strategist">
+    <meta property="og:description" content="Diseno de marca personal para consultoria en arquitectura de datos, modernizacion cloud y evolucion hacia agentes de IA.">
+    <meta property="og:url" content="https://martinduarte.com/">
+    <meta property="og:image" content="https://martinduarte.com/og-image.svg">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Martin Duarte | Enterprise Data Architect & AI Strategist">
+    <meta name="twitter:description" content="Consultoria en arquitectura de datos, modernizacion cloud y evolucion hacia agentes de IA.">
+    <meta name="twitter:image" content="https://martinduarte.com/og-image.svg">
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1594572872514423" crossorigin="anonymous"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <script type="application/ld+json">
         {
-          "@type": "Person",
-          "@id": "https://martinduarte.com/#person",
-          "name": "Martin Duarte",
-          "jobTitle": "Enterprise Data Architect",
-          "url": "https://martinduarte.com/",
-          "sameAs": ["https://www.linkedin.com/in/martinduarte/"],
-          "telephone": "+541124851496"
-        },
-        {
+          "@context": "https://schema.org",
           "@type": "ProfessionalService",
-          "@id": "https://martinduarte.com/#service",
-          "name": "Martin Duarte - Consultoria en Arquitectura de Datos",
+          "name": "Martin Duarte",
           "url": "https://martinduarte.com/",
-          "telephone": "+541124851496",
-          "description": "Consultoria para assessment, blueprint y modernizacion de plataformas de datos.",
-          "founder": { "@id": "https://martinduarte.com/#person" }
+          "description": "Consultoria en arquitectura de datos, modernizacion cloud y estrategia de IA para entornos enterprise.",
+          "jobTitle": "Enterprise Data Architect & AI Strategist",
+          "areaServed": "Global",
+          "sameAs": [
+            "https://linkedin.com/in/martinduarte"
+          ]
         }
-      ]
-    }
-  </script>
-  <style>
-    :root { --bg:#07111f; --panel:rgba(12,23,38,.84); --border:rgba(159,198,255,.18); --text:#f5f7fb; --muted:#a8b7ca; --accent:#78d7ff; --accent2:#3fe0b5; --max:1180px; --radius:28px; }
-    * { box-sizing:border-box; } html { scroll-behavior:smooth; } body { margin:0; font-family:"Instrument Sans",sans-serif; color:var(--text); background:radial-gradient(circle at top left, rgba(63,224,181,.12), transparent 28%),radial-gradient(circle at 88% 10%, rgba(120,215,255,.18), transparent 24%),linear-gradient(180deg,#08121f 0%,#050b15 100%); }
-    body::before { content:""; position:fixed; inset:0; pointer-events:none; background-image:linear-gradient(rgba(255,255,255,.025) 1px, transparent 1px),linear-gradient(90deg, rgba(255,255,255,.025) 1px, transparent 1px); background-size:42px 42px; mask-image:radial-gradient(circle at center, black, transparent 85%); opacity:.35; }
-    a { color:inherit; text-decoration:none; } img { display:block; max-width:100%; } h1,h2,h3,.brand strong { font-family:"Space Grotesk",sans-serif; letter-spacing:-.04em; } p { margin:0; color:var(--muted); line-height:1.72; }
-    .skip-link { position:absolute; left:1rem; top:-3rem; z-index:50; padding:.8rem 1rem; border-radius:999px; background:#fff; color:#08121f; font-weight:700; } .skip-link:focus { top:1rem; }
-    .wrap { width:min(calc(100% - 2rem), var(--max)); margin:0 auto; } .eyebrow,.meta { text-transform:uppercase; letter-spacing:.18em; font-size:.75rem; color:var(--accent); }
-    .site-header { position:sticky; top:0; z-index:30; backdrop-filter:blur(18px); background:rgba(7,17,31,.72); border-bottom:1px solid rgba(255,255,255,.06); } .site-header .wrap { display:flex; align-items:center; justify-content:space-between; gap:1rem; padding:1rem 0; }
-    .brand { display:flex; flex-direction:column; gap:.15rem; } .brand span,.nav { color:#cfdae8; } .nav,.hero-actions,.proof-row,.micro-list,.contact-actions,.footer-links,.stack-strip,.profile-tag-row { display:flex; flex-wrap:wrap; gap:.75rem; } .nav { gap:1.25rem; }
-    .button,.button-secondary,.button-soft,.menu-button,.floating-trigger,.floating-link { display:inline-flex; align-items:center; justify-content:center; min-height:48px; padding:.85rem 1.3rem; border-radius:999px; font-weight:600; border:1px solid transparent; transition:transform 180ms ease; }
-    .button:hover,.button-secondary:hover,.button-soft:hover,.menu-button:hover,.floating-trigger:hover,.floating-link:hover { transform:translateY(-1px); } .button { color:#08121f; background:linear-gradient(135deg,#fff 0%,#d8ecff 100%); } .button-secondary { border-color:rgba(255,255,255,.18); background:rgba(255,255,255,.03); } .button-soft { border-color:rgba(63,224,181,.28); background:rgba(63,224,181,.1); color:#d8fff4; }
-    .menu-button { display:none; width:48px; padding:0; background:rgba(255,255,255,.04); border-color:rgba(255,255,255,.12); color:var(--text); } a:focus-visible,button:focus-visible { outline:3px solid rgba(120,215,255,.65); outline-offset:3px; }
-    section { padding:4.5rem 0; } .hero { padding:5.5rem 0 3.6rem; } .hero-grid,.trust-grid,.service-grid,.results-grid,.case-grid,.content-grid,.contact-grid,.footer-grid { display:grid; gap:1rem; } .hero-grid { grid-template-columns:1fr; align-items:start; gap:1.5rem; }
-    h1 { margin:0; font-size:clamp(3rem,8vw,5.4rem); line-height:.94; } h2 { margin:.35rem 0 0; font-size:clamp(2rem,4vw,3.3rem); } h3 { margin:0; font-size:1.4rem; } .lead { margin-top:1rem; font-size:1.05rem; max-width:44rem; }
-    .chip,.tag,.pill { padding:.55rem .85rem; border-radius:999px; border:1px solid rgba(255,255,255,.08); background:rgba(255,255,255,.05); font-size:.78rem; } .chip { border-color:rgba(120,215,255,.24); background:rgba(120,215,255,.08); color:#d5f3ff; }
-    .card,.hero-card,.contact-card { border:1px solid var(--border); border-radius:var(--radius); background:var(--panel); box-shadow:0 16px 44px rgba(0,0,0,.22); }
-    .hero-card,.trust-card,.service-card,.result-card,.case-card,.content-card,.resource-card,.contact-card { padding:1.6rem; }
-    .hero-card { background:radial-gradient(circle at top right, rgba(63,224,181,.18), transparent 26%),linear-gradient(180deg, rgba(11,24,40,.98), rgba(8,18,31,.95)); align-self:center; width:min(100%, 480px); justify-self:end; }
-    .metric { display:grid; grid-template-columns:auto minmax(0,1fr); align-items:start; gap:1.25rem; padding:1.15rem 0; border-bottom:1px solid rgba(255,255,255,.08); }
-    .metric:last-child { border-bottom:none; }
-    .metric strong { font-size:2rem; line-height:1; }
-    .metric span { color:#d4e6f7; line-height:1.4; }
-    .proof-item,.contact-rail,.resource-card,.trust-card,.service-card,.result-card,.case-card,.content-card { border:1px solid rgba(255,255,255,.08); border-radius:22px; background:rgba(255,255,255,.04); } .proof-row { margin-top:1.2rem; } .proof-item { flex:1 1 160px; min-width:0; padding:1rem; }
-    .hero-top { display:grid; grid-template-columns:minmax(0,1.1fr) minmax(320px,.9fr); gap:1.2rem; align-items:stretch; margin-bottom:1.35rem; }
-    .hero-profile { padding:1.5rem; border:1px solid rgba(255,255,255,.08); border-radius:26px; background:linear-gradient(135deg, rgba(255,255,255,.05), rgba(255,255,255,.03)); display:grid; grid-template-columns:160px minmax(0,1fr); gap:1.2rem; align-items:center; }
-    .profile-photo { height:180px; border-radius:24px; border:1px solid rgba(120,215,255,.18); background:radial-gradient(circle at 30% 30%, rgba(120,215,255,.18), transparent 35%),linear-gradient(180deg, rgba(17,31,50,.95), rgba(9,17,29,.95)); display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; padding:1rem; }
-    .profile-photo strong { font-size:2.4rem; color:#eef6ff; line-height:1; }
-    .profile-photo span { font-size:.76rem; letter-spacing:.08em; text-transform:uppercase; color:#b8c8da; margin-top:.6rem; }
-    .profile-copy h3 { margin-bottom:.7rem; }
-    .stack-intro { margin-top:1.4rem; }
-    .stack-strip { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:1rem; margin-top:.9rem; }
-    .stack-item { display:flex; flex-direction:column; gap:.85rem; padding:1rem; border-radius:22px; border:1px solid rgba(255,255,255,.1); background:rgba(255,255,255,.04); color:#dbe8f5; min-width:0; min-height:92px; overflow:hidden; transition:min-height 220ms ease, background 220ms ease, border-color 220ms ease; }
-    .stack-heading { display:flex; align-items:center; gap:.7rem; }
-    .stack-panel-body { max-height:0; opacity:0; overflow:hidden; transition:max-height 240ms ease, opacity 180ms ease; }
-    .stack-item:hover,.stack-item:focus-within { min-height:260px; background:rgba(255,255,255,.06); border-color:rgba(120,215,255,.22); }
-    .stack-item:hover .stack-panel-body,.stack-item:focus-within .stack-panel-body { max-height:260px; opacity:1; }
-    .stack-icon { width:2rem; height:2rem; display:inline-flex; align-items:center; justify-content:center; border-radius:12px; font-size:.72rem; font-weight:700; letter-spacing:.06em; color:#07111f; }
-    .stack-label { font-size:.86rem; letter-spacing:.06em; text-transform:uppercase; }
-    .profile-tag-row { gap:.55rem; }
-    .profile-tag { padding:.5rem .78rem; border-radius:999px; border:1px solid rgba(255,255,255,.08); background:rgba(255,255,255,.05); font-size:.74rem; letter-spacing:.05em; text-transform:uppercase; color:#dce9f5; }
-    .logo-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:.65rem; }
-    .logo-chip { display:flex; align-items:center; gap:.65rem; padding:.72rem .8rem; border-radius:16px; border:1px solid rgba(255,255,255,.08); background:rgba(8,18,31,.44); min-width:0; }
-    .logo-mark { width:2rem; height:2rem; border-radius:12px; display:inline-flex; align-items:center; justify-content:center; background:rgba(255,255,255,.06); flex:0 0 auto; }
-    .logo-mark svg { width:1.2rem; height:1.2rem; display:block; }
-    .logo-chip span { font-size:.8rem; letter-spacing:.05em; text-transform:uppercase; color:#e6f0fb; }
-    .stack-icon.aws { background:#ffb866; }
-    .stack-icon.azure { background:#7ed4ff; }
-    .stack-icon.databricks { background:#ff8b78; }
-    .stack-icon.snowflake { background:#7ee7ff; }
-    .stack-icon.python { background:#ffe082; }
-    .stack-icon.node { background:#8ee08c; }
-    .stack-icon.agile { background:#9cd7ff; }
-    .stack-icon.frameworks { background:#c8b4ff; }
-    .stack-icon.industries { background:#90e1c3; }
-    .case-card { display:flex; flex-direction:column; gap:.8rem; }
-    .case-actions { margin-top:1rem; }
-    .case-tech { display:flex; flex-wrap:wrap; gap:.55rem; margin-top:auto; padding-top:1rem; border-top:1px solid rgba(255,255,255,.08); }
-    .case-tech .tag { letter-spacing:.08em; text-transform:uppercase; font-size:.72rem; }
-    .trust-grid,.contact-grid { grid-template-columns:1fr 1fr; } .service-grid { grid-template-columns:repeat(2,minmax(0,1fr)); align-items:stretch; } .results-grid,.case-grid { grid-template-columns:repeat(3,minmax(0,1fr)); } .content-grid { grid-template-columns:1.08fr .92fr; } .resource-list { display:grid; gap:1rem; }
-    .service-list { margin:0; padding:0; list-style:none; display:grid; gap:.85rem; } .service-list li { position:relative; padding-left:1.15rem; color:#d5dde9; } .service-list li::before { content:""; position:absolute; left:0; top:.66rem; width:.42rem; height:.42rem; border-radius:999px; background:linear-gradient(135deg,var(--accent),var(--accent2)); }
-    .service-card { height:100%; }
-    .content-card img { margin-top:1.2rem; border-radius:22px; border:1px solid rgba(255,255,255,.08); } .contact-card { background:radial-gradient(circle at 15% 10%, rgba(63,224,181,.18), transparent 25%),linear-gradient(135deg, rgba(18,35,53,.98), rgba(11,21,35,.96)); } #contact .contact-grid { grid-template-columns:1fr; }
-    .blog-placeholder { border:1px dashed rgba(120,215,255,.28); border-radius:22px; padding:1.4rem; background:rgba(255,255,255,.03); }
-    .blog-placeholder strong { display:block; margin-bottom:.45rem; color:#eef6ff; font-size:1.05rem; }
-    .mobile-panel { display:none !important; padding:0 0 1rem; } .mobile-panel nav { display:grid; gap:.5rem; padding-top:.5rem; } .mobile-panel a { padding:.85rem 1rem; border-radius:16px; background:rgba(255,255,255,.04); border:1px solid rgba(255,255,255,.06); }
-    .site-footer { padding:1.6rem 0 2.5rem; border-top:1px solid rgba(255,255,255,.06); } .footer-grid { grid-template-columns:1fr auto; align-items:center; } .footer-links { justify-content:flex-end; color:#cfdae8; }
-    .floating-contact { position:fixed; right:1.5rem; bottom:1.5rem; z-index:20; display:flex; flex-direction:column; align-items:flex-end; gap:.7rem; }
-    .floating-trigger { gap:.7rem; background:rgba(255,255,255,.08); color:#eef6ff; border-color:rgba(120,215,255,.28); box-shadow:0 18px 40px rgba(4,11,22,.35); cursor:pointer; backdrop-filter:blur(12px); }
-    .floating-panel { display:none; flex-direction:column; gap:.55rem; padding:.75rem; border-radius:22px; border:1px solid rgba(255,255,255,.1); background:rgba(8,18,31,.94); box-shadow:0 18px 40px rgba(0,0,0,.28); min-width:220px; }
-    .floating-contact[data-open="true"] .floating-panel { display:flex; }
-    .floating-link { justify-content:flex-start; gap:.7rem; min-height:44px; padding:.8rem 1rem; border-color:rgba(255,255,255,.1); background:rgba(255,255,255,.04); color:#eef6ff; }
-    .floating-link strong { font-size:.95rem; }
-    .floating-emoji { font-size:1rem; line-height:1; }
-    @media (max-width:1120px) { .hero-grid,.trust-grid,.service-grid,.results-grid,.case-grid,.content-grid,.contact-grid,.footer-grid,.hero-top,.stack-strip,.logo-grid { grid-template-columns:1fr; } .hero-card { width:100%; justify-self:stretch; } .hero-profile { grid-template-columns:1fr; } .profile-photo { height:150px; } }
-    @media (max-width:860px) { .nav,.header-link { display:none; } .menu-button { display:inline-flex; } .mobile-panel[data-open="true"] { display:block !important; } }
-    @media (max-width:640px) { .wrap { width:min(calc(100% - 1.2rem), var(--max)); } h1 { font-size:clamp(2.7rem,15vw,4.2rem); } .floating-trigger span:last-child { display:none; } .floating-panel { min-width:190px; } .stack-item { min-height:auto; } .stack-panel-body { max-height:none; opacity:1; } }
-  </style>
+    </script>
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;800&family=Space+Grotesk:wght@300;500;700&display=swap');
+
+        :root {
+            --primary: #0F172A;
+            --brand: #2563EB;
+            --accent: #F59E0B;
+            --bg-light: #F8FAFC;
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: var(--bg-light);
+            color: var(--primary);
+        }
+
+        h1, h2, h3, .font-heading {
+            font-family: 'Space Grotesk', sans-serif;
+            letter-spacing: -0.03em;
+        }
+
+        .bento-card {
+            background: white;
+            border: 1px solid #E2E8F0;
+            border-radius: 2rem;
+            transition: all 0.5s cubic-bezier(0.2, 0.8, 0.2, 1);
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .bento-card:hover {
+            border-color: var(--brand);
+            transform: translateY(-8px);
+            box-shadow: 0 30px 60px -15px rgba(15, 23, 42, 0.1);
+        }
+
+        .nav-link {
+            position: relative;
+            font-weight: 700;
+        }
+
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 2px;
+            bottom: -4px;
+            left: 0;
+            background: var(--brand);
+            transition: width 0.3s ease;
+        }
+
+        .nav-link:hover::after {
+            width: 100%;
+        }
+
+        .blueprint-dark {
+            background: #020617;
+            color: white;
+            border-radius: 3.5rem;
+        }
+
+        .chart-container {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            min-height: 200px;
+        }
+
+        .gradient-text {
+            background: linear-gradient(135deg, #0F172A 30%, #2563EB 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .glass-tag {
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            backdrop-filter: blur(10px);
+        }
+
+        @media (max-width: 768px) {
+            .bento-grid {
+                display: flex !important;
+                flex-direction: column !important;
+            }
+
+            .bento-card {
+                min-height: 350px;
+            }
+        }
+    </style>
 </head>
-<body>
-  <a class="skip-link" href="#main-content">Saltar al contenido principal</a>
-  <header class="site-header">
-    <div class="wrap">
-      <div class="brand">
-        <strong>Martin Duarte</strong>
-        <span>Enterprise Data Architect</span>
-      </div>
-      <nav class="nav" aria-label="Navegacion principal">
-        <a href="#trust">Por que trabajar conmigo</a>
-        <a href="#services">Servicios</a>
-        <a href="#results">Resultados esperables</a>
-        <a href="#cases">Casos de uso</a>
-        <a href="#blog">Blog</a>
-        <a href="#contact">Contacto</a>
-      </nav>
-      <a class="button-secondary header-link" href="https://calendly.com/martynduarte/sample-30min" target="_blank" rel="noopener noreferrer">Reservar reunion</a>
-      <button class="menu-button" type="button" aria-expanded="false" aria-controls="mobile-nav" aria-label="Abrir menu"><span aria-hidden="true">+</span></button>
-    </div>
-    <div class="wrap mobile-panel" id="mobile-nav" data-open="false">
-      <nav aria-label="Navegacion movil">
-        <a href="#trust">Por que trabajar conmigo</a>
-        <a href="#services">Servicios</a>
-        <a href="#results">Resultados esperables</a>
-        <a href="#cases">Casos de uso</a>
-        <a href="#blog">Blog</a>
-        <a href="#contact">Contacto</a>
-        <a href="https://calendly.com/martynduarte/sample-30min" target="_blank" rel="noopener noreferrer">Reservar reunion</a>
-      </nav>
-    </div>
-  </header>
-  <main id="main-content">
-    <section class="hero">
-      <div class="wrap hero-grid">
-        <div>
-          <div class="hero-top">
-            <div class="hero-profile">
-              <div class="profile-photo" aria-label="Espacio para foto de perfil">
-                <strong>MD</strong>
-                <span>Foto profesional</span>
-              </div>
-              <div class="profile-copy">
-                <div class="eyebrow">Mi perfil</div>
-                <h3>Martin Duarte, Enterprise Data Architect</h3>
-                <p>Como Enterprise Data Architect y consultor de plataformas de datos, me especializo en el diseno, modernizacion y optimizacion de arquitecturas de datos empresariales, con foco en plataformas cloud, arquitecturas Lakehouse y estrategias de eficiencia operativa y costos.</p>
-                <p class="lead">Trabajo con organizaciones de servicios financieros, retail, energia y fintech para ayudarlas a ganar escalabilidad, eficiencia y mas valor de negocio a partir de decisiones arquitectonicas claras.</p>
-              </div>
+<body class="antialiased selection:bg-blue-100 selection:text-blue-900">
+
+    <nav class="fixed w-full z-50 px-6 py-6">
+        <div class="max-w-7xl mx-auto flex justify-between items-center bg-white/80 backdrop-blur-xl border border-slate-200/50 px-8 py-4 rounded-[2rem] shadow-sm">
+            <div class="font-heading font-bold text-xl tracking-tighter">
+                MARTIN<span class="text-blue-600 font-black">DUARTE</span>
             </div>
-            <aside class="hero-card" aria-label="Donde suelo aportar mas valor">
-              <div class="eyebrow">Donde suelo aportar mas valor</div>
-              <div class="metric"><strong>01</strong><span>Plataformas que crecieron mas rapido que su arquitectura</span></div>
-              <div class="metric"><strong>02</strong><span>Costos, deuda tecnica o integraciones que frenan decisiones</span></div>
-              <div class="metric"><strong>03</strong><span>Necesidad de una hoja de ruta clara antes de invertir mas</span></div>
-            </aside>
-          </div>
-          <div class="eyebrow">Arquitectura de datos para decisiones mas claras</div>
-          <h1>Moderniza tu plataforma de datos sin sumar complejidad innecesaria</h1>
-          <p class="lead">Ayudo a empresas a ordenar su arquitectura, reducir riesgo tecnico y definir un roadmap de modernizacion que el negocio pueda entender y ejecutar.</p>
-          <div class="hero-actions">
-            <a class="button" href="https://wa.me/541124851496?text=Hola%20Martin%2C%20vi%20tu%20web%20y%20me%20gustaria%20conversar%20sobre%20arquitectura%20de%20datos." target="_blank" rel="noopener noreferrer">Escribirme por WhatsApp</a>
-            <a class="button-secondary" href="#services">Ver como trabajo</a>
-          </div>
-          <div class="proof-row">
-            <div class="proof-item"><strong>De diagnostico a roadmap</strong><p>Transformo problemas difusos de plataforma en decisiones claras.</p></div>
-            <div class="proof-item"><strong>Lenguaje tecnico y de negocio</strong><p>Traduzco complejidad para liderazgo y equipos.</p></div>
-            <div class="proof-item"><strong>Foco en evolucion real</strong><p>Priorizo impacto, factibilidad y adopcion progresiva.</p></div>
-          </div>
-          <div class="stack-intro">
-            <div class="eyebrow">Perfil de trabajo</div>
-            <div class="stack-strip" aria-label="Tecnologias, metodologias, frameworks e industrias">
-              <div class="stack-item">
-                <div class="stack-heading"><span class="stack-icon aws" aria-hidden="true">AWS</span><span class="stack-label">Tecnologias</span></div>
-                <div class="stack-panel-body">
-                <div class="logo-grid">
-                  <div class="logo-chip"><span class="logo-mark" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><path d="M7 16.5h10.5a3 3 0 0 0 .2-6A5.5 5.5 0 0 0 7.4 8.8 4 4 0 0 0 7 16.5Z" stroke="#FFB866" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span>AWS</span></div>
-                  <div class="logo-chip"><span class="logo-mark" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><path d="M12 3 5.5 7v10L12 21l6.5-4V7L12 3Z" stroke="#7ED4FF" stroke-width="1.8" stroke-linejoin="round"/><path d="M12 3v18M5.5 7 12 11l6.5-4" stroke="#7ED4FF" stroke-width="1.4" stroke-linecap="round"/></svg></span><span>Azure</span></div>
-                  <div class="logo-chip"><span class="logo-mark" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><path d="M6 6h12v4H6zM6 14h7v4H6z" stroke="#FF8B78" stroke-width="1.8" stroke-linejoin="round"/><path d="M15 14h3v4h-3z" fill="#FF8B78"/></svg></span><span>Databricks</span></div>
-                  <div class="logo-chip"><span class="logo-mark" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><path d="M7 8c0-1.7 2.2-3 5-3s5 1.3 5 3-2.2 3-5 3-5-1.3-5-3Zm0 4c0 1.7 2.2 3 5 3s5-1.3 5-3m-10 4c0 1.7 2.2 3 5 3s5-1.3 5-3" stroke="#7EE7FF" stroke-width="1.8" stroke-linecap="round"/></svg></span><span>Snowflake</span></div>
-                  <div class="logo-chip"><span class="logo-mark" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><path d="M8.5 7.5c0-1.7 1.3-3 3-3h1v4h-2a2 2 0 0 0-2 2V16h-2V7.5Zm7 9c0 1.7-1.3 3-3 3h-1v-4h2a2 2 0 0 0 2-2V8h2v8.5Z" fill="#FFE082"/></svg></span><span>Python</span></div>
-                  <div class="logo-chip"><span class="logo-mark" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><path d="M9 7v10M15 7v10M7 12h10" stroke="#8EE08C" stroke-width="1.8" stroke-linecap="round"/><circle cx="12" cy="12" r="8" stroke="#8EE08C" stroke-width="1.4"/></svg></span><span>Node.js</span></div>
-                </div>
-                </div>
-              </div>
-              <div class="stack-item">
-                <div class="stack-heading"><span class="stack-icon agile" aria-hidden="true">AG</span><span class="stack-label">Metodologias</span></div>
-                <div class="stack-panel-body"><div class="profile-tag-row">
-                  <span class="profile-tag">Agile</span>
-                  <span class="profile-tag">Scrum</span>
-                  <span class="profile-tag">Kanban</span>
-                </div></div>
-              </div>
-              <div class="stack-item">
-                <div class="stack-heading"><span class="stack-icon frameworks" aria-hidden="true">FW</span><span class="stack-label">Marcos y frameworks</span></div>
-                <div class="stack-panel-body"><div class="profile-tag-row">
-                  <span class="profile-tag">C4</span>
-                  <span class="profile-tag">TOGAF</span>
-                  <span class="profile-tag">DAMA</span>
-                  <span class="profile-tag">BIM</span>
-                  <span class="profile-tag">Well-Architected</span>
-                </div></div>
-              </div>
-              <div class="stack-item">
-                <div class="stack-heading"><span class="stack-icon industries" aria-hidden="true">IND</span><span class="stack-label">Industrias</span></div>
-                <div class="stack-panel-body"><div class="profile-tag-row">
-                  <span class="profile-tag">Banca</span>
-                  <span class="profile-tag">Retail Financiero</span>
-                  <span class="profile-tag">Seguros</span>
-                  <span class="profile-tag">Telecomunicaciones</span>
-                  <span class="profile-tag">Oil and Gas</span>
-                  <span class="profile-tag">Fintech</span>
-                </div></div>
-              </div>
+            <div class="hidden md:flex gap-10 text-[10px] font-black uppercase tracking-[0.2em] text-slate-500">
+                <a href="#codex" class="nav-link">Codex</a>
+                <a href="#blueprint" class="nav-link">Blueprint</a>
+                <a href="#servicios" class="nav-link">Servicios</a>
+                <a href="#academia" class="nav-link">Academia</a>
             </div>
-          </div>
+            <a href="#contacto" class="text-[10px] font-black bg-slate-900 text-white px-6 py-3 rounded-full hover:bg-blue-600 transition-all uppercase tracking-widest shadow-lg shadow-blue-100">
+                Consultoria
+            </a>
         </div>
-      </div>
-    </section>
-    <section id="trust">
-      <div class="wrap">
-        <div class="eyebrow">Por que trabajar conmigo</div>
-        <h2>Seis razones simples para elegirme como partner de arquitectura</h2>
-        <div class="trust-grid" style="margin-top:1rem;">
-          <article class="trust-card"><h3>Vision ejecutiva y tecnica</h3><p class="lead">Traduzco complejidad tecnica en decisiones claras para negocio y tecnologia.</p></article>
-          <article class="trust-card"><h3>Experiencia en industrias exigentes</h3><p class="lead">Trabaje en banca, retail financiero, seguros, telecomunicaciones, energia y fintech.</p></article>
-          <article class="trust-card"><h3>Especializacion en arquitectura de datos</h3><p class="lead">Diseno y modernizo plataformas cloud, Lakehouse y ecosistemas de datos empresariales.</p></article>
-          <article class="trust-card"><h3>Foco en eficiencia y costos</h3><p class="lead">Busco arquitecturas mas escalables, simples de operar y sostenibles en costo.</p></article>
-          <article class="trust-card"><h3>Metodologia de trabajo clara</h3><p class="lead">Trabajo con assessment, blueprint, roadmap y acompanamiento para bajar la estrategia a ejecucion.</p></article>
-          <article class="trust-card"><h3>Orientacion a resultados</h3><p class="lead">El objetivo no es sumar tecnologia, sino generar impacto real con una evolucion ordenada.</p></article>
-        </div>
-      </div>
-    </section>
-    <section id="services">
-      <div class="wrap">
-        <div class="eyebrow">Servicios</div>
-        <h2>Ofertas claras para ordenar arquitectura, plataforma y decisiones de modernizacion</h2>
-        <div class="service-grid" style="margin-top:1rem;">
-          <article class="service-card"><h3>Diagnostico de arquitectura de datos</h3><p class="lead">Evaluacion del estado actual para detectar cuellos de botella, deuda tecnica y riesgos.</p><ul class="service-list"><li>Mapa de arquitectura actual</li><li>Riesgos tecnicos y operativos</li><li>Costos y complejidad</li><li>Prioridades inmediatas</li></ul></article>
-          <article class="service-card"><h3>Blueprint de arquitectura objetivo</h3><p class="lead">Definicion de una arquitectura futura entendible para liderazgo y equipos.</p><ul class="service-list"><li>Arquitectura logica y fisica</li><li>Modelo de integraciones</li><li>Estandares de plataforma</li><li>Lineamientos para escalar</li></ul></article>
-          <article class="service-card"><h3>Estrategia de plataforma de datos</h3><p class="lead">Defino la estrategia de plataforma para que tecnologia, integraciones y modelo operativo trabajen con un mismo norte.</p><ul class="service-list"><li>Seleccion de tecnologias</li><li>Estrategia de integracion</li><li>Modelo operativo</li><li>Capacidades prioritarias</li></ul></article>
-          <article class="service-card"><h3>Roadmap de modernizacion</h3><p class="lead">Un plan accionable, por etapas, para evolucionar la plataforma sin detener la operacion.</p><ul class="service-list"><li>Plan por etapas</li><li>Priorizacion</li><li>Quick wins</li><li>Riesgos de transicion</li></ul></article>
-          <article class="service-card"><h3>Acompanamiento fractional</h3><p class="lead">Direccion arquitectonica continua para organizaciones que necesitan criterio senior.</p><ul class="service-list"><li>Revision de decisiones</li><li>Mentoria a equipos</li><li>Alineacion con negocio</li><li>Evolucion de arquitectura</li></ul></article>
-        </div>
-      </div>
-    </section>
-    <section id="results">
-      <div class="wrap">
-        <div class="eyebrow">Resultados esperables</div>
-        <h2>Lo que suele cambiar cuando la arquitectura deja de ser un freno</h2>
-        <div class="results-grid" style="margin-top:1rem;">
-          <article class="result-card"><strong>Mas claridad para decidir</strong><p>Se vuelven visibles prioridades, riesgos y tradeoffs.</p></article>
-          <article class="result-card"><strong>Menos complejidad operativa</strong><p>Se reducen componentes y procesos que agregan costo sin valor.</p></article>
-          <article class="result-card"><strong>Un camino de evolucion creible</strong><p>La modernizacion pasa a tener etapas, dependencias y objetivos concretos.</p></article>
-        </div>
-      </div>
-    </section>
-    <section id="cases">
-      <div class="wrap">
-        <div class="eyebrow">Casos de uso</div>
-        <h2>Experiencias relevantes donde la arquitectura ordena la decision y la ejecucion</h2>
-        <div class="case-grid" style="margin-top:1rem;">
-          <article class="case-card"><div class="meta">Caso 01</div><h3>Modernizacion de plataforma heredada</h3><p><strong>Problema.</strong> Base historica costosa y dificil de escalar.</p><p><strong>Intervencion.</strong> Assessment, arquitectura objetivo y roadmap.</p><p><strong>Resultado esperado.</strong> Menos riesgo tecnico y mejor visibilidad de prioridades.</p><div class="case-tech"><span class="tag">AWS</span><span class="tag">AZURE</span><span class="tag">SQL</span><span class="tag">ETL</span></div></article>
-          <article class="case-card"><div class="meta">Caso 02</div><h3>Plataforma que crecio sin estandar</h3><p><strong>Problema.</strong> Pipelines e integraciones acumuladas sin una arquitectura coherente.</p><p><strong>Intervencion.</strong> Ordenamiento de componentes y modelo operativo.</p><p><strong>Resultado esperado.</strong> Menos complejidad y decisiones tecnicas mas consistentes.</p><div class="case-tech"><span class="tag">AWS</span><span class="tag">AZURE</span><span class="tag">PYTHON</span><span class="tag">ETL</span></div></article>
-          <article class="case-card"><div class="meta">Caso 03</div><h3>Base insuficiente para analitica avanzada</h3><p><strong>Problema.</strong> El negocio quiere acelerar IA o analitica sin una base madura.</p><p><strong>Intervencion.</strong> Evaluacion de brechas y priorizacion de capacidades.</p><p><strong>Resultado esperado.</strong> Hoja de ruta mas solida antes de nuevas inversiones.</p><div class="case-tech"><span class="tag">DATABRICKS</span><span class="tag">SNOWFLAKE</span><span class="tag">PYTHON</span><span class="tag">BI</span></div></article>
-          <article class="case-card"><div class="meta">Caso 04</div><h3>Desarrollo de App</h3><p><strong>Problema.</strong> Unificar en una sola experiencia la gestion de tareas, presupuesto, gastos e inversiones sin perder claridad para el usuario final.</p><p><strong>Intervencion.</strong> Desarrollo de una app web autenticada con frontend estatico, backend en Express y modulos conectados para tareas tipo Eisenhower, equipos, presupuestos y portfolio financiero.</p><p><strong>Resultado esperado.</strong> Una plataforma mas ordenada, facil de usar y preparada para seguir creciendo con automatizaciones, reportes y mejor visibilidad operativa.</p><p class="case-actions"><a class="button-soft" href="desarrollo-de-app-resumen.pdf" target="_blank" rel="noopener noreferrer">Ver resumen del caso</a></p><div class="case-tech"><span class="tag">HTML</span><span class="tag">CSS</span><span class="tag">JAVASCRIPT</span><span class="tag">EXPRESS</span></div></article>
-          <article class="case-card"><div class="meta">Caso 05</div><h3>Dashboard de Futuros</h3><p><strong>Problema.</strong> Centralizar posiciones abiertas, balances y riesgo operativo de multiples mercados de futuros en una sola vista en tiempo real.</p><p><strong>Intervencion.</strong> Desarrollo de un dashboard web con backend en Node y Express, integracion con Binance y BingX, WebSockets para actualizacion continua y alertas de take profit o stop loss.</p><p><strong>Resultado esperado.</strong> Mejor visibilidad de capital, PnL y exposicion por posicion para tomar decisiones mas rapidas con una operacion mas controlada.</p><p class="case-actions"><a class="button-soft" href="futuretx-app-summary.pdf" target="_blank" rel="noopener noreferrer">Ver resumen del caso</a></p><div class="case-tech"><span class="tag">NODE.JS</span><span class="tag">EXPRESS</span><span class="tag">WEBSOCKETS</span><span class="tag">APIS</span></div></article>
-          <article class="case-card"><div class="meta">Caso 06</div><h3>Modernizacion de arquitectura hacia Data Lake</h3><p><strong>Problema.</strong> El Data Warehouse actual en Redshift concentraba procesos ETL costosos, datos duplicados y cuellos de botella que degradaban la performance operativa.</p><p><strong>Intervencion.</strong> Redefinicion de la estrategia desde un enfoque Lakehouse hacia un Data Lake puro, con offloading de ingenieria de datos fuera de Redshift y validacion mediante una PoC de 50 flujos criticos seleccionados por recurrencia tecnica.</p><p><strong>Resultado esperado.</strong> Menor costo de computo, mejor rendimiento, mas gobierno sobre los datos y una base moderna para escalar ingestion, curacion y consumo sin frenar la operacion actual.</p><div class="case-tech"><span class="tag">AWS</span><span class="tag">S3</span><span class="tag">REDSHIFT</span><span class="tag">BATCH</span></div></article>
-          <article class="case-card"><div class="meta">Caso 07</div><h3>Portal Sismico en la Nube</h3><p><strong>Problema.</strong> El MVP del portal presentaba bloqueos de estabilidad, seguridad y conectividad que impedian completar el despliegue del procesamiento de archivos sismicos SEGY en Azure.</p><p><strong>Intervencion.</strong> Estabilizacion de la arquitectura cloud mediante analisis del loop de aprovisionamiento en Azure Batch, ajuste de red y NSG, revision del flujo antivirus para archivos de gran tamano y definicion de lineamientos de resiliencia, backup e identidad para terceros.</p><p><strong>Resultado esperado.</strong> Un portal mas robusto y seguro, con procesamiento batch confiable, controles de acceso mas claros y una base operativa lista para avanzar desde desarrollo hacia testing y produccion con menor riesgo tecnico.</p><div class="case-tech"><span class="tag">AZURE</span><span class="tag">SQL</span><span class="tag">DATA LAKE</span><span class="tag">FUNCTIONS</span></div></article>
-        </div>
-      </div>
-    </section>
-    <section id="blog">
-      <div class="wrap">
-        <div class="eyebrow">Blog</div>
-        <h2>Contenido para compartir criterio, casos y aprendizajes de arquitectura</h2>
-        <div class="content-grid" style="margin-top:1rem;">
-          <article class="content-card"><div class="pill">En construccion</div><h3>Muy pronto vas a encontrar articulos y puntos de vista sobre arquitectura</h3><p class="lead">Esta seccion va a reunir publicaciones sobre modernizacion de plataformas, decisiones de arquitectura, cloud, gobierno de datos y aprendizajes de proyectos reales.</p><div class="blog-placeholder"><strong>Proximo contenido</strong><p>Analisis de arquitectura, frameworks de decision, casos de uso, buenas practicas y criterios para modernizar sin sumar complejidad.</p></div><a class="button" href="https://www.linkedin.com/in/martinduarte/" target="_blank" rel="noopener noreferrer">Ver publicaciones en LinkedIn</a></article>
-          <div class="resource-list">
-            <article class="resource-card"><div class="pill">Tema 01</div><h3>Como evaluar una arquitectura antes de modernizar</h3><p>Que conviene revisar primero para no saltar directo a herramientas o migraciones.</p></article>
-            <article class="resource-card"><div class="pill">Tema 02</div><h3>Senales de que la plataforma necesita orden</h3><p>Costo creciente, integraciones fragiles y pipelines complejos son sintomas frecuentes.</p></article>
-            <article class="resource-card"><div class="pill">Recurso</div><h3>Capability overview</h3><p>Un material breve para presentar tu enfoque y conversaciones posibles.</p><p><a class="button-soft" href="martin_duarte_brand_book.pdf" target="_blank" rel="noopener noreferrer">Abrir PDF</a></p></article>
-          </div>
-        </div>
-      </div>
-    </section>
-    <section id="contact">
-      <div class="wrap">
-        <div class="contact-card">
-          <div class="contact-grid">
-            <div><div class="eyebrow">Contacto</div><h2>Si estas evaluando modernizar tu plataforma de datos, conversemos</h2><p class="lead">Podemos tener una primera conversacion simple para entender tu contexto, ordenar prioridades y ver si tiene sentido trabajar juntos en arquitectura, modernizacion o evolucion de plataforma.</p><div class="contact-actions"><a class="button" href="https://wa.me/541124851496?text=Hola%20Martin%2C%20vi%20tu%20web%20y%20me%20gustaria%20conversar%20sobre%20arquitectura%20de%20datos." target="_blank" rel="noopener noreferrer">Escribirme por WhatsApp</a><a class="button-secondary" href="https://www.linkedin.com/in/martinduarte/" target="_blank" rel="noopener noreferrer">Conectar por LinkedIn</a><a class="button-soft" href="https://calendly.com/martynduarte/sample-30min" target="_blank" rel="noopener noreferrer">Reservar reunion</a></div></div>
-          </div>
-        </div>
-      </div>
-    </section>
-  </main>
-  <footer class="site-footer">
-    <div class="wrap footer-grid">
-      <p>Martin Duarte | Arquitectura de datos, modernizacion de plataformas y decisiones de arquitectura con foco en negocio.</p>
-      <div class="footer-links"><a href="#trust">Por que trabajar conmigo</a><a href="#services">Servicios</a><a href="#results">Resultados</a><a href="#cases">Casos</a><a href="#blog">Blog</a><a href="#contact">Contacto</a></div>
-    </div>
-  </footer>
-  <div class="floating-contact" data-open="false">
-    <div class="floating-panel" aria-label="Opciones de contacto">
-      <a class="floating-link" href="https://wa.me/541124851496?text=Hola%20Martin%2C%20vi%20tu%20web%20y%20me%20gustaria%20conversar%20sobre%20arquitectura%20de%20datos." target="_blank" rel="noopener noreferrer"><span class="floating-emoji" aria-hidden="true">&#128172;</span><strong>Escribirme por WhatsApp</strong></a>
-      <a class="floating-link" href="https://www.linkedin.com/in/martinduarte/" target="_blank" rel="noopener noreferrer"><span class="floating-emoji" aria-hidden="true">in</span><strong>LinkedIn</strong></a>
-      <a class="floating-link" href="https://calendly.com/martynduarte/sample-30min" target="_blank" rel="noopener noreferrer"><span class="floating-emoji" aria-hidden="true">&#128197;</span><strong>Reservar reunion</strong></a>
-    </div>
-    <button class="floating-trigger" type="button" aria-expanded="false" aria-label="Abrir opciones de contacto"><span aria-hidden="true">&#128172;</span><span>Contactame</span></button>
-  </div>
-  <script>
-    const menuButton = document.querySelector(".menu-button");
-    const mobilePanel = document.getElementById("mobile-nav");
-    const floatingContact = document.querySelector(".floating-contact");
-    const floatingTrigger = document.querySelector(".floating-trigger");
-    if (menuButton && mobilePanel) {
-      menuButton.addEventListener("click", () => {
-        const isOpen = menuButton.getAttribute("aria-expanded") === "true";
-        menuButton.setAttribute("aria-expanded", String(!isOpen));
-        menuButton.innerHTML = !isOpen ? "<span aria-hidden=\"true\">&times;</span>" : "<span aria-hidden=\"true\">+</span>";
-        mobilePanel.setAttribute("data-open", String(!isOpen));
-      });
-      mobilePanel.querySelectorAll("a").forEach((link) => {
-        link.addEventListener("click", () => {
-          menuButton.setAttribute("aria-expanded", "false");
-          menuButton.innerHTML = "<span aria-hidden=\"true\">+</span>";
-          mobilePanel.setAttribute("data-open", "false");
+    </nav>
+
+    <main class="space-y-32">
+        <section class="pt-48 pb-20 px-6 max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-20 items-center">
+            <div class="space-y-10">
+                <div class="inline-flex items-center gap-3 px-4 py-2 bg-blue-50 border border-blue-100 rounded-full">
+                    <span class="relative flex h-3 w-3">
+                        <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
+                        <span class="relative inline-flex rounded-full h-3 w-3 bg-blue-600"></span>
+                    </span>
+                    <span class="text-[10px] font-black uppercase tracking-widest text-blue-700 italic">Proxima Generacion de Arquitectura</span>
+                </div>
+                <h1 class="text-6xl md:text-8xl font-extrabold leading-[0.92] tracking-tighter gradient-text">
+                    Desafia tu <br>Status Quo.
+                </h1>
+                <p class="text-xl text-slate-500 leading-relaxed max-w-xl font-medium">
+                    Los datos fueron el petroleo. Hoy, los <strong>Agentes de IA</strong> son las refinerias. Tu arquitectura debe estar preparada para el camino natural de evolucion de tu negocio.
+                </p>
+                <div class="flex flex-wrap gap-6 items-center">
+                    <a href="#contacto" class="px-12 py-5 bg-blue-600 text-white rounded-[2rem] font-black shadow-2xl shadow-blue-200 hover:scale-105 transition-all text-sm uppercase tracking-widest">
+                        Assessment de Datos -&gt;
+                    </a>
+                    <div class="flex items-center gap-4">
+                        <div class="w-12 h-12 bg-white border border-slate-200 rounded-2xl flex items-center justify-center font-bold shadow-sm">MSc</div>
+                        <div class="text-left">
+                            <p class="text-[10px] font-black uppercase text-slate-400">Cursando</p>
+                            <p class="text-sm font-bold">MSc. Inteligencia Artificial</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="relative group">
+                <div class="aspect-[4/5] bg-slate-200 rounded-[4.5rem] overflow-hidden border-[16px] border-white shadow-2xl relative">
+                    <div class="absolute inset-0 bg-blue-600/5 mix-blend-overlay"></div>
+                    <div class="absolute inset-0 flex items-center justify-center p-12 text-center text-slate-400 font-bold italic text-sm">
+                        Retrato profesional: human-centric architect
+                    </div>
+                </div>
+                <div class="absolute -bottom-8 -left-8 bg-white p-8 rounded-[2.5rem] shadow-2xl border border-slate-100 space-y-4">
+                    <p class="text-[10px] font-black uppercase text-blue-600 tracking-widest">Global Architect</p>
+                    <div class="flex gap-4">
+                        <div class="w-14 h-14 bg-slate-50 rounded-2xl flex items-center justify-center text-[10px] font-black border border-slate-100">AWS</div>
+                        <div class="w-14 h-14 bg-slate-50 rounded-2xl flex items-center justify-center text-[10px] font-black border border-slate-100">IBM AT</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="codex" class="max-w-7xl mx-auto px-6 space-y-16">
+            <div class="border-l-[10px] border-blue-600 pl-8">
+                <h2 class="text-5xl font-extrabold tracking-tighter">Codex de Soluciones</h2>
+                <p class="text-slate-500 mt-4 text-xl max-w-2xl">Evidencia tecnica de arquitecturas resilientes que preparan el terreno para la IA.</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-12 gap-8 bento-grid">
+                <div class="bento-card md:col-span-8 p-10 bg-slate-900 text-white min-h-[400px]">
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-10 h-full">
+                        <div class="space-y-6">
+                            <span class="text-amber-500 text-[10px] font-black uppercase tracking-widest">Real-Time | Oil &amp; Gas</span>
+                            <h3 class="text-4xl font-extrabold leading-none">Proyecto Hermes</h3>
+                            <p class="text-slate-400 text-sm leading-relaxed">Sustitucion de arquitectura legacy PDS por tuneles seguros Entra ID App Proxy. Ingesta desatendida con latencia inferior a 0.5 segundos.</p>
+                            <div class="flex gap-3">
+                                <span class="px-4 py-2 glass-tag rounded-xl text-[10px] font-bold">WITSML</span>
+                                <span class="px-4 py-2 glass-tag rounded-xl text-[10px] font-bold">Azure Proxy</span>
+                            </div>
+                        </div>
+                        <div class="flex items-center justify-center">
+                            <div class="chart-container">
+                                <canvas id="hermesChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bento-card md:col-span-4 p-10">
+                    <div class="space-y-6">
+                        <span class="text-blue-600 text-[10px] font-black uppercase tracking-widest">SaaS | AWS</span>
+                        <h3 class="text-3xl font-extrabold">Data Lakehouse Lambda</h3>
+                        <p class="text-sm text-slate-500">Sanitizacion de payloads de 140KB a 5KB. Optimizacion FinOps masiva para la adquisicion de la compania.</p>
+                        <div class="pt-6 flex items-end gap-4">
+                            <div class="text-5xl font-black text-blue-600 leading-none">60%</div>
+                            <div class="text-[10px] font-bold text-slate-400 uppercase">Ahorro en <br>Costos Cloud</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bento-card md:col-span-5 p-10 border-l-8 border-l-blue-600">
+                    <div class="space-y-6 h-full flex flex-col justify-between">
+                        <div>
+                            <span class="text-blue-600 text-[10px] font-black uppercase">Enterprise | ERP</span>
+                            <h3 class="text-3xl font-extrabold">Integridad en SAP</h3>
+                            <p class="text-sm text-slate-500">Erradicacion de triplicidad en Ordenes de Trabajo mediante validacion por Hash e integracion API-led corporativa.</p>
+                        </div>
+                        <div class="chart-container h-32">
+                            <canvas id="sapChart"></canvas>
+                        </div>
+                        <p class="text-center text-[10px] font-mono text-slate-400 italic">Idempotencia Garantizada: 100%</p>
+                    </div>
+                </div>
+
+                <div class="bento-card md:col-span-7 p-10 bg-blue-50">
+                    <div class="flex flex-col md:flex-row gap-10 items-center h-full">
+                        <div class="space-y-6 flex-1">
+                            <span class="text-blue-700 text-[10px] font-black uppercase tracking-widest">GCP Analytics</span>
+                            <h3 class="text-4xl font-extrabold leading-none">Dataflow ROI</h3>
+                            <p class="text-sm text-slate-600 leading-relaxed">Centralizacion de Funnel App y Meta Ads en BigQuery. Traslado de logica pesada de BI hacia la capa de datos.</p>
+                        </div>
+                        <div class="flex-1 w-full bg-white rounded-3xl border border-blue-100 p-8 flex flex-col items-center justify-center">
+                            <p class="text-6xl font-black text-blue-600">80%</p>
+                            <p class="text-[10px] font-black uppercase text-slate-400 mt-2">Performance Up</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="blueprint" class="max-w-7xl mx-auto px-6">
+            <div class="blueprint-dark p-12 md:p-24 relative overflow-hidden">
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-20 items-center relative z-10">
+                    <div class="space-y-10">
+                        <div class="inline-block px-5 py-2 glass-tag rounded-full text-[10px] font-black uppercase tracking-widest text-blue-400 border border-blue-500/30">
+                            The Persistence Authority
+                        </div>
+                        <h2 class="text-5xl md:text-7xl font-extrabold leading-tight tracking-tighter">
+                            Blueprint para <br>Entornos Criticos.
+                        </h2>
+                        <p class="text-slate-400 text-lg leading-relaxed">
+                            Contratado por el Arquitecto Empresarial de <strong>PAE</strong> para estabilizar el sistema sismologico (PSN). De una visualizacion efimera a una plataforma auditable y persistente.
+                        </p>
+                        <div class="space-y-8">
+                            <div class="flex gap-6">
+                                <div class="w-14 h-14 bg-blue-600 rounded-2xl flex items-center justify-center font-black text-xl">01</div>
+                                <div>
+                                    <h4 class="text-xl font-bold">Desacople de Origenes</h4>
+                                    <p class="text-sm text-slate-500 mt-1">Eliminacion de la saturacion de cache en TDV mediante cluster MS SQL Server dedicado.</p>
+                                </div>
+                            </div>
+                            <div class="flex gap-6">
+                                <div class="w-14 h-14 bg-blue-600 rounded-2xl flex items-center justify-center font-black text-xl">02</div>
+                                <div>
+                                    <h4 class="text-xl font-bold">Zero Trust Architecture</h4>
+                                    <p class="text-sm text-slate-500 mt-1">Segmentacion de usuarios de servicio por origen (SQL, Open Wells, RTO).</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-slate-900 border border-slate-800 rounded-[3.5rem] p-12 flex flex-col items-center">
+                        <div class="chart-container h-[400px]">
+                            <canvas id="paeRadarChart"></canvas>
+                        </div>
+                        <p class="text-[10px] font-mono text-slate-600 mt-8 tracking-widest uppercase">Diseno de Persistencia Evolucionada</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="servicios" class="max-w-7xl mx-auto px-6 space-y-20">
+            <div class="text-center max-w-3xl mx-auto space-y-6">
+                <h2 class="text-5xl font-extrabold tracking-tighter">Portafolio de Servicios</h2>
+                <p class="text-slate-500 text-lg">Soluciones consultivas disenadas para ordenar la evolucion tecnologica y acelerar la transformacion.</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div class="bento-card p-10 border-b-8 border-b-blue-600">
+                    <div class="w-16 h-16 bg-blue-50 text-blue-600 rounded-2xl flex items-center justify-center text-3xl mb-8">DA</div>
+                    <h4 class="text-2xl font-extrabold">Data Assessment</h4>
+                    <p class="text-sm text-slate-500 leading-relaxed mb-6">Diagnostico exhaustivo del AS-IS, identificacion de riesgos y definicion de quick wins con vision estrategica TO-BE.</p>
+                    <ul class="text-[10px] font-black uppercase text-slate-400 space-y-2 tracking-widest">
+                        <li class="flex items-center gap-2"><span class="w-1.5 h-1.5 bg-blue-600 rounded-full"></span> Evaluacion de Riesgos</li>
+                        <li class="flex items-center gap-2"><span class="w-1.5 h-1.5 bg-blue-600 rounded-full"></span> Analisis de Madurez</li>
+                    </ul>
+                </div>
+                <div class="bento-card p-10 border-b-8 border-b-blue-600">
+                    <div class="w-16 h-16 bg-blue-50 text-blue-600 rounded-2xl flex items-center justify-center text-3xl mb-8">AB</div>
+                    <h4 class="text-2xl font-extrabold">Architecture Blueprint</h4>
+                    <p class="text-sm text-slate-500 leading-relaxed mb-6">Diseno conceptual y tecnico de la arquitectura de datos moderna, diagramas de flujo y seleccion de stack tecnologico.</p>
+                    <ul class="text-[10px] font-black uppercase text-slate-400 space-y-2 tracking-widest">
+                        <li class="flex items-center gap-2"><span class="w-1.5 h-1.5 bg-blue-600 rounded-full"></span> Seleccion de Stack</li>
+                        <li class="flex items-center gap-2"><span class="w-1.5 h-1.5 bg-blue-600 rounded-full"></span> Diseno de Capas</li>
+                    </ul>
+                </div>
+                <div class="bento-card p-10 border-b-8 border-b-blue-600">
+                    <div class="w-16 h-16 bg-blue-50 text-blue-600 rounded-2xl flex items-center justify-center text-3xl mb-8">MP</div>
+                    <h4 class="text-2xl font-extrabold">Modernization Program</h4>
+                    <p class="text-sm text-slate-500 leading-relaxed mb-6">Ejecucion tactica de migraciones hacia cloud lakehouse y optimizacion de costos.</p>
+                    <ul class="text-[10px] font-black uppercase text-slate-400 space-y-2 tracking-widest">
+                        <li class="flex items-center gap-2"><span class="w-1.5 h-1.5 bg-blue-600 rounded-full"></span> Cloud Migration</li>
+                        <li class="flex items-center gap-2"><span class="w-1.5 h-1.5 bg-blue-600 rounded-full"></span> FinOps Optimization</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-6 pt-10">
+                <div class="bg-white p-6 rounded-3xl border border-slate-100 text-center shadow-sm">
+                    <p class="text-sm font-bold">Fractional Architect</p>
+                    <p class="text-[9px] text-slate-400 uppercase font-black tracking-widest mt-1">Mentoring &amp; Strategy</p>
+                </div>
+                <div class="bg-white p-6 rounded-3xl border border-slate-100 text-center shadow-sm">
+                    <p class="text-sm font-bold">Data Governance</p>
+                    <p class="text-[9px] text-slate-400 uppercase font-black tracking-widest mt-1">Quality &amp; Trust</p>
+                </div>
+                <div class="bg-white p-6 rounded-3xl border border-slate-100 text-center shadow-sm">
+                    <p class="text-sm font-bold">Integration &amp; APIs</p>
+                    <p class="text-[9px] text-slate-400 uppercase font-black tracking-widest mt-1">ETL / ELT</p>
+                </div>
+                <div class="bg-white p-6 rounded-3xl border border-slate-100 text-center shadow-sm">
+                    <p class="text-sm font-bold">Advanced Analytics</p>
+                    <p class="text-[9px] text-slate-400 uppercase font-black tracking-widest mt-1">ML &amp; IA Ready</p>
+                </div>
+                <div class="bg-white p-6 rounded-3xl border border-slate-100 text-center shadow-sm">
+                    <p class="text-sm font-bold">Cybersecurity Data</p>
+                    <p class="text-[9px] text-slate-400 uppercase font-black tracking-widest mt-1">Zero Trust</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="academia" class="py-24 bg-slate-50">
+            <div class="max-w-7xl mx-auto px-6 grid grid-cols-1 lg:grid-cols-2 gap-20 items-center">
+                <div class="space-y-12">
+                    <div class="border-l-8 border-slate-900 pl-8">
+                        <h2 class="text-4xl font-extrabold tracking-tighter italic">"El conocimiento es el unico activo que no se deprecia".</h2>
+                        <p class="text-slate-500 mt-4 text-lg">Mi formacion esta alineada a las tres grandes nubes y al paradigma de la IA generativa.</p>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="p-8 bg-white rounded-[2.5rem] border border-slate-100 shadow-sm space-y-4">
+                            <span class="text-4xl">MSc</span>
+                            <h5 class="font-bold">MSc. Artificial Intelligence</h5>
+                            <p class="text-[10px] text-blue-600 font-black uppercase tracking-widest">En curso 2024-2026</p>
+                        </div>
+                        <div class="p-8 bg-white rounded-[2.5rem] border border-slate-100 shadow-sm space-y-4">
+                            <span class="text-4xl">IBM</span>
+                            <h5 class="font-bold">IBM Architectural Thinking</h5>
+                            <p class="text-[10px] text-slate-400 font-black uppercase tracking-widest">Foundational Architect</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-white p-12 rounded-[4rem] border border-slate-200 shadow-2xl relative overflow-hidden">
+                    <div class="absolute top-0 right-0 p-8 text-slate-100 text-9xl font-black select-none pointer-events-none">AWS</div>
+                    <div class="relative z-10 space-y-8">
+                        <h4 class="text-2xl font-extrabold">AWS Certification Stack</h4>
+                        <div class="space-y-4">
+                            <div class="flex items-center gap-4 p-4 bg-slate-50 rounded-2xl">
+                                <div class="w-2 h-2 bg-blue-600 rounded-full"></div>
+                                <p class="text-sm font-bold italic">Cloud Practitioner (CCP)</p>
+                            </div>
+                            <div class="flex items-center gap-4 p-4 bg-slate-50 rounded-2xl">
+                                <div class="w-2 h-2 bg-blue-600 rounded-full"></div>
+                                <p class="text-sm font-bold italic">Data Analytics Specialty</p>
+                            </div>
+                            <div class="flex items-center gap-4 p-4 bg-slate-50 rounded-2xl">
+                                <div class="w-2 h-2 bg-blue-600 rounded-full"></div>
+                                <p class="text-sm font-bold italic">Data Lakes &amp; Ingestion Master</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <footer id="contacto" class="max-w-7xl mx-auto px-6 py-24">
+            <div class="bg-blue-600 rounded-[4.5rem] p-12 md:p-24 text-white text-center space-y-12 relative overflow-hidden">
+                <div class="relative z-10 space-y-8">
+                    <h2 class="text-5xl md:text-8xl font-extrabold tracking-tighter leading-none">Hablamos de <br>tu Evolucion?</h2>
+                    <p class="text-blue-100 text-2xl max-w-2xl mx-auto font-medium italic">
+                        "Tu arquitectura hoy determina tu rentabilidad manana. Es momento de disenar el siguiente nivel."
+                    </p>
+                    <div class="flex flex-col md:flex-row gap-6 justify-center pt-8">
+                        <a href="mailto:consultoria@martinduarte.com" class="px-14 py-6 bg-white text-blue-600 rounded-[2.5rem] font-black text-xl hover:scale-105 transition-all shadow-2xl shadow-blue-800/40">
+                            Agendar Auditoria -&gt;
+                        </a>
+                        <a href="https://linkedin.com/in/martinduarte" target="_blank" rel="noopener noreferrer" class="px-14 py-6 bg-blue-700 text-white border border-blue-400 rounded-[2.5rem] font-black text-xl hover:bg-blue-800 transition-all">
+                            LinkedIn
+                        </a>
+                    </div>
+                </div>
+                <div class="absolute inset-0 opacity-10 pointer-events-none">
+                    <canvas id="neuralCanvas"></canvas>
+                </div>
+            </div>
+            <div class="pt-24 text-center text-slate-400 text-[10px] font-black uppercase tracking-[0.5em]">
+                © 2026 MARTIN DUARTE • ENTERPRISE DATA ARCHITECT • AI EVOLUTION
+            </div>
+        </footer>
+    </main>
+
+    <script>
+        const ctxHermes = document.getElementById('hermesChart').getContext('2d');
+        new Chart(ctxHermes, {
+            type: 'line',
+            data: {
+                labels: ['1s', '2s', '3s', '4s', '5s', '6s', '7s'],
+                datasets: [{
+                    data: [420, 395, 430, 405, 460, 410, 425],
+                    borderColor: '#f59e0b',
+                    borderWidth: 4,
+                    tension: 0.4,
+                    pointRadius: 0,
+                    fill: false
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    x: { display: false },
+                    y: { display: false, min: 0, max: 1000 }
+                },
+                plugins: { legend: { display: false } }
+            }
         });
-      });
-    }
-    if (floatingContact && floatingTrigger) {
-      floatingTrigger.addEventListener("click", () => {
-        const isOpen = floatingContact.getAttribute("data-open") === "true";
-        floatingContact.setAttribute("data-open", String(!isOpen));
-        floatingTrigger.setAttribute("aria-expanded", String(!isOpen));
-      });
-      document.addEventListener("click", (event) => {
-        if (!floatingContact.contains(event.target)) {
-          floatingContact.setAttribute("data-open", "false");
-          floatingTrigger.setAttribute("aria-expanded", "false");
+
+        const ctxSap = document.getElementById('sapChart').getContext('2d');
+        new Chart(ctxSap, {
+            type: 'doughnut',
+            data: {
+                labels: ['Validos', 'Duplicados Erradicados'],
+                datasets: [{
+                    data: [100, 0],
+                    backgroundColor: ['#2563eb', '#e2e8f0'],
+                    borderWidth: 0
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                cutout: '85%',
+                plugins: { legend: { display: false } }
+            }
+        });
+
+        const ctxPae = document.getElementById('paeRadarChart').getContext('2d');
+        new Chart(ctxPae, {
+            type: 'radar',
+            data: {
+                labels: ['Persistencia', 'Resiliencia', 'Seguridad', 'Rendimiento', 'Auditoria'],
+                datasets: [
+                    {
+                        label: 'Legacy State',
+                        data: [25, 30, 40, 20, 15],
+                        backgroundColor: 'rgba(255, 255, 255, 0.05)',
+                        borderColor: 'rgba(255, 255, 255, 0.2)',
+                        borderWidth: 1
+                    },
+                    {
+                        label: 'Arquitectura Duarte',
+                        data: [98, 95, 92, 90, 100],
+                        backgroundColor: 'rgba(37, 99, 235, 0.2)',
+                        borderColor: '#2563eb',
+                        borderWidth: 3
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    r: {
+                        angleLines: { color: '#1e293b' },
+                        grid: { color: '#1e293b' },
+                        pointLabels: { color: '#64748b', font: { size: 10, weight: 'bold' } },
+                        ticks: { display: false }
+                    }
+                },
+                plugins: { legend: { display: false } }
+            }
+        });
+
+        const nCanvas = document.getElementById('neuralCanvas');
+        const nctx = nCanvas.getContext('2d');
+
+        function resizeN() {
+            nCanvas.width = nCanvas.parentElement.clientWidth;
+            nCanvas.height = nCanvas.parentElement.clientHeight;
         }
-      });
-    }
-  </script>
+
+        window.addEventListener('resize', resizeN);
+        resizeN();
+
+        function drawN() {
+            nctx.clearRect(0, 0, nCanvas.width, nCanvas.height);
+            nctx.strokeStyle = '#ffffff';
+            nctx.lineWidth = 0.5;
+            for (let i = 0; i < 30; i += 1) {
+                nctx.beginPath();
+                nctx.moveTo(Math.random() * nCanvas.width, Math.random() * nCanvas.height);
+                nctx.lineTo(Math.random() * nCanvas.width, Math.random() * nCanvas.height);
+                nctx.stroke();
+            }
+        }
+
+        drawN();
+        setInterval(drawN, 1500);
+    </script>
 </body>
 </html>
