@@ -3,17 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cloud Architecture - Martin Duarte</title>
+    <title>Cloud Data Architecture - Martin Duarte</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;800&family=Space+Grotesk:wght@300;500;700&display=swap');
-        :root { --primary: #0F172A; --brand: #2563EB; --bg-light: #FDFDFD; }
+        :root { --primary: #0F172A; --brand: #2563EB; --bg-light: #F8FAFC; }
         @page { size: A4; margin: 0; }
         body { font-family: 'Plus Jakarta Sans', sans-serif; background: var(--bg-light); color: var(--primary); margin: 0; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
         .page { width: 210mm; height: 297mm; padding: 20mm; page-break-after: always; position: relative; }
         h1, h2, h3 { font-family: 'Space Grotesk', sans-serif; letter-spacing: -0.02em; }
         .bento-card { background: #FFFFFF; border: 1px solid #E2E8F0; border-radius: 2rem; padding: 2rem; }
         .footer-info { position: absolute; bottom: 15mm; left: 20mm; right: 20mm; border-top: 1px solid #E2E8F0; padding-top: 10px; font-size: 10px; color: #94A3B8; display: flex; justify-content: space-between; text-transform: uppercase; }
+        @media print { body { background: var(--bg-light) !important; } .page { break-after: page; } }
     </style>
 </head>
 <body>
@@ -21,26 +22,45 @@
         <div class="space-y-6">
             <div class="text-sm font-black uppercase tracking-[0.3em] text-blue-500">Complementary Services 2026</div>
             <h1 class="text-7xl font-extrabold leading-none">Cloud Data<br><span class="text-blue-600">Architecture</span></h1>
-            <p class="text-xl text-slate-400 max-w-xl">Escalabilidad, seguridad e integracion en ecosistemas Multi-Cloud.</p>
+            <p class="text-xl text-slate-400 max-w-2xl">Diseno de arquitecturas de datos en AWS, Azure y entornos multi-cloud, contemplando escalabilidad, seguridad, integracion y operacion.</p>
+        </div>
+        <div class="mt-16 grid grid-cols-3 gap-4">
+            <div class="bento-card bg-slate-900 border-slate-800 text-white"><p class="text-xs uppercase tracking-[0.2em] text-blue-400 font-black">Focus</p><p class="mt-3 text-2xl font-black">Multi-cloud</p><p class="mt-2 text-sm text-slate-400">AWS, Azure y entornos hibridos.</p></div>
+            <div class="bento-card bg-slate-900 border-slate-800 text-white"><p class="text-xs uppercase tracking-[0.2em] text-blue-400 font-black">Valor</p><p class="mt-3 text-2xl font-black">Escalabilidad</p><p class="mt-2 text-sm text-slate-400">Con seguridad e integracion desde el diseno.</p></div>
+            <div class="bento-card bg-slate-900 border-slate-800 text-white"><p class="text-xs uppercase tracking-[0.2em] text-blue-400 font-black">Entorno</p><p class="mt-3 text-2xl font-black">Lakehouse + cloud</p><p class="mt-2 text-sm text-slate-400">Para modernizacion y expansion.</p></div>
         </div>
         <div class="footer-info"><div class="font-bold">MARTIN<span class="text-blue-600">DUARTE</span></div><div>Martynduarte@gmail.com | 1123797308</div></div>
     </section>
     <section class="page">
-        <h2 class="text-4xl font-extrabold mb-8 border-l-8 border-blue-600 pl-6">Cloud Strategy</h2>
-        <div class="grid grid-cols-12 gap-6">
-            <div class="col-span-12 bento-card bg-slate-50 border-none"><h4 class="text-xs font-black uppercase text-blue-600 mb-2">Definicion</h4><p class="text-sm text-slate-700">Diseno de arquitecturas de datos en AWS, Azure y entornos multi-cloud, contemplando escalabilidad, seguridad e integracion.</p></div>
-            <div class="col-span-6 bento-card"><h4 class="text-xs font-black uppercase text-blue-600 mb-2">Orientado a</h4><p class="text-[11px] text-slate-600">Organizaciones que necesitan definir o revisar soluciones cloud para datos, lakehouse o modernizacion.</p></div>
-            <div class="col-span-6 bento-card flex items-center justify-center bg-blue-600 text-white"><div class="text-center"><p class="text-3xl font-black">Multi-Cloud</p><p class="text-[10px] uppercase font-bold text-blue-200">AWS | Azure | GCP</p></div></div>
+        <div class="border-l-8 border-blue-600 pl-6 mb-10">
+            <h2 class="text-4xl font-extrabold">Perfil y Encaje en el Portafolio</h2>
+            <p class="text-slate-600 mt-3 max-w-3xl">Servicio complementario para organizaciones que necesitan definir o revisar soluciones cloud para datos, lakehouse, integracion o modernizacion.</p>
         </div>
-        <div class="mt-12">
-            <h4 class="text-xs font-black uppercase text-blue-600 mb-4">Entregables Tipicos</h4>
-            <div class="grid grid-cols-1 gap-3">
-                <div class="p-4 border border-slate-100 rounded-2xl text-[11px] font-bold">&bull; Arquitectura target cloud</div>
-                <div class="p-4 border border-slate-100 rounded-2xl text-[11px] font-bold">&bull; Lineamientos de seguridad e integracion</div>
-                <div class="p-4 border border-slate-100 rounded-2xl text-[11px] font-bold">&bull; Patrones y recomendaciones de escalabilidad</div>
+        <div class="grid grid-cols-2 gap-8">
+            <div class="bento-card bg-blue-50 border-blue-100"><h3 class="text-xs font-black uppercase text-blue-600 mb-4">Como se conecta</h3><p class="text-sm text-slate-700">Acompaña Assessment, Strategy y Modernization para aterrizar patrones de plataforma y decisiones de despliegue sobre AWS, Azure o escenarios multi-cloud.</p></div>
+            <div class="bento-card"><h3 class="text-xs font-black uppercase text-blue-600 mb-4">Base de autoridad</h3><p class="text-sm text-slate-700">Portafolio construido sobre experiencia enterprise en cloud, migracion y plataformas modernas, con stack trabajado en AWS, Azure, Databricks, BigQuery, Hadoop y Spark.</p></div>
+        </div>
+        <div class="grid grid-cols-3 gap-4 mt-8">
+            <div class="p-4 bg-slate-50 rounded-2xl border border-slate-100 text-[11px] font-bold text-center">Arquitectura target cloud</div>
+            <div class="p-4 bg-slate-50 rounded-2xl border border-slate-100 text-[11px] font-bold text-center">Seguridad e integracion</div>
+            <div class="p-4 bg-slate-50 rounded-2xl border border-slate-100 text-[11px] font-bold text-center">Escalabilidad operable</div>
+        </div>
+        <div class="footer-info"><div>Cloud Data Architecture</div><div>Pagina 02</div></div>
+    </section>
+    <section class="page">
+        <h2 class="text-4xl font-extrabold mb-8">Deep Dive del Servicio</h2>
+        <div class="grid grid-cols-2 gap-8">
+            <div class="space-y-6">
+                <div><h4 class="text-xs font-black uppercase text-blue-600 mb-2">Definicion</h4><p class="text-sm text-slate-700">Diseno de arquitecturas de datos en AWS, Azure y entornos multi-cloud, contemplando escalabilidad, seguridad, integracion y operacion.</p></div>
+                <div><h4 class="text-xs font-black uppercase text-blue-600 mb-2">Orientado a</h4><p class="text-sm text-slate-700">Organizaciones que necesitan definir o revisar soluciones cloud para datos, lakehouse, integracion o modernizacion.</p></div>
+                <div><h4 class="text-xs font-black uppercase text-blue-600 mb-2">Resultado esperado</h4><p class="text-sm text-slate-700">Mayor claridad sobre la arquitectura target cloud, sus patrones de integracion y los lineamientos de escalabilidad para acompanar la evolucion del portafolio.</p></div>
+            </div>
+            <div class="space-y-6">
+                <div class="bento-card bg-slate-50 border-none"><h4 class="text-xs font-black uppercase text-slate-400 mb-4">Entregables Tipicos</h4><ul class="text-[11px] text-slate-700 space-y-2"><li>&bull; Arquitectura target cloud.</li><li>&bull; Lineamientos de seguridad e integracion.</li><li>&bull; Patrones y recomendaciones de escalabilidad.</li></ul></div>
+                <div class="p-5 border border-slate-100 rounded-3xl"><h4 class="text-xs font-black uppercase text-blue-600 mb-2">Contacto Directo</h4><p class="text-lg font-bold">Martynduarte@gmail.com</p><p class="text-lg font-bold mt-1">1123797308</p></div>
             </div>
         </div>
-        <div class="footer-info"><div>Martin Duarte | Cloud Services</div><div>Pagina 03</div></div>
+        <div class="footer-info"><div>Cloud Data Architecture</div><div>Pagina 03</div></div>
     </section>
 </body>
 </html>

@@ -3,63 +3,65 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Blueprint Brochure - Martin Duarte</title>
+    <title>Enterprise Data Architecture Blueprint - Martin Duarte</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;800&family=Space+Grotesk:wght@300;500;700&display=swap');
-        :root { --primary: #0F172A; --brand: #2563EB; --bg-light: #FDFDFD; }
+        :root { --primary: #0F172A; --brand: #2563EB; --bg-light: #F8FAFC; }
         @page { size: A4; margin: 0; }
         body { font-family: 'Plus Jakarta Sans', sans-serif; background: var(--bg-light); color: var(--primary); margin: 0; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
         .page { width: 210mm; height: 297mm; padding: 20mm; page-break-after: always; position: relative; }
         h1, h2, h3 { font-family: 'Space Grotesk', sans-serif; letter-spacing: -0.02em; }
         .bento-card { background: #FFFFFF; border: 1px solid #E2E8F0; border-radius: 2rem; padding: 2rem; }
         .footer-info { position: absolute; bottom: 15mm; left: 20mm; right: 20mm; border-top: 1px solid #E2E8F0; padding-top: 10px; font-size: 10px; color: #94A3B8; display: flex; justify-content: space-between; text-transform: uppercase; }
+        @media print { body { background: var(--bg-light) !important; } .page { break-after: page; } }
     </style>
 </head>
 <body>
     <section class="page flex flex-col justify-center bg-[#020617] text-white">
         <div class="space-y-6">
             <div class="text-sm font-black uppercase tracking-[0.3em] text-blue-500">Service Portfolio 2026</div>
-            <h1 class="text-7xl font-extrabold leading-none">Enterprise Data<br><span class="text-blue-600">Architecture Blueprint</span></h1>
-            <p class="text-xl text-slate-400 max-w-xl">Definiendo el estandar para la consistencia empresarial.</p>
+            <h1 class="text-7xl font-extrabold leading-none">Enterprise Data Architecture<br><span class="text-blue-600">Blueprint</span></h1>
+            <p class="text-xl text-slate-400 max-w-2xl">Arquitectura de referencia para alinear negocio, dominios de informacion, principios tecnicos, estandares y plataforma en toda la organizacion.</p>
+        </div>
+        <div class="mt-16 grid grid-cols-3 gap-4">
+            <div class="bento-card bg-slate-900 border-slate-800 text-white"><p class="text-xs uppercase tracking-[0.2em] text-blue-400 font-black">Resultado</p><p class="mt-3 text-2xl font-black">Alineacion</p><p class="mt-2 text-sm text-slate-400">Entre tecnologia, datos y negocio.</p></div>
+            <div class="bento-card bg-slate-900 border-slate-800 text-white"><p class="text-xs uppercase tracking-[0.2em] text-blue-400 font-black">Focus</p><p class="mt-3 text-2xl font-black">Blueprint</p><p class="mt-2 text-sm text-slate-400">Logico, fisico y estandares comunes.</p></div>
+            <div class="bento-card bg-slate-900 border-slate-800 text-white"><p class="text-xs uppercase tracking-[0.2em] text-blue-400 font-black">Valor</p><p class="mt-3 text-2xl font-black">Menos deuda</p><p class="mt-2 text-sm text-slate-400">Y menos decisiones ad hoc.</p></div>
         </div>
         <div class="footer-info"><div class="font-bold">MARTIN<span class="text-blue-600">DUARTE</span></div><div>Martynduarte@gmail.com | 1123797308</div></div>
     </section>
     <section class="page">
-        <h2 class="text-3xl font-bold mb-10 border-l-8 border-blue-600 pl-6">Sobre mi Perfil</h2>
+        <div class="border-l-8 border-blue-600 pl-6 mb-10">
+            <h2 class="text-4xl font-extrabold">Perfil y Ubicacion en el Portafolio</h2>
+            <p class="text-slate-600 mt-3 max-w-3xl">Servicio pensado para organizaciones que ya comprenden sus problemas principales, pero necesitan una vision target formal que unifique criterios entre equipos y ordene la evolucion futura.</p>
+        </div>
         <div class="grid grid-cols-2 gap-8">
-            <div class="space-y-6">
-                <p class="text-slate-600 text-sm leading-relaxed">Martin Duarte cuenta con mas de 15 anos de experiencia como Data Architect en entornos enterprise. Ha liderado el diseno de arquitecturas de referencia en industrias como Banca, Retail y Oil &amp; Gas.</p>
-                <div class="bento-card bg-slate-900 text-white"><h3 class="font-bold text-blue-400 mb-2">Formacion Senior</h3><p class="text-xs">Master en IA (UdeSA) y Lic. en Big Data (UP).</p></div>
-            </div>
-            <div class="bento-card bg-blue-50 border-blue-100">
-                <h3 class="text-xs font-black uppercase text-blue-600 mb-4">Industrias Impactadas</h3>
-                <ul class="text-[11px] font-bold space-y-2">
-                    <li class="flex items-center gap-2"><span>Banca</span></li>
-                    <li class="flex items-center gap-2"><span>Retail</span></li>
-                    <li class="flex items-center gap-2"><span>Oil &amp; Gas</span></li>
-                </ul>
-            </div>
+            <div class="bento-card bg-blue-50 border-blue-100"><h3 class="text-xs font-black uppercase text-blue-600 mb-4">Estructura del Portafolio</h3><p class="text-sm text-slate-700">El Blueprint suele construirse despues del Assessment y funciona como fundamento para Data Platform Strategy y programas de modernizacion.</p></div>
+            <div class="bento-card"><h3 class="text-xs font-black uppercase text-blue-600 mb-4">Capacidades que consolida</h3><p class="text-sm text-slate-700">Dominios relevantes para el negocio, principios de arquitectura, lineamientos de diseno, patrones de integracion, gobierno, seguridad y criterios para modelado, almacenamiento e intercambio.</p></div>
+        </div>
+        <div class="grid grid-cols-3 gap-4 mt-8">
+            <div class="p-4 bg-slate-50 rounded-2xl border border-slate-100 text-[11px] font-bold text-center">Principios y estandares</div>
+            <div class="p-4 bg-slate-50 rounded-2xl border border-slate-100 text-[11px] font-bold text-center">Arquitectura logica y fisica</div>
+            <div class="p-4 bg-slate-50 rounded-2xl border border-slate-100 text-[11px] font-bold text-center">Capacidades y dominios</div>
         </div>
         <div class="footer-info"><div>Blueprint</div><div>Pagina 02</div></div>
     </section>
     <section class="page">
-        <h2 class="text-4xl font-extrabold mb-8">Definicion del Servicio</h2>
-        <div class="grid grid-cols-12 gap-6">
-            <div class="col-span-12 bento-card bg-slate-50 border-none"><h4 class="text-xs font-black uppercase text-blue-600 mb-2">Definicion</h4><p class="text-sm text-slate-700">Diseno de una arquitectura de referencia de datos que alinee negocio, principios tecnicos y componentes de plataforma.</p></div>
-            <div class="col-span-6 bento-card"><h4 class="text-xs font-black uppercase text-blue-600 mb-2">Orientado a</h4><p class="text-[11px] text-slate-600">Empresas que necesitan una vision target formal que unifique criterios entre equipos y reduzca dispersion tecnologica.</p></div>
-            <div class="col-span-6 bento-card"><h4 class="text-xs font-black uppercase text-blue-600 mb-2">Problematicas</h4><p class="text-[11px] text-slate-600">Falta de arquitectura de referencia, decisiones aisladas por equipo y modelos de datos inconsistentes.</p></div>
-        </div>
-        <div class="mt-10">
-            <h4 class="text-xs font-black uppercase text-blue-600 mb-4">Entregables Principales</h4>
-            <div class="grid grid-cols-2 gap-4">
-                <div class="p-4 border border-slate-100 rounded-2xl text-[11px]">Blueprint de arquitectura de datos empresarial</div>
-                <div class="p-4 border border-slate-100 rounded-2xl text-[11px]">Arquitectura logica y fisica de alto nivel</div>
-                <div class="p-4 border border-slate-100 rounded-2xl text-[11px]">Principios y estandares de arquitectura</div>
-                <div class="p-4 border border-slate-100 rounded-2xl text-[11px]">Mapa de capacidades y dominios</div>
+        <h2 class="text-4xl font-extrabold mb-8">Deep Dive del Servicio</h2>
+        <div class="grid grid-cols-2 gap-8">
+            <div class="space-y-6">
+                <div><h4 class="text-xs font-black uppercase text-blue-600 mb-2">Definicion</h4><p class="text-sm text-slate-700">Definicion de una arquitectura de referencia de datos que alinee negocio, dominios de informacion, principios tecnicos, estandares y componentes de plataforma para orientar decisiones consistentes.</p></div>
+                <div><h4 class="text-xs font-black uppercase text-blue-600 mb-2">Problematicas</h4><p class="text-sm text-slate-700">Falta de arquitectura de referencia, decisiones aisladas por equipo, modelos inconsistentes, integraciones desordenadas y ausencia de principios comunes para alinear arquitectura y negocio.</p></div>
+                <div><h4 class="text-xs font-black uppercase text-blue-600 mb-2">Alcance</h4><p class="text-sm text-slate-700">Identificacion de capacidades y dominios, definicion de principios y lineamientos, diseno de arquitectura logica y fisica, definicion de componentes y patrones de integracion, y normalizacion de criterios para modelado y consumo.</p></div>
+            </div>
+            <div class="space-y-6">
+                <div class="bento-card bg-slate-50 border-none"><h4 class="text-xs font-black uppercase text-slate-400 mb-4">Entregables Principales</h4><ul class="text-[11px] text-slate-700 space-y-2"><li>&bull; Blueprint de arquitectura de datos empresarial.</li><li>&bull; Arquitectura logica y fisica de alto nivel.</li><li>&bull; Principios y estandares de arquitectura.</li><li>&bull; Lineamientos de integracion y consumo.</li><li>&bull; Recomendaciones para gobierno, seguridad y calidad.</li><li>&bull; Mapa de capacidades y dominios de informacion.</li></ul></div>
+                <div><h4 class="text-xs font-black uppercase text-blue-600 mb-2">Beneficios</h4><p class="text-sm text-slate-700">Alineacion entre equipos, reduccion de deuda arquitectonica, base comun para modernizacion y migracion, y mayor coherencia en modelos, integraciones y estandares corporativos.</p></div>
+                <div class="p-5 border border-slate-100 rounded-3xl"><h4 class="text-xs font-black uppercase text-blue-600 mb-2">Contacto Directo</h4><p class="text-lg font-bold">Martynduarte@gmail.com</p><p class="text-lg font-bold mt-1">1123797308</p></div>
             </div>
         </div>
-        <div class="footer-info"><div>Data Architect Portfolio</div><div>Pagina 03</div></div>
+        <div class="footer-info"><div>Enterprise Data Architecture Blueprint</div><div>Pagina 03</div></div>
     </section>
 </body>
 </html>

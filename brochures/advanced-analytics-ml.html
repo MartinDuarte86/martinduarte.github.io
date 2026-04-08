@@ -3,55 +3,64 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Advanced Analytics and ML - Martin Duarte</title>
+    <title>Advanced Analytics and Machine Learning - Martin Duarte</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;800&family=Space+Grotesk:wght@300;500;700&display=swap');
-        :root { --primary: #0F172A; --brand: #2563EB; --bg-light: #FDFDFD; }
+        :root { --primary: #0F172A; --brand: #2563EB; --bg-light: #F8FAFC; }
         @page { size: A4; margin: 0; }
         body { font-family: 'Plus Jakarta Sans', sans-serif; background: var(--bg-light); color: var(--primary); margin: 0; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
         .page { width: 210mm; height: 297mm; padding: 20mm; page-break-after: always; position: relative; overflow: hidden; }
         h1, h2, h3 { font-family: 'Space Grotesk', sans-serif; letter-spacing: -0.02em; }
         .bento-card { background: #FFFFFF; border: 1px solid #E2E8F0; border-radius: 2rem; padding: 2rem; }
         .footer-info { position: absolute; bottom: 15mm; left: 20mm; right: 20mm; border-top: 1px solid #E2E8F0; padding-top: 10px; font-size: 10px; color: #94A3B8; display: flex; justify-content: space-between; text-transform: uppercase; }
+        @media print { body { background: var(--bg-light) !important; } .page { break-after: page; } }
     </style>
 </head>
 <body>
     <section class="page flex flex-col justify-center bg-[#020617] text-white">
         <div class="space-y-6">
             <div class="text-sm font-black uppercase tracking-[0.3em] text-blue-500">Complementary Services 2026</div>
-            <h1 class="text-7xl font-extrabold leading-none">Advanced Analytics<br><span class="text-blue-600">&amp; ML</span></h1>
-            <p class="text-xl text-slate-400 max-w-xl">Habilitacion de capacidades analiticas avanzadas y modelos predictivos sobre plataformas modernas.</p>
+            <h1 class="text-7xl font-extrabold leading-none">Advanced Analytics &amp;<br><span class="text-blue-600">Machine Learning</span></h1>
+            <p class="text-xl text-slate-400 max-w-2xl">Acompanamiento para habilitar capacidades analiticas avanzadas y de machine learning sobre plataformas de datos modernas.</p>
+        </div>
+        <div class="mt-16 grid grid-cols-3 gap-4">
+            <div class="bento-card bg-slate-900 border-slate-800 text-white"><p class="text-xs uppercase tracking-[0.2em] text-blue-400 font-black">Focus</p><p class="mt-3 text-2xl font-black">Capacidades analiticas</p><p class="mt-2 text-sm text-slate-400">Sobre plataformas modernas y confiables.</p></div>
+            <div class="bento-card bg-slate-900 border-slate-800 text-white"><p class="text-xs uppercase tracking-[0.2em] text-blue-400 font-black">Valor</p><p class="mt-3 text-2xl font-black">Escala analitica</p><p class="mt-2 text-sm text-slate-400">Con criterio de habilitacion y adopcion.</p></div>
+            <div class="bento-card bg-slate-900 border-slate-800 text-white"><p class="text-xs uppercase tracking-[0.2em] text-blue-400 font-black">Base</p><p class="mt-3 text-2xl font-black">Master en IA</p><p class="mt-2 text-sm text-slate-400">Como soporte academico y practico.</p></div>
         </div>
         <div class="footer-info"><div class="font-bold">MARTIN<span class="text-blue-600">DUARTE</span></div><div>Martynduarte@gmail.com | 1123797308</div></div>
     </section>
     <section class="page">
-        <h2 class="text-4xl font-extrabold mb-10">Advanced Analytics &amp; Machine Learning</h2>
-        <div class="grid grid-cols-12 gap-6">
-            <div class="col-span-12 bento-card bg-[#020617] text-white">
-                <div class="flex gap-8 items-center">
-                    <div class="flex-1">
-                        <h3 class="text-2xl font-bold mb-2 text-blue-500">Capacidades Analiticas Avanzadas</h3>
-                        <p class="text-sm text-slate-400">Acompanamiento para habilitar modelos predictivos, analitica aplicada y decisiones sobre una base de datos moderna y gobernada.</p>
-                    </div>
-                    <div class="w-32 h-32 bg-slate-800 rounded-3xl flex items-center justify-center text-2xl">AI</div>
-                </div>
+        <div class="border-l-8 border-blue-600 pl-6 mb-10">
+            <h2 class="text-4xl font-extrabold">Perfil y Encaje en el Portafolio</h2>
+            <p class="text-slate-600 mt-3 max-w-3xl">Servicio complementario para organizaciones que quieren escalar analitica avanzada, modelos predictivos o democratizacion de informacion.</p>
+        </div>
+        <div class="grid grid-cols-2 gap-8">
+            <div class="bento-card bg-blue-50 border-blue-100"><h3 class="text-xs font-black uppercase text-blue-600 mb-4">Como se conecta</h3><p class="text-sm text-slate-700">Opera sobre plataformas definidas por Assessment, Strategy y Modernization para transformar datos en capacidades predictivas, casos de uso y mayor valor de negocio.</p></div>
+            <div class="bento-card"><h3 class="text-xs font-black uppercase text-blue-600 mb-4">Base de autoridad</h3><p class="text-sm text-slate-700">Se apoya en experiencia profesional en arquitectura y plataformas modernas, junto con Master en Inteligencia Artificial (UdeSA) y Licenciatura en Big Data (UP).</p></div>
+        </div>
+        <div class="grid grid-cols-3 gap-4 mt-8">
+            <div class="p-4 bg-slate-50 rounded-2xl border border-slate-100 text-[11px] font-bold text-center">Arquitectura analitica</div>
+            <div class="p-4 bg-slate-50 rounded-2xl border border-slate-100 text-[11px] font-bold text-center">Habilitacion</div>
+            <div class="p-4 bg-slate-50 rounded-2xl border border-slate-100 text-[11px] font-bold text-center">Capacidades necesarias</div>
+        </div>
+        <div class="footer-info"><div>Advanced Analytics &amp; Machine Learning</div><div>Pagina 02</div></div>
+    </section>
+    <section class="page">
+        <h2 class="text-4xl font-extrabold mb-8">Deep Dive del Servicio</h2>
+        <div class="grid grid-cols-2 gap-8">
+            <div class="space-y-6">
+                <div><h4 class="text-xs font-black uppercase text-blue-600 mb-2">Definicion</h4><p class="text-sm text-slate-700">Acompanamiento para habilitar capacidades analiticas avanzadas y de machine learning sobre plataformas de datos modernas.</p></div>
+                <div><h4 class="text-xs font-black uppercase text-blue-600 mb-2">Orientado a</h4><p class="text-sm text-slate-700">Organizaciones que quieren escalar analitica avanzada, modelos predictivos o democratizacion de informacion.</p></div>
+                <div><h4 class="text-xs font-black uppercase text-blue-600 mb-2">Resultado esperado</h4><p class="text-sm text-slate-700">Una base clara para habilitar analitica avanzada sobre infraestructura adecuada, con decisiones coherentes sobre capacidades, arquitectura y adopcion.</p></div>
             </div>
-            <div class="col-span-12 mt-4">
-                <h4 class="text-xs font-black uppercase text-blue-600 mb-4">Habilitacion de Valor Academico-Profesional</h4>
-                <div class="grid grid-cols-2 gap-4">
-                    <div class="p-5 border border-slate-100 rounded-3xl">
-                        <p class="text-xs font-bold text-slate-400 uppercase mb-2">Formacion</p>
-                        <p class="text-sm font-bold">Master en IA - Universidad de San Andres</p>
-                    </div>
-                    <div class="p-5 border border-slate-100 rounded-3xl">
-                        <p class="text-xs font-bold text-slate-400 uppercase mb-2">Entregable Tipico</p>
-                        <p class="text-sm font-bold">Definicion de capacidades necesarias y arquitectura analitica para evolucionar con criterio.</p>
-                    </div>
-                </div>
+            <div class="space-y-6">
+                <div class="bento-card bg-slate-50 border-none"><h4 class="text-xs font-black uppercase text-slate-400 mb-4">Entregables Tipicos</h4><ul class="text-[11px] text-slate-700 space-y-2"><li>&bull; Requerimientos de arquitectura analitica.</li><li>&bull; Recomendaciones de habilitacion.</li><li>&bull; Definicion de capacidades necesarias.</li></ul></div>
+                <div class="p-5 border border-slate-100 rounded-3xl"><h4 class="text-xs font-black uppercase text-blue-600 mb-2">Contacto Directo</h4><p class="text-lg font-bold">Martynduarte@gmail.com</p><p class="text-lg font-bold mt-1">1123797308</p></div>
             </div>
         </div>
-        <div class="footer-info"><div>AI Strategy</div><div>Pagina 02</div></div>
+        <div class="footer-info"><div>Advanced Analytics &amp; Machine Learning</div><div>Pagina 03</div></div>
     </section>
 </body>
 </html>

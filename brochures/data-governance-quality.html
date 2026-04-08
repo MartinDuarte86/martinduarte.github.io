@@ -3,59 +3,65 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Data Governance and Quality - Martin Duarte</title>
+    <title>Data Governance and Data Quality - Martin Duarte</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;800&family=Space+Grotesk:wght@300;500;700&display=swap');
-        :root { --primary: #0F172A; --brand: #2563EB; --bg-light: #FDFDFD; }
+        :root { --primary: #0F172A; --brand: #2563EB; --bg-light: #F8FAFC; }
         @page { size: A4; margin: 0; }
         body { font-family: 'Plus Jakarta Sans', sans-serif; background: var(--bg-light); color: var(--primary); margin: 0; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-        .page { width: 210mm; height: 297mm; padding: 20mm; page-break-after: always; position: relative; overflow: hidden; }
+        .page { width: 210mm; height: 297mm; padding: 20mm; page-break-after: always; position: relative; }
         h1, h2, h3 { font-family: 'Space Grotesk', sans-serif; letter-spacing: -0.02em; }
         .bento-card { background: #FFFFFF; border: 1px solid #E2E8F0; border-radius: 2rem; padding: 2rem; }
         .footer-info { position: absolute; bottom: 15mm; left: 20mm; right: 20mm; border-top: 1px solid #E2E8F0; padding-top: 10px; font-size: 10px; color: #94A3B8; display: flex; justify-content: space-between; text-transform: uppercase; }
+        @media print { body { background: var(--bg-light) !important; } .page { break-after: page; } }
     </style>
 </head>
 <body>
     <section class="page flex flex-col justify-center bg-[#020617] text-white">
         <div class="space-y-6">
             <div class="text-sm font-black uppercase tracking-[0.3em] text-blue-500">Complementary Services 2026</div>
-            <h1 class="text-7xl font-extrabold leading-none">Data Governance<br><span class="text-blue-600">&amp; Quality</span></h1>
-            <p class="text-xl text-slate-400 max-w-xl">Frameworks para mejorar ownership, confiabilidad y trazabilidad del dato en entornos enterprise.</p>
+            <h1 class="text-7xl font-extrabold leading-none">Data Governance &amp;<br><span class="text-blue-600">Data Quality</span></h1>
+            <p class="text-xl text-slate-400 max-w-2xl">Frameworks de gobierno, calidad y estandarizacion de datos para mejorar confiabilidad, trazabilidad y consistencia entre dominios y plataformas.</p>
+        </div>
+        <div class="mt-16 grid grid-cols-3 gap-4">
+            <div class="bento-card bg-slate-900 border-slate-800 text-white"><p class="text-xs uppercase tracking-[0.2em] text-blue-400 font-black">Focus</p><p class="mt-3 text-2xl font-black">Ownership</p><p class="mt-2 text-sm text-slate-400">Calidad, catalogacion y trazabilidad.</p></div>
+            <div class="bento-card bg-slate-900 border-slate-800 text-white"><p class="text-xs uppercase tracking-[0.2em] text-blue-400 font-black">Valor</p><p class="mt-3 text-2xl font-black">Mayor confianza</p><p class="mt-2 text-sm text-slate-400">Para operar y decidir con datos.</p></div>
+            <div class="bento-card bg-slate-900 border-slate-800 text-white"><p class="text-xs uppercase tracking-[0.2em] text-blue-400 font-black">Aplicacion</p><p class="mt-3 text-2xl font-black">Cross-domain</p><p class="mt-2 text-sm text-slate-400">En entornos fragmentados o regionales.</p></div>
         </div>
         <div class="footer-info"><div class="font-bold">MARTIN<span class="text-blue-600">DUARTE</span></div><div>Martynduarte@gmail.com | 1123797308</div></div>
     </section>
     <section class="page">
-        <h2 class="text-4xl font-extrabold mb-10">Data Governance &amp; Quality</h2>
-        <div class="grid grid-cols-12 gap-6">
-            <div class="col-span-7 bento-card bg-slate-900 text-white">
-                <h4 class="text-xs font-black uppercase text-blue-500 mb-4">Problematicas de Calidad</h4>
-                <p class="text-sm text-slate-400 mb-4">Brechas de ownership, inconsistencia entre dominios, reglas ambiguas y falta de trazabilidad del dato.</p>
-                <div class="p-4 bg-slate-800 rounded-xl">
-                    <p class="text-xs font-bold">Solucion: definicion de frameworks de gobierno, responsabilidades y estandares para elevar la confiabilidad.</p>
-                </div>
+        <div class="border-l-8 border-blue-600 pl-6 mb-10">
+            <h2 class="text-4xl font-extrabold">Perfil y Encaje en el Portafolio</h2>
+            <p class="text-slate-600 mt-3 max-w-3xl">Servicio complementario orientado a empresas con brechas de ownership, calidad, catalogacion o consistencia entre dominios y plataformas.</p>
+        </div>
+        <div class="grid grid-cols-2 gap-8">
+            <div class="bento-card bg-blue-50 border-blue-100"><h3 class="text-xs font-black uppercase text-blue-600 mb-4">Como se conecta</h3><p class="text-sm text-slate-700">Refuerza Assessment, Blueprint, Strategy y Fractional al convertir arquitectura y decisiones de plataforma en reglas, roles, controles y metricas sostenibles.</p></div>
+            <div class="bento-card"><h3 class="text-xs font-black uppercase text-blue-600 mb-4">Base de autoridad</h3><p class="text-sm text-slate-700">Enfoque construido desde experiencia real en gobierno, integracion empresarial y modernizacion de plataformas, aplicado a ecosistemas cloud y enterprise.</p></div>
+        </div>
+        <div class="grid grid-cols-4 gap-4 mt-8">
+            <div class="p-4 bg-slate-50 rounded-2xl border border-slate-100 text-[11px] font-bold text-center">Modelo de gobierno</div>
+            <div class="p-4 bg-slate-50 rounded-2xl border border-slate-100 text-[11px] font-bold text-center">Lineamientos de calidad</div>
+            <div class="p-4 bg-slate-50 rounded-2xl border border-slate-100 text-[11px] font-bold text-center">Roles y procesos</div>
+            <div class="p-4 bg-slate-50 rounded-2xl border border-slate-100 text-[11px] font-bold text-center">Controles y metricas</div>
+        </div>
+        <div class="footer-info"><div>Data Governance &amp; Data Quality</div><div>Pagina 02</div></div>
+    </section>
+    <section class="page">
+        <h2 class="text-4xl font-extrabold mb-8">Deep Dive del Servicio</h2>
+        <div class="grid grid-cols-2 gap-8">
+            <div class="space-y-6">
+                <div><h4 class="text-xs font-black uppercase text-blue-600 mb-2">Definicion</h4><p class="text-sm text-slate-700">Definicion de frameworks de gobierno, calidad y estandarizacion de datos para mejorar confiabilidad, trazabilidad y consistencia.</p></div>
+                <div><h4 class="text-xs font-black uppercase text-blue-600 mb-2">Orientado a</h4><p class="text-sm text-slate-700">Empresas con brechas de ownership, calidad, catalogacion o consistencia entre dominios y plataformas.</p></div>
+                <div><h4 class="text-xs font-black uppercase text-blue-600 mb-2">Resultado esperado</h4><p class="text-sm text-slate-700">Mayor confiabilidad operativa y analitica a partir de reglas, responsabilidades y controles que puedan sostener el crecimiento de la plataforma.</p></div>
             </div>
-            <div class="col-span-5 bento-card border-blue-100 bg-blue-50">
-                <h4 class="text-xs font-black uppercase text-blue-600 mb-4">Entregables</h4>
-                <ul class="text-[10px] space-y-2 font-bold text-slate-700">
-                    <li>&bull; Modelo de gobierno y ownership</li>
-                    <li>&bull; Lineamientos de calidad y controles</li>
-                    <li>&bull; Metricas sugeridas de confiabilidad</li>
-                    <li>&bull; Recomendaciones de trazabilidad</li>
-                </ul>
+            <div class="space-y-6">
+                <div class="bento-card bg-slate-50 border-none"><h4 class="text-xs font-black uppercase text-slate-400 mb-4">Entregables Tipicos</h4><ul class="text-[11px] text-slate-700 space-y-2"><li>&bull; Modelo de gobierno.</li><li>&bull; Lineamientos de calidad.</li><li>&bull; Recomendaciones de roles y procesos.</li><li>&bull; Controles y metricas sugeridas.</li></ul></div>
+                <div class="p-5 border border-slate-100 rounded-3xl"><h4 class="text-xs font-black uppercase text-blue-600 mb-2">Contacto Directo</h4><p class="text-lg font-bold">Martynduarte@gmail.com</p><p class="text-lg font-bold mt-1">1123797308</p></div>
             </div>
         </div>
-        <div class="mt-12 grid grid-cols-2 gap-4">
-            <div class="p-5 border border-slate-100 rounded-3xl">
-                <p class="text-xs font-bold text-slate-400 uppercase mb-2">Orientado a</p>
-                <p class="text-sm font-bold">Equipos con datos inconsistentes, dominios desacoplados o baja confianza analitica.</p>
-            </div>
-            <div class="p-5 border border-slate-100 rounded-3xl">
-                <p class="text-xs font-bold text-slate-400 uppercase mb-2">Resultado</p>
-                <p class="text-sm font-bold">Mayor claridad operativa para decidir, auditar y escalar sin ambiguedad.</p>
-            </div>
-        </div>
-        <div class="footer-info"><div>Governance &amp; Quality</div><div>Pagina 02</div></div>
+        <div class="footer-info"><div>Data Governance &amp; Data Quality</div><div>Pagina 03</div></div>
     </section>
 </body>
 </html>

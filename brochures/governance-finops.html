@@ -7,38 +7,59 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;800&family=Space+Grotesk:wght@300;500;700&display=swap');
-        :root { --primary: #0F172A; --brand: #2563EB; --bg-light: #FDFDFD; }
+        :root { --primary: #0F172A; --brand: #2563EB; --bg-light: #F8FAFC; }
         @page { size: A4; margin: 0; }
         body { font-family: 'Plus Jakarta Sans', sans-serif; background: var(--bg-light); color: var(--primary); margin: 0; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
         .page { width: 210mm; height: 297mm; padding: 20mm; page-break-after: always; position: relative; }
         h1, h2, h3 { font-family: 'Space Grotesk', sans-serif; letter-spacing: -0.02em; }
         .bento-card { background: #FFFFFF; border: 1px solid #E2E8F0; border-radius: 2rem; padding: 2rem; }
         .footer-info { position: absolute; bottom: 15mm; left: 20mm; right: 20mm; border-top: 1px solid #E2E8F0; padding-top: 10px; font-size: 10px; color: #94A3B8; display: flex; justify-content: space-between; text-transform: uppercase; }
+        @media print { body { background: var(--bg-light) !important; } .page { break-after: page; } }
     </style>
 </head>
 <body>
     <section class="page flex flex-col justify-center bg-[#020617] text-white">
         <div class="space-y-6">
-            <div class="text-sm font-black uppercase tracking-[0.3em] text-blue-500">Complementary Services 2026</div>
-            <h1 class="text-7xl font-extrabold leading-none">Operational<br><span class="text-blue-600">Effectiveness</span></h1>
-            <p class="text-xl text-slate-400 max-w-xl">Data Governance, Quality y FinOps para entornos que necesitan control, confiabilidad y eficiencia.</p>
+            <div class="text-sm font-black uppercase tracking-[0.3em] text-blue-500">Portfolio Synthesis 2026</div>
+            <h1 class="text-7xl font-extrabold leading-none">Governance &amp;<br><span class="text-blue-600">FinOps</span></h1>
+            <p class="text-xl text-slate-400 max-w-2xl">Pieza de sintesis para organizaciones que necesitan combinar confiabilidad del dato con eficiencia economica en la evolucion de su plataforma.</p>
+        </div>
+        <div class="mt-16 grid grid-cols-2 gap-4">
+            <div class="bento-card bg-slate-900 border-slate-800 text-white"><p class="text-xs uppercase tracking-[0.2em] text-blue-400 font-black">Governance</p><p class="mt-3 text-2xl font-black">Ownership + calidad</p><p class="mt-2 text-sm text-slate-400">Frameworks, roles, procesos y controles.</p></div>
+            <div class="bento-card bg-slate-900 border-slate-800 text-white"><p class="text-xs uppercase tracking-[0.2em] text-blue-400 font-black">FinOps</p><p class="mt-3 text-2xl font-black">Costo + eficiencia</p><p class="mt-2 text-sm text-slate-400">Diagnostico, ahorro y decisiones de arquitectura.</p></div>
         </div>
         <div class="footer-info"><div class="font-bold">MARTIN<span class="text-blue-600">DUARTE</span></div><div>Martynduarte@gmail.com | 1123797308</div></div>
     </section>
     <section class="page">
-        <h2 class="text-4xl font-extrabold mb-10">Data Governance &amp; Quality</h2>
-        <div class="grid grid-cols-12 gap-6">
-            <div class="col-span-7 bento-card bg-slate-900 text-white"><h4 class="text-xs font-black uppercase text-blue-500 mb-4">Problematicas de Calidad</h4><p class="text-sm text-slate-400 mb-4">Brechas de ownership, inconsistencia entre dominios y falta de trazabilidad del dato.</p><div class="p-4 bg-slate-800 rounded-xl"><p class="text-xs font-bold">Solucion: definicion de frameworks de gobierno y estandarizacion para mejorar la confiabilidad.</p></div></div>
-            <div class="col-span-5 bento-card border-blue-100 bg-blue-50"><h4 class="text-xs font-black uppercase text-blue-600 mb-4">Entregables</h4><ul class="text-[10px] space-y-2 font-bold text-slate-700"><li>&bull; Modelo de gobierno</li><li>&bull; Lineamientos de calidad</li><li>&bull; Controles y metricas sugeridas</li></ul></div>
+        <div class="border-l-8 border-blue-600 pl-6 mb-10">
+            <h2 class="text-4xl font-extrabold">Como se usa esta pieza</h2>
+            <p class="text-slate-600 mt-3 max-w-3xl">Este brochure sintetiza dos servicios complementarios reales del portafolio: Data Governance &amp; Data Quality y FinOps &amp; Cloud Cost Optimization. Sirve para conversaciones donde control operativo y rentabilidad deben resolverse en simultaneo.</p>
         </div>
-        <div class="mt-16">
-            <h2 class="text-4xl font-extrabold mb-10">FinOps &amp; Cloud Cost Optimization</h2>
-            <div class="grid grid-cols-12 gap-6">
-                <div class="col-span-5 bento-card bg-blue-600 text-white flex flex-col justify-center text-center"><p class="text-4xl font-black">60%</p><p class="text-[10px] uppercase font-bold">Optimizacion TCO en Proyectos SaaS</p></div>
-                <div class="col-span-7 bento-card"><h4 class="text-xs font-black uppercase text-blue-600 mb-2">Definicion</h4><p class="text-[11px] text-slate-600 leading-relaxed">Analisis y optimizacion del costo operativo de plataformas mediante criterios FinOps y eficiencia de workloads.</p><div class="mt-4 flex gap-2"><span class="px-2 py-1 bg-slate-100 rounded text-[9px] font-bold">Diagnostico de costos</span><span class="px-2 py-1 bg-slate-100 rounded text-[9px] font-bold">Plan de ahorro</span></div></div>
+        <div class="grid grid-cols-2 gap-8">
+            <div class="bento-card bg-blue-50 border-blue-100"><h3 class="text-xs font-black uppercase text-blue-600 mb-4">Data Governance &amp; Data Quality</h3><p class="text-sm text-slate-700">Frameworks para mejorar confiabilidad, trazabilidad y consistencia mediante modelo de gobierno, lineamientos de calidad, roles, procesos y controles.</p></div>
+            <div class="bento-card"><h3 class="text-xs font-black uppercase text-blue-600 mb-4">FinOps &amp; Cloud Cost Optimization</h3><p class="text-sm text-slate-700">Optimizacion del costo operativo de plataformas cloud mediante diagnostico de costos, hallazgos de ahorro y planes de optimizacion por componentes.</p></div>
+        </div>
+        <div class="grid grid-cols-4 gap-4 mt-8">
+            <div class="p-4 bg-slate-50 rounded-2xl border border-slate-100 text-[11px] font-bold text-center">Modelo de gobierno</div>
+            <div class="p-4 bg-slate-50 rounded-2xl border border-slate-100 text-[11px] font-bold text-center">Roles y metricas</div>
+            <div class="p-4 bg-slate-50 rounded-2xl border border-slate-100 text-[11px] font-bold text-center">Diagnostico de costos</div>
+            <div class="p-4 bg-slate-50 rounded-2xl border border-slate-100 text-[11px] font-bold text-center">Plan de optimizacion</div>
+        </div>
+        <div class="footer-info"><div>Governance &amp; FinOps</div><div>Pagina 02</div></div>
+    </section>
+    <section class="page">
+        <h2 class="text-4xl font-extrabold mb-8">Aplicacion en Programas de Transformacion</h2>
+        <div class="grid grid-cols-2 gap-8">
+            <div class="space-y-6">
+                <div><h4 class="text-xs font-black uppercase text-blue-600 mb-2">Cuando conviene</h4><p class="text-sm text-slate-700">Cuando una organizacion necesita escalar plataforma sin perder control de calidad, ownership y trazabilidad, y al mismo tiempo requiere disciplina economica sobre cloud, storage y compute.</p></div>
+                <div><h4 class="text-xs font-black uppercase text-blue-600 mb-2">Donde encaja</h4><p class="text-sm text-slate-700">Acompana Assessment, Strategy, Modernization y Fractional como capa complementaria para volver sostenibles las decisiones tecnicas y financieras.</p></div>
+            </div>
+            <div class="space-y-6">
+                <div class="bento-card bg-slate-50 border-none"><h4 class="text-xs font-black uppercase text-slate-400 mb-4">Contacto Directo</h4><p class="text-lg font-bold">Martynduarte@gmail.com</p><p class="text-lg font-bold mt-1">1123797308</p></div>
+                <div><h4 class="text-xs font-black uppercase text-blue-600 mb-2">Base de autoridad</h4><p class="text-sm text-slate-700">Portafolio apoyado en experiencia real en arquitectura de datos, modernizacion, integracion, gobierno, cloud y optimizacion de costos en banca, retail y oil &amp; gas.</p></div>
             </div>
         </div>
-        <div class="footer-info"><div>Governance and FinOps</div><div>Pagina 02</div></div>
+        <div class="footer-info"><div>Governance &amp; FinOps</div><div>Pagina 03</div></div>
     </section>
 </body>
 </html>

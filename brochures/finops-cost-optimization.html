@@ -3,56 +3,64 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FinOps and Cost Optimization - Martin Duarte</title>
+    <title>FinOps and Cloud Cost Optimization - Martin Duarte</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;800&family=Space+Grotesk:wght@300;500;700&display=swap');
-        :root { --primary: #0F172A; --brand: #2563EB; --bg-light: #FDFDFD; }
+        :root { --primary: #0F172A; --brand: #2563EB; --bg-light: #F8FAFC; }
         @page { size: A4; margin: 0; }
         body { font-family: 'Plus Jakarta Sans', sans-serif; background: var(--bg-light); color: var(--primary); margin: 0; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
         .page { width: 210mm; height: 297mm; padding: 20mm; page-break-after: always; position: relative; overflow: hidden; }
         h1, h2, h3 { font-family: 'Space Grotesk', sans-serif; letter-spacing: -0.02em; }
         .bento-card { background: #FFFFFF; border: 1px solid #E2E8F0; border-radius: 2rem; padding: 2rem; }
         .footer-info { position: absolute; bottom: 15mm; left: 20mm; right: 20mm; border-top: 1px solid #E2E8F0; padding-top: 10px; font-size: 10px; color: #94A3B8; display: flex; justify-content: space-between; text-transform: uppercase; }
+        @media print { body { background: var(--bg-light) !important; } .page { break-after: page; } }
     </style>
 </head>
 <body>
     <section class="page flex flex-col justify-center bg-[#020617] text-white">
         <div class="space-y-6">
             <div class="text-sm font-black uppercase tracking-[0.3em] text-blue-500">Complementary Services 2026</div>
-            <h1 class="text-7xl font-extrabold leading-none">FinOps &amp; Cost<br><span class="text-blue-600">Optimization</span></h1>
-            <p class="text-xl text-slate-400 max-w-xl">Eficiencia de workloads, control de TCO y optimizacion de costos desde el diseno de plataforma.</p>
+            <h1 class="text-7xl font-extrabold leading-none">FinOps &amp; Cloud Cost<br><span class="text-blue-600">Optimization</span></h1>
+            <p class="text-xl text-slate-400 max-w-2xl">Analisis y optimizacion del costo operativo de plataformas de datos en cloud mediante criterios FinOps, eficiencia de workloads y decisiones de arquitectura.</p>
+        </div>
+        <div class="mt-16 grid grid-cols-3 gap-4">
+            <div class="bento-card bg-slate-900 border-slate-800 text-white"><p class="text-xs uppercase tracking-[0.2em] text-blue-400 font-black">Focus</p><p class="mt-3 text-2xl font-black">Costo + arquitectura</p><p class="mt-2 text-sm text-slate-400">Storage, compute y decisiones de diseno.</p></div>
+            <div class="bento-card bg-slate-900 border-slate-800 text-white"><p class="text-xs uppercase tracking-[0.2em] text-blue-400 font-black">Valor</p><p class="mt-3 text-2xl font-black">Eficiencia</p><p class="mt-2 text-sm text-slate-400">Con guardrails y control de consumo.</p></div>
+            <div class="bento-card bg-slate-900 border-slate-800 text-white"><p class="text-xs uppercase tracking-[0.2em] text-blue-400 font-black">Aplicacion</p><p class="mt-3 text-2xl font-black">Entornos cloud</p><p class="mt-2 text-sm text-slate-400">Con costos crecientes y poca visibilidad.</p></div>
         </div>
         <div class="footer-info"><div class="font-bold">MARTIN<span class="text-blue-600">DUARTE</span></div><div>Martynduarte@gmail.com | 1123797308</div></div>
     </section>
     <section class="page">
-        <h2 class="text-4xl font-extrabold mb-10">FinOps &amp; Cloud Cost Optimization</h2>
-        <div class="grid grid-cols-12 gap-6">
-            <div class="col-span-5 bento-card bg-blue-600 text-white flex flex-col justify-center text-center">
-                <p class="text-4xl font-black">60%</p>
-                <p class="text-[10px] uppercase font-bold">Optimizacion TCO en proyectos SaaS</p>
-            </div>
-            <div class="col-span-7 bento-card">
-                <h4 class="text-xs font-black uppercase text-blue-600 mb-2">Definicion</h4>
-                <p class="text-[11px] text-slate-600 leading-relaxed">Analisis y optimizacion del costo operativo de plataformas cloud mediante criterios FinOps, visibilidad de consumo y eficiencia de workloads.</p>
-                <div class="mt-4 flex gap-2">
-                    <span class="px-2 py-1 bg-slate-100 rounded text-[9px] font-bold">Diagnostico de costos</span>
-                    <span class="px-2 py-1 bg-slate-100 rounded text-[9px] font-bold">Plan de ahorro</span>
-                    <span class="px-2 py-1 bg-slate-100 rounded text-[9px] font-bold">Guardrails</span>
-                </div>
-            </div>
+        <div class="border-l-8 border-blue-600 pl-6 mb-10">
+            <h2 class="text-4xl font-extrabold">Perfil y Encaje en el Portafolio</h2>
+            <p class="text-slate-600 mt-3 max-w-3xl">Servicio complementario para entornos cloud con costos crecientes, bajo control de consumo o necesidad de optimizar storage, compute y procesos.</p>
         </div>
-        <div class="mt-12 grid grid-cols-2 gap-4">
-            <div class="p-5 border border-slate-100 rounded-3xl">
-                <p class="text-xs font-bold text-slate-400 uppercase mb-2">Orientado a</p>
-                <p class="text-sm font-bold">Organizaciones con crecimiento de consumo cloud y baja previsibilidad financiera.</p>
-            </div>
-            <div class="p-5 border border-slate-100 rounded-3xl">
-                <p class="text-xs font-bold text-slate-400 uppercase mb-2">Entregables tipicos</p>
-                <p class="text-sm font-bold">Mapa de oportunidades, quick wins de ahorro y recomendaciones de eficiencia operativa.</p>
-            </div>
+        <div class="grid grid-cols-2 gap-8">
+            <div class="bento-card bg-blue-50 border-blue-100"><h3 class="text-xs font-black uppercase text-blue-600 mb-4">Como se conecta</h3><p class="text-sm text-slate-700">Refuerza Assessment, Strategy y Modernization al agregar disciplina economica a la evolucion de plataforma y a las decisiones de arquitectura.</p></div>
+            <div class="bento-card"><h3 class="text-xs font-black uppercase text-blue-600 mb-4">Base de autoridad</h3><p class="text-sm text-slate-700">Experiencia en optimizacion de costos operativos, diseno eficiente de workloads y definicion de plataformas modernas con criterio de rentabilidad.</p></div>
+        </div>
+        <div class="grid grid-cols-3 gap-4 mt-8">
+            <div class="p-4 bg-slate-50 rounded-2xl border border-slate-100 text-[11px] font-bold text-center">Diagnostico de costos</div>
+            <div class="p-4 bg-slate-50 rounded-2xl border border-slate-100 text-[11px] font-bold text-center">Hallazgos y ahorro</div>
+            <div class="p-4 bg-slate-50 rounded-2xl border border-slate-100 text-[11px] font-bold text-center">Plan por componentes</div>
         </div>
         <div class="footer-info"><div>FinOps</div><div>Pagina 02</div></div>
+    </section>
+    <section class="page">
+        <h2 class="text-4xl font-extrabold mb-8">Deep Dive del Servicio</h2>
+        <div class="grid grid-cols-2 gap-8">
+            <div class="space-y-6">
+                <div><h4 class="text-xs font-black uppercase text-blue-600 mb-2">Definicion</h4><p class="text-sm text-slate-700">Analisis y optimizacion del costo operativo de plataformas de datos en cloud mediante criterios FinOps, eficiencia de workloads y decisiones de arquitectura.</p></div>
+                <div><h4 class="text-xs font-black uppercase text-blue-600 mb-2">Orientado a</h4><p class="text-sm text-slate-700">Entornos cloud con costos crecientes, bajo control de consumo o necesidad de optimizar storage, compute y procesos.</p></div>
+                <div><h4 class="text-xs font-black uppercase text-blue-600 mb-2">Resultado esperado</h4><p class="text-sm text-slate-700">Mayor previsibilidad financiera, decisiones tecnicas mas eficientes y una base de control economico para sostener la evolucion de la plataforma.</p></div>
+            </div>
+            <div class="space-y-6">
+                <div class="bento-card bg-slate-50 border-none"><h4 class="text-xs font-black uppercase text-slate-400 mb-4">Entregables Tipicos</h4><ul class="text-[11px] text-slate-700 space-y-2"><li>&bull; Diagnostico de costos.</li><li>&bull; Hallazgos y oportunidades de ahorro.</li><li>&bull; Plan de optimizacion por componentes.</li></ul></div>
+                <div class="p-5 border border-slate-100 rounded-3xl"><h4 class="text-xs font-black uppercase text-blue-600 mb-2">Contacto Directo</h4><p class="text-lg font-bold">Martynduarte@gmail.com</p><p class="text-lg font-bold mt-1">1123797308</p></div>
+            </div>
+        </div>
+        <div class="footer-info"><div>FinOps &amp; Cloud Cost Optimization</div><div>Pagina 03</div></div>
     </section>
 </body>
 </html>

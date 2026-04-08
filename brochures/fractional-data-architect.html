@@ -3,49 +3,65 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Fractional Data Architect - Martin Duarte</title>
+    <title>Fractional Enterprise Data Architect - Martin Duarte</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;800&family=Space+Grotesk:wght@300;500;700&display=swap');
-        :root { --primary: #0F172A; --brand: #2563EB; --bg-light: #FDFDFD; }
+        :root { --primary: #0F172A; --brand: #2563EB; --bg-light: #F8FAFC; }
         @page { size: A4; margin: 0; }
         body { font-family: 'Plus Jakarta Sans', sans-serif; background: var(--bg-light); color: var(--primary); margin: 0; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
         .page { width: 210mm; height: 297mm; padding: 20mm; page-break-after: always; position: relative; }
         h1, h2, h3 { font-family: 'Space Grotesk', sans-serif; letter-spacing: -0.02em; }
         .bento-card { background: #FFFFFF; border: 1px solid #E2E8F0; border-radius: 2rem; padding: 2rem; }
         .footer-info { position: absolute; bottom: 15mm; left: 20mm; right: 20mm; border-top: 1px solid #E2E8F0; padding-top: 10px; font-size: 10px; color: #94A3B8; display: flex; justify-content: space-between; text-transform: uppercase; }
+        @media print { body { background: var(--bg-light) !important; } .page { break-after: page; } }
     </style>
 </head>
 <body>
     <section class="page flex flex-col justify-center bg-[#020617] text-white">
         <div class="space-y-6">
             <div class="text-sm font-black uppercase tracking-[0.3em] text-blue-500">Service Portfolio 2026</div>
-            <h1 class="text-7xl font-extrabold leading-none">Fractional Data<br><span class="text-blue-600">Architect</span></h1>
-            <p class="text-xl text-slate-400 max-w-xl">Liderazgo senior flexible sin necesidad de un rol full-time.</p>
+            <h1 class="text-7xl font-extrabold leading-none">Fractional Enterprise Data<br><span class="text-blue-600">Architect</span></h1>
+            <p class="text-xl text-slate-400 max-w-2xl">Modelo de advisory continuo para aportar liderazgo arquitectonico senior, revisar decisiones, alinear equipos y sostener la evolucion sin incorporar un rol full-time.</p>
+        </div>
+        <div class="mt-16 grid grid-cols-3 gap-4">
+            <div class="bento-card bg-slate-900 border-slate-800 text-white"><p class="text-xs uppercase tracking-[0.2em] text-blue-400 font-black">Resultado</p><p class="mt-3 text-2xl font-black">Alta flexibilidad</p><p class="mt-2 text-sm text-slate-400">Con seniority arquitectonico continuo.</p></div>
+            <div class="bento-card bg-slate-900 border-slate-800 text-white"><p class="text-xs uppercase tracking-[0.2em] text-blue-400 font-black">Operacion</p><p class="mt-3 text-2xl font-black">Mentoring + governance</p><p class="mt-2 text-sm text-slate-400">Acompanamiento a squads y lideres.</p></div>
+            <div class="bento-card bg-slate-900 border-slate-800 text-white"><p class="text-xs uppercase tracking-[0.2em] text-blue-400 font-black">Valor</p><p class="mt-3 text-2xl font-black">Decisiones mejores</p><p class="mt-2 text-sm text-slate-400">Con mayor coherencia y velocidad.</p></div>
         </div>
         <div class="footer-info"><div class="font-bold">MARTIN<span class="text-blue-600">DUARTE</span></div><div>Martynduarte@gmail.com | 1123797308</div></div>
     </section>
     <section class="page">
-        <h2 class="text-4xl font-extrabold mb-8 italic">Fractional Architect</h2>
-        <div class="bento-card mb-8"><p class="text-lg text-slate-700 italic">"Acceso a liderazgo arquitectonico senior con alta flexibilidad."</p></div>
+        <div class="border-l-8 border-blue-600 pl-6 mb-10">
+            <h2 class="text-4xl font-extrabold">Perfil y Continuidad del Portafolio</h2>
+            <p class="text-slate-600 mt-3 max-w-3xl">Servicio orientado a empresas con equipos de datos en crecimiento, programas de modernizacion en marcha o necesidades de liderazgo arquitectonico estrategico que requieren un experto senior de manera flexible.</p>
+        </div>
+        <div class="grid grid-cols-2 gap-8">
+            <div class="bento-card bg-blue-50 border-blue-100"><h3 class="text-xs font-black uppercase text-blue-600 mb-4">Relacion con el Portafolio</h3><p class="text-sm text-slate-700">Es el servicio natural de continuidad del portafolio y puede acompanar cualquiera de los otros servicios como fase posterior.</p></div>
+            <div class="bento-card"><h3 class="text-xs font-black uppercase text-blue-600 mb-4">Modalidad de trabajo</h3><p class="text-sm text-slate-700">Revision periodica de decisiones, acompanamiento a squads y responsables de plataforma, mentoring a perfiles de data engineering y analytics, priorizacion de iniciativas y participacion en instancias de governance.</p></div>
+        </div>
+        <div class="grid grid-cols-3 gap-4 mt-8">
+            <div class="p-4 bg-slate-50 rounded-2xl border border-slate-100 text-[11px] font-bold text-center">Arquitectura senior externa</div>
+            <div class="p-4 bg-slate-50 rounded-2xl border border-slate-100 text-[11px] font-bold text-center">Mentoring a equipos</div>
+            <div class="p-4 bg-slate-50 rounded-2xl border border-slate-100 text-[11px] font-bold text-center">Ajuste continuo del roadmap</div>
+        </div>
+        <div class="footer-info"><div>Fractional</div><div>Pagina 02</div></div>
+    </section>
+    <section class="page">
+        <h2 class="text-4xl font-extrabold mb-8">Deep Dive del Servicio</h2>
         <div class="grid grid-cols-2 gap-8">
             <div class="space-y-6">
-                <h4 class="text-xs font-black uppercase text-blue-600">Metodologia de Acompanamiento</h4>
-                <ul class="text-sm space-y-4">
-                    <li class="border-l-4 border-slate-100 pl-4">Revision periodica de decisiones y diseno.</li>
-                    <li class="border-l-4 border-slate-100 pl-4">Mentoring a perfiles de ingenieria y analitica.</li>
-                    <li class="border-l-4 border-slate-100 pl-4">Priorizacion continua del roadmap evolutivo.</li>
-                </ul>
+                <div><h4 class="text-xs font-black uppercase text-blue-600 mb-2">Definicion</h4><p class="text-sm text-slate-700">Modelo de advisory continuo en el que Martin actua como referente senior de arquitectura de datos para acompanar decisiones, revisar disenos, alinear equipos y sostener la evolucion de la plataforma.</p></div>
+                <div><h4 class="text-xs font-black uppercase text-blue-600 mb-2">Problematicas</h4><p class="text-sm text-slate-700">Ausencia de arquitecto de datos senior, decisiones tecnicas dispersas, necesidad de validar disenos y roadmaps, equipos que requieren mentoring y programas de transformacion que necesitan continuidad arquitectonica.</p></div>
+                <div><h4 class="text-xs font-black uppercase text-blue-600 mb-2">Alcance</h4><p class="text-sm text-slate-700">Revisiones periodicas, acompanamiento a squads y lideres tecnicos, mentoring, priorizacion de iniciativas, evolucion continua del roadmap y participacion en comites cuando aplica.</p></div>
             </div>
-            <div class="bento-card bg-slate-50 flex flex-col justify-center">
-                <h4 class="text-xs font-black uppercase text-center text-slate-400 mb-4">Beneficios</h4>
-                <div class="text-center space-y-4">
-                    <div><p class="text-2xl font-black text-blue-600">Velocidad</p><p class="text-[10px] uppercase font-bold text-slate-500">Para resolver dilemas tecnicos</p></div>
-                    <div><p class="text-2xl font-black text-blue-600">Calidad</p><p class="text-[10px] uppercase font-bold text-slate-500">En decisiones estrategicas</p></div>
-                </div>
+            <div class="space-y-6">
+                <div class="bento-card bg-slate-50 border-none"><h4 class="text-xs font-black uppercase text-slate-400 mb-4">Entregables Principales</h4><ul class="text-[11px] text-slate-700 space-y-2"><li>&bull; Recomendaciones y definiciones arquitectonicas continuas.</li><li>&bull; Actas o resumenes ejecutivos de revisiones periodicas.</li><li>&bull; Validaciones de diseno y criterios de arquitectura.</li><li>&bull; Ajustes de roadmap y prioridades segun evolucion.</li><li>&bull; Mentoring y lineamientos para equipos internos.</li></ul></div>
+                <div><h4 class="text-xs font-black uppercase text-blue-600 mb-2">Beneficios</h4><p class="text-sm text-slate-700">Acceso a liderazgo arquitectonico senior con alta flexibilidad, mejora en la calidad y coherencia de decisiones, mayor velocidad para resolver dilemas y acompanamiento estrategico sostenido.</p></div>
+                <div class="p-5 border border-slate-100 rounded-3xl"><h4 class="text-xs font-black uppercase text-blue-600 mb-2">Contacto Directo</h4><p class="text-lg font-bold">Martynduarte@gmail.com</p><p class="text-lg font-bold mt-1">1123797308</p></div>
             </div>
         </div>
-        <div class="footer-info"><div>Fractional Architect</div><div>Pagina 02</div></div>
+        <div class="footer-info"><div>Fractional Enterprise Data Architect</div><div>Pagina 03</div></div>
     </section>
 </body>
 </html>

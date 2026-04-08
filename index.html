@@ -33,8 +33,9 @@
         :root {
             --primary: #0F172A;
             --brand: #2563EB;
-            --bg-light: #FDFDFD;
-            --surface: #FFFFFF;
+            --bg-light: #F8FAFC;
+            --surface: rgba(255, 255, 255, 0.72);
+            --line: rgba(226, 232, 240, 0.9);
         }
 
         body {
@@ -49,17 +50,28 @@
         }
 
         .bento-card {
-            background: var(--surface);
-            border: 1px solid #E2E8F0;
+            position: relative;
+            background: linear-gradient(180deg, rgba(255,255,255,0.82), rgba(255,255,255,0.64));
+            border: 1px solid var(--line);
             border-radius: 2.5rem;
             transition: all 0.5s cubic-bezier(0.2, 0.8, 0.2, 1);
             overflow: hidden;
+            backdrop-filter: blur(22px);
+            -webkit-backdrop-filter: blur(22px);
+        }
+
+        .bento-card::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, rgba(255,255,255,0.42), rgba(37,99,235,0.05));
+            pointer-events: none;
         }
 
         .bento-card:hover {
-            border-color: var(--brand);
+            border-color: rgba(37, 99, 235, 0.45);
             transform: translateY(-8px);
-            box-shadow: 0 40px 80px -20px rgba(15, 23, 42, 0.08);
+            box-shadow: 0 40px 80px -20px rgba(15, 23, 42, 0.08), 0 0 0 1px rgba(37, 99, 235, 0.08) inset;
         }
 
         .service-card {
@@ -81,6 +93,32 @@
         .modal-overlay {
             background: rgba(15, 23, 42, 0.9);
             backdrop-filter: blur(8px);
+        }
+
+        .logo-tile {
+            width: 4rem;
+            height: 4rem;
+            border-radius: 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 0.95rem;
+            font-weight: 800;
+            letter-spacing: -0.04em;
+            flex-shrink: 0;
+        }
+
+        .qualifier-option:has(input:checked) {
+            border-color: var(--brand);
+            background: rgba(37, 99, 235, 0.06);
+        }
+
+        @media print {
+            body {
+                background: #F8FAFC !important;
+                color: #0F172A !important;
+            }
         }
 
         .step-indicator {
@@ -117,7 +155,7 @@
                 <a href="#academia" class="hover:text-blue-600 transition-colors">Academia</a>
             </div>
             <button onclick="openBooking()" class="text-[10px] font-black bg-slate-900 text-white px-6 py-3 rounded-full hover:bg-blue-600 transition-all uppercase tracking-widest">
-                Agendar Reunión
+                Agendar reunión
             </button>
         </div>
     </nav>
@@ -139,7 +177,7 @@
                 </p>
                 <div class="flex flex-wrap gap-6">
                     <button onclick="openBooking()" class="px-10 py-5 bg-blue-600 text-white rounded-[2rem] font-black shadow-2xl shadow-blue-200 hover:scale-105 transition-all text-sm uppercase tracking-widest">
-                        Agendar Assessment ➔
+                        Agendar reunión ➔
                     </button>
                     <div class="flex items-center gap-4 px-6 py-4 bg-white border border-slate-200 rounded-[2rem] shadow-sm">
                         <div class="w-10 h-10 bg-slate-100 rounded-xl flex items-center justify-center font-bold">🎓</div>
@@ -406,19 +444,20 @@
                     <div class="space-y-8">
                         <!-- UdeSA -->
                         <div class="flex items-start gap-6 p-8 bg-slate-800 rounded-3xl border border-slate-700">
-                            <span class="text-4xl">🏛️</span>
+                            <div class="logo-tile bg-blue-500/15 border border-blue-400/25 text-blue-300">UdeSA</div>
                             <div>
                                 <h4 class="font-black text-xl">Master en Inteligencia Artificial</h4>
                                 <p class="text-sm text-blue-400 font-bold uppercase tracking-widest mt-1">Universidad de San Andrés</p>
-                                <p class="text-[11px] text-slate-400 mt-2">Enfoque avanzado en agentes inteligentes y optimización de valor de negocio mediante IA.</p>
+                                <div class="mt-3 inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/10 border border-blue-400/20 text-[10px] font-black uppercase tracking-[0.25em] text-blue-300">IA de Vanguardia</div>
+                                <p class="text-[11px] text-slate-400 mt-3">Enfoque avanzado en agentes inteligentes y optimización de valor de negocio mediante IA.</p>
                             </div>
                         </div>
                         <!-- UP -->
                         <div class="flex items-start gap-6 p-8 bg-slate-800 rounded-3xl border border-slate-700">
-                            <span class="text-4xl">📊</span>
+                            <div class="logo-tile bg-white/5 border border-slate-600 text-white">UP</div>
                             <div>
                                 <h4 class="font-black text-xl">Licenciado en Big Data</h4>
-                                <p class="text-sm text-blue-400 font-bold uppercase tracking-widest mt-1">Facultad de Palermo</p>
+                                <p class="text-sm text-blue-400 font-bold uppercase tracking-widest mt-1">Universidad de Palermo</p>
                                 <p class="text-[11px] text-slate-400 mt-2">Fundamentación teórica y práctica en el manejo de grandes volúmenes de información.</p>
                             </div>
                         </div>
@@ -442,7 +481,7 @@
         <footer id="contacto" class="max-w-4xl mx-auto px-6 py-24 text-center space-y-12">
             <h2 class="text-5xl font-black italic tracking-tighter italic">¿Desafiamos el status quo?</h2>
             <button onclick="openBooking()" class="px-12 py-6 bg-blue-600 text-white rounded-3xl font-black text-xl hover:scale-105 transition-all shadow-2xl shadow-blue-200">
-                Agendar Sesión Estratégica ➔
+                Agendar reunión ➔
             </button>
             <div class="pt-20 border-t border-slate-100 flex flex-col md:flex-row justify-between items-center gap-6">
                 <p class="text-[10px] font-black uppercase tracking-widest text-slate-400">© 2026 Martín Duarte | Enterprise Data Strategy</p>
@@ -461,7 +500,7 @@
         <div class="relative bg-white w-full max-w-2xl rounded-[3rem] shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-300">
             <div class="p-10">
                 <div class="flex justify-between items-center mb-10">
-                    <h3 class="text-2xl font-black uppercase tracking-tighter">Agendar Consultoría</h3>
+                    <h3 class="text-2xl font-black uppercase tracking-tighter">Agendar reunión</h3>
                     <button onclick="closeBooking()" class="text-slate-400 hover:text-slate-900 text-xl font-bold">×</button>
                 </div>
 
@@ -477,16 +516,9 @@
                             <div class="step-indicator"></div>
                             <div class="step-indicator"></div>
                         </div>
-                        <div class="grid grid-cols-2 gap-4">
-                            <input type="text" placeholder="Nombre" class="p-4 bg-slate-50 border border-slate-100 rounded-2xl w-full text-sm outline-none focus:border-blue-600">
-                            <input type="text" placeholder="Apellido" class="p-4 bg-slate-50 border border-slate-100 rounded-2xl w-full text-sm outline-none focus:border-blue-600">
-                        </div>
+                        <input type="text" placeholder="Nombre" class="p-4 bg-slate-50 border border-slate-100 rounded-2xl w-full text-sm outline-none focus:border-blue-600">
                         <input type="email" placeholder="Correo Electrónico" class="p-4 bg-slate-50 border border-slate-100 rounded-2xl w-full text-sm outline-none focus:border-blue-600">
-                        <input type="tel" placeholder="Teléfono" class="p-4 bg-slate-50 border border-slate-100 rounded-2xl w-full text-sm outline-none focus:border-blue-600">
-                        <div class="grid grid-cols-2 gap-4">
-                            <input type="text" placeholder="País" class="p-4 bg-slate-50 border border-slate-100 rounded-2xl w-full text-sm outline-none focus:border-blue-600">
-                            <input type="text" placeholder="Provincia / Estado" class="p-4 bg-slate-50 border border-slate-100 rounded-2xl w-full text-sm outline-none focus:border-blue-600">
-                        </div>
+                        <input type="text" placeholder="País" class="p-4 bg-slate-50 border border-slate-100 rounded-2xl w-full text-sm outline-none focus:border-blue-600">
                         <input type="text" placeholder="Empresa (Opcional)" class="p-4 bg-slate-50 border border-slate-100 rounded-2xl w-full text-sm outline-none focus:border-blue-600">
                         <button onclick="nextStep(2)" class="w-full py-5 bg-blue-600 text-white rounded-2xl font-bold mt-4">Continuar</button>
                     </div>
@@ -500,19 +532,27 @@
                             <div class="step-indicator"></div>
                             <div class="step-indicator"></div>
                         </div>
-                        <h4 class="font-bold text-slate-800">¿En qué servicio estás interesado?</h4>
+                        <h4 class="font-bold text-slate-800">¿Sobre qué servicio quieres contactarte?</h4>
                         <div class="grid grid-cols-1 gap-2">
-                            <label class="p-4 border border-slate-100 rounded-2xl flex items-center gap-3 cursor-pointer hover:bg-blue-50">
+                            <label class="qualifier-option p-4 border border-slate-100 rounded-2xl flex items-center gap-3 cursor-pointer hover:bg-blue-50">
                                 <input type="radio" name="service" value="assessment" class="accent-blue-600">
                                 <span class="text-sm font-medium">Data Architecture Assessment</span>
                             </label>
-                            <label class="p-4 border border-slate-100 rounded-2xl flex items-center gap-3 cursor-pointer hover:bg-blue-50">
+                            <label class="qualifier-option p-4 border border-slate-100 rounded-2xl flex items-center gap-3 cursor-pointer hover:bg-blue-50">
                                 <input type="radio" name="service" value="blueprint" class="accent-blue-600">
                                 <span class="text-sm font-medium">Enterprise Architecture Blueprint</span>
                             </label>
-                            <label class="p-4 border border-slate-100 rounded-2xl flex items-center gap-3 cursor-pointer hover:bg-blue-50">
+                            <label class="qualifier-option p-4 border border-slate-100 rounded-2xl flex items-center gap-3 cursor-pointer hover:bg-blue-50">
+                                <input type="radio" name="service" value="strategy" class="accent-blue-600">
+                                <span class="text-sm font-medium">Data Platform Strategy</span>
+                            </label>
+                            <label class="qualifier-option p-4 border border-slate-100 rounded-2xl flex items-center gap-3 cursor-pointer hover:bg-blue-50">
+                                <input type="radio" name="service" value="modernization" class="accent-blue-600">
+                                <span class="text-sm font-medium">Data Platform Modernization Program</span>
+                            </label>
+                            <label class="qualifier-option p-4 border border-slate-100 rounded-2xl flex items-center gap-3 cursor-pointer hover:bg-blue-50">
                                 <input type="radio" name="service" value="fractional" class="accent-blue-600">
-                                <span class="text-sm font-medium">Fractional Enterprise Architect</span>
+                                <span class="text-sm font-medium">Fractional Enterprise Data Architect</span>
                             </label>
                         </div>
                         <button onclick="nextStep(3)" class="w-full py-5 bg-blue-600 text-white rounded-2xl font-bold mt-4">Siguiente Pregunta</button>
@@ -527,13 +567,8 @@
                             <div class="step-indicator"></div>
                             <div class="step-indicator"></div>
                         </div>
-                        <h4 class="font-bold text-slate-800">¿Cuál es el volumen aproximado de datos que gestiona actualmente?</h4>
-                        <select class="w-full p-4 bg-slate-50 rounded-2xl outline-none border border-slate-100 text-sm">
-                            <option>< 1 TB</option>
-                            <option>1 - 100 TB</option>
-                            <option>100 TB - 1 PB</option>
-                            <option>> 1 PB</option>
-                        </select>
+                        <h4 id="step3Question" class="font-bold text-slate-800">¿Cuál es el volumen aproximado de datos que gestiona actualmente?</h4>
+                        <div id="step3Field"></div>
                         <button onclick="nextStep(4)" class="w-full py-5 bg-blue-600 text-white rounded-2xl font-bold mt-4">Siguiente</button>
                     </div>
 
@@ -546,13 +581,8 @@
                             <div class="step-indicator active"></div>
                             <div class="step-indicator"></div>
                         </div>
-                        <h4 class="font-bold text-slate-800">¿Qué plataformas Cloud utiliza prioritariamente?</h4>
-                        <div class="grid grid-cols-2 gap-4">
-                            <label class="p-4 border border-slate-100 rounded-2xl flex items-center gap-3 cursor-pointer"><input type="checkbox"> AWS</label>
-                            <label class="p-4 border border-slate-100 rounded-2xl flex items-center gap-3 cursor-pointer"><input type="checkbox"> Azure</label>
-                            <label class="p-4 border border-slate-100 rounded-2xl flex items-center gap-3 cursor-pointer"><input type="checkbox"> GCP</label>
-                            <label class="p-4 border border-slate-100 rounded-2xl flex items-center gap-3 cursor-pointer"><input type="checkbox"> On-Premise</label>
-                        </div>
+                        <h4 id="step4Question" class="font-bold text-slate-800">¿Qué plataformas Cloud utiliza prioritariamente?</h4>
+                        <div id="step4Field"></div>
                         <button onclick="nextStep(5)" class="w-full py-5 bg-blue-600 text-white rounded-2xl font-bold mt-4">Siguiente</button>
                     </div>
 
@@ -565,12 +595,8 @@
                             <div class="step-indicator active"></div>
                             <div class="step-indicator active"></div>
                         </div>
-                        <h4 class="font-bold text-slate-800">¿Cuál es el horizonte de tiempo para iniciar la transformación?</h4>
-                        <div class="flex gap-4">
-                            <button class="flex-1 py-4 border border-slate-200 rounded-2xl text-xs font-bold hover:bg-slate-50 transition-colors">Inmediato</button>
-                            <button class="flex-1 py-4 border border-slate-200 rounded-2xl text-xs font-bold hover:bg-slate-50 transition-colors">3-6 meses</button>
-                            <button class="flex-1 py-4 border border-slate-200 rounded-2xl text-xs font-bold hover:bg-slate-50 transition-colors">Planificación 2027</button>
-                        </div>
+                        <h4 id="step5Question" class="font-bold text-slate-800">¿Cuál es el horizonte de tiempo para iniciar la transformación?</h4>
+                        <div id="step5Field" class="flex gap-4"></div>
                         <button onclick="submitBooking()" class="w-full py-5 bg-blue-600 text-white rounded-2xl font-black mt-8 shadow-xl shadow-blue-200">Confirmar Solicitud ➔</button>
                     </div>
 
@@ -588,9 +614,103 @@
 
     <script>
         // --- Lógica del Formulario de Agendamiento ---
+        const qualifierConfig = {
+            assessment: {
+                step3Question: '¿Cuál es el volumen aproximado de datos que gestiona actualmente?',
+                step3Field: `
+                    <select class="w-full p-4 bg-slate-50 rounded-2xl outline-none border border-slate-100 text-sm">
+                        <option>< 1 TB</option>
+                        <option>1 - 100 TB</option>
+                        <option>100 TB - 1 PB</option>
+                        <option>> 1 PB</option>
+                    </select>
+                `,
+                step4Question: '¿Qué stack cloud o analítico utiliza hoy?',
+                step4Field: `
+                    <div class="grid grid-cols-2 gap-4">
+                        <label class="qualifier-option p-4 border border-slate-100 rounded-2xl flex items-center gap-3 cursor-pointer"><input type="checkbox"> AWS</label>
+                        <label class="qualifier-option p-4 border border-slate-100 rounded-2xl flex items-center gap-3 cursor-pointer"><input type="checkbox"> Azure</label>
+                        <label class="qualifier-option p-4 border border-slate-100 rounded-2xl flex items-center gap-3 cursor-pointer"><input type="checkbox"> Databricks</label>
+                        <label class="qualifier-option p-4 border border-slate-100 rounded-2xl flex items-center gap-3 cursor-pointer"><input type="checkbox"> On-Premise</label>
+                    </div>
+                `,
+                step5Question: '¿Qué urgencia tiene el assessment?',
+                step5Field: ['Inmediato', '30-60 días', 'Planificación trimestral']
+            },
+            modernization: {
+                step3Question: '¿Cuál es la plataforma origen que desean modernizar?',
+                step3Field: `
+                    <input type="text" placeholder="Ej: SQL Server, SAP BW, Hadoop, on-prem legacy" class="w-full p-4 bg-slate-50 rounded-2xl outline-none border border-slate-100 text-sm">
+                `,
+                step4Question: '¿Cuál es el plazo deseado para iniciar la modernización?',
+                step4Field: `
+                    <div class="grid grid-cols-1 gap-3">
+                        <label class="qualifier-option p-4 border border-slate-100 rounded-2xl flex items-center gap-3 cursor-pointer"><input type="radio" name="timeline" class="accent-blue-600"> <span class="text-sm font-medium">0-3 meses</span></label>
+                        <label class="qualifier-option p-4 border border-slate-100 rounded-2xl flex items-center gap-3 cursor-pointer"><input type="radio" name="timeline" class="accent-blue-600"> <span class="text-sm font-medium">3-6 meses</span></label>
+                        <label class="qualifier-option p-4 border border-slate-100 rounded-2xl flex items-center gap-3 cursor-pointer"><input type="radio" name="timeline" class="accent-blue-600"> <span class="text-sm font-medium">6-12 meses</span></label>
+                    </div>
+                `,
+                step5Question: '¿Cuál es el nivel de presión del programa?',
+                step5Field: ['Programa crítico', 'Roadmap activo', 'Exploración 2026']
+            },
+            fractional: {
+                step3Question: '¿De qué tamaño es hoy el equipo involucrado?',
+                step3Field: `
+                    <select class="w-full p-4 bg-slate-50 rounded-2xl outline-none border border-slate-100 text-sm">
+                        <option>1-3 personas</option>
+                        <option>4-8 personas</option>
+                        <option>9-20 personas</option>
+                        <option>20+ personas</option>
+                    </select>
+                `,
+                step4Question: '¿Cuál es el principal dolor operativo que quieren resolver?',
+                step4Field: `
+                    <div class="grid grid-cols-1 gap-3">
+                        <label class="qualifier-option p-4 border border-slate-100 rounded-2xl flex items-center gap-3 cursor-pointer"><input type="radio" name="pain" class="accent-blue-600"> <span class="text-sm font-medium">Decisiones técnicas inconsistentes</span></label>
+                        <label class="qualifier-option p-4 border border-slate-100 rounded-2xl flex items-center gap-3 cursor-pointer"><input type="radio" name="pain" class="accent-blue-600"> <span class="text-sm font-medium">Falta de seniority arquitectónico</span></label>
+                        <label class="qualifier-option p-4 border border-slate-100 rounded-2xl flex items-center gap-3 cursor-pointer"><input type="radio" name="pain" class="accent-blue-600"> <span class="text-sm font-medium">Roadmap sin governance</span></label>
+                    </div>
+                `,
+                step5Question: '¿Cómo imaginan el esquema de acompañamiento?',
+                step5Field: ['Semanal', 'Quincenal', 'Mensual']
+            },
+            default: {
+                step3Question: '¿Qué objetivo de negocio quieren acelerar con este servicio?',
+                step3Field: `
+                    <input type="text" placeholder="Ej: rentabilidad, time-to-market, gobierno, escalabilidad" class="w-full p-4 bg-slate-50 rounded-2xl outline-none border border-slate-100 text-sm">
+                `,
+                step4Question: '¿Qué restricción técnica pesa más hoy?',
+                step4Field: `
+                    <input type="text" placeholder="Ej: costo, legacy, talento, calidad de datos" class="w-full p-4 bg-slate-50 rounded-2xl outline-none border border-slate-100 text-sm">
+                `,
+                step5Question: '¿Cuál es la ventana ideal para avanzar?',
+                step5Field: ['Ahora', 'Próximo trimestre', 'Segundo semestre']
+            }
+        };
+
+        function getSelectedService() {
+            return document.querySelector('input[name="service"]:checked')?.value || 'default';
+        }
+
+        function renderQualifierStep(step) {
+            const selected = getSelectedService();
+            const config = qualifierConfig[selected] || qualifierConfig.default;
+            document.getElementById(`step${step}Question`).textContent = config[`step${step}Question`];
+            const target = document.getElementById(`step${step}Field`);
+            const field = config[`step${step}Field`];
+            if (Array.isArray(field)) {
+                target.innerHTML = field.map((label) => `<button type="button" class="flex-1 py-4 border border-slate-200 rounded-2xl text-xs font-bold hover:bg-slate-50 transition-colors">${label}</button>`).join('');
+            } else {
+                target.innerHTML = field;
+            }
+        }
+
         function openBooking() {
             document.getElementById('bookingModal').classList.remove('hidden');
             document.body.style.overflow = 'hidden';
+            renderQualifierStep(3);
+            renderQualifierStep(4);
+            renderQualifierStep(5);
         }
 
         function closeBooking() {
@@ -603,6 +723,9 @@
         }
 
         function nextStep(step) {
+            if (step >= 3) {
+                renderQualifierStep(step);
+            }
             document.getElementById('step-' + (step-1)).classList.add('hidden');
             document.getElementById('step-' + step).classList.remove('hidden');
         }
