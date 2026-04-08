@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cloud Architecture - Martin Duarte</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;800&family=Space+Grotesk:wght@300;500;700&display=swap');
+        :root { --primary: #0F172A; --brand: #2563EB; --bg-light: #FDFDFD; }
+        @page { size: A4; margin: 0; }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background: var(--bg-light); color: var(--primary); margin: 0; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+        .page { width: 210mm; height: 297mm; padding: 20mm; page-break-after: always; position: relative; }
+        h1, h2, h3 { font-family: 'Space Grotesk', sans-serif; letter-spacing: -0.02em; }
+        .bento-card { background: #FFFFFF; border: 1px solid #E2E8F0; border-radius: 2rem; padding: 2rem; }
+        .footer-info { position: absolute; bottom: 15mm; left: 20mm; right: 20mm; border-top: 1px solid #E2E8F0; padding-top: 10px; font-size: 10px; color: #94A3B8; display: flex; justify-content: space-between; text-transform: uppercase; }
+    </style>
+</head>
+<body>
+    <section class="page flex flex-col justify-center bg-[#020617] text-white">
+        <div class="space-y-6">
+            <div class="text-sm font-black uppercase tracking-[0.3em] text-blue-500">Complementary Services 2026</div>
+            <h1 class="text-7xl font-extrabold leading-none">Cloud Data<br><span class="text-blue-600">Architecture</span></h1>
+            <p class="text-xl text-slate-400 max-w-xl">Escalabilidad, seguridad e integracion en ecosistemas Multi-Cloud.</p>
+        </div>
+        <div class="footer-info"><div class="font-bold">MARTIN<span class="text-blue-600">DUARTE</span></div><div>Martynduarte@gmail.com | 1123797308</div></div>
+    </section>
+    <section class="page">
+        <h2 class="text-4xl font-extrabold mb-8 border-l-8 border-blue-600 pl-6">Cloud Strategy</h2>
+        <div class="grid grid-cols-12 gap-6">
+            <div class="col-span-12 bento-card bg-slate-50 border-none"><h4 class="text-xs font-black uppercase text-blue-600 mb-2">Definicion</h4><p class="text-sm text-slate-700">Diseno de arquitecturas de datos en AWS, Azure y entornos multi-cloud, contemplando escalabilidad, seguridad e integracion.</p></div>
+            <div class="col-span-6 bento-card"><h4 class="text-xs font-black uppercase text-blue-600 mb-2">Orientado a</h4><p class="text-[11px] text-slate-600">Organizaciones que necesitan definir o revisar soluciones cloud para datos, lakehouse o modernizacion.</p></div>
+            <div class="col-span-6 bento-card flex items-center justify-center bg-blue-600 text-white"><div class="text-center"><p class="text-3xl font-black">Multi-Cloud</p><p class="text-[10px] uppercase font-bold text-blue-200">AWS | Azure | GCP</p></div></div>
+        </div>
+        <div class="mt-12">
+            <h4 class="text-xs font-black uppercase text-blue-600 mb-4">Entregables Tipicos</h4>
+            <div class="grid grid-cols-1 gap-3">
+                <div class="p-4 border border-slate-100 rounded-2xl text-[11px] font-bold">&bull; Arquitectura target cloud</div>
+                <div class="p-4 border border-slate-100 rounded-2xl text-[11px] font-bold">&bull; Lineamientos de seguridad e integracion</div>
+                <div class="p-4 border border-slate-100 rounded-2xl text-[11px] font-bold">&bull; Patrones y recomendaciones de escalabilidad</div>
+            </div>
+        </div>
+        <div class="footer-info"><div>Martin Duarte | Cloud Services</div><div>Pagina 03</div></div>
+    </section>
+</body>
+</html>

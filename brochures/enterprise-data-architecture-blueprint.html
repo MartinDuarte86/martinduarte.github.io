@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blueprint Brochure - Martin Duarte</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;800&family=Space+Grotesk:wght@300;500;700&display=swap');
+        :root { --primary: #0F172A; --brand: #2563EB; --bg-light: #FDFDFD; }
+        @page { size: A4; margin: 0; }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background: var(--bg-light); color: var(--primary); margin: 0; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+        .page { width: 210mm; height: 297mm; padding: 20mm; page-break-after: always; position: relative; }
+        h1, h2, h3 { font-family: 'Space Grotesk', sans-serif; letter-spacing: -0.02em; }
+        .bento-card { background: #FFFFFF; border: 1px solid #E2E8F0; border-radius: 2rem; padding: 2rem; }
+        .footer-info { position: absolute; bottom: 15mm; left: 20mm; right: 20mm; border-top: 1px solid #E2E8F0; padding-top: 10px; font-size: 10px; color: #94A3B8; display: flex; justify-content: space-between; text-transform: uppercase; }
+    </style>
+</head>
+<body>
+    <section class="page flex flex-col justify-center bg-[#020617] text-white">
+        <div class="space-y-6">
+            <div class="text-sm font-black uppercase tracking-[0.3em] text-blue-500">Service Portfolio 2026</div>
+            <h1 class="text-7xl font-extrabold leading-none">Enterprise Data<br><span class="text-blue-600">Architecture Blueprint</span></h1>
+            <p class="text-xl text-slate-400 max-w-xl">Definiendo el estandar para la consistencia empresarial.</p>
+        </div>
+        <div class="footer-info"><div class="font-bold">MARTIN<span class="text-blue-600">DUARTE</span></div><div>Martynduarte@gmail.com | 1123797308</div></div>
+    </section>
+    <section class="page">
+        <h2 class="text-3xl font-bold mb-10 border-l-8 border-blue-600 pl-6">Sobre mi Perfil</h2>
+        <div class="grid grid-cols-2 gap-8">
+            <div class="space-y-6">
+                <p class="text-slate-600 text-sm leading-relaxed">Martin Duarte cuenta con mas de 15 anos de experiencia como Data Architect en entornos enterprise. Ha liderado el diseno de arquitecturas de referencia en industrias como Banca, Retail y Oil &amp; Gas.</p>
+                <div class="bento-card bg-slate-900 text-white"><h3 class="font-bold text-blue-400 mb-2">Formacion Senior</h3><p class="text-xs">Master en IA (UdeSA) y Lic. en Big Data (UP).</p></div>
+            </div>
+            <div class="bento-card bg-blue-50 border-blue-100">
+                <h3 class="text-xs font-black uppercase text-blue-600 mb-4">Industrias Impactadas</h3>
+                <ul class="text-[11px] font-bold space-y-2">
+                    <li class="flex items-center gap-2"><span>Banca</span></li>
+                    <li class="flex items-center gap-2"><span>Retail</span></li>
+                    <li class="flex items-center gap-2"><span>Oil &amp; Gas</span></li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-info"><div>Blueprint</div><div>Pagina 02</div></div>
+    </section>
+    <section class="page">
+        <h2 class="text-4xl font-extrabold mb-8">Definicion del Servicio</h2>
+        <div class="grid grid-cols-12 gap-6">
+            <div class="col-span-12 bento-card bg-slate-50 border-none"><h4 class="text-xs font-black uppercase text-blue-600 mb-2">Definicion</h4><p class="text-sm text-slate-700">Diseno de una arquitectura de referencia de datos que alinee negocio, principios tecnicos y componentes de plataforma.</p></div>
+            <div class="col-span-6 bento-card"><h4 class="text-xs font-black uppercase text-blue-600 mb-2">Orientado a</h4><p class="text-[11px] text-slate-600">Empresas que necesitan una vision target formal que unifique criterios entre equipos y reduzca dispersion tecnologica.</p></div>
+            <div class="col-span-6 bento-card"><h4 class="text-xs font-black uppercase text-blue-600 mb-2">Problematicas</h4><p class="text-[11px] text-slate-600">Falta de arquitectura de referencia, decisiones aisladas por equipo y modelos de datos inconsistentes.</p></div>
+        </div>
+        <div class="mt-10">
+            <h4 class="text-xs font-black uppercase text-blue-600 mb-4">Entregables Principales</h4>
+            <div class="grid grid-cols-2 gap-4">
+                <div class="p-4 border border-slate-100 rounded-2xl text-[11px]">Blueprint de arquitectura de datos empresarial</div>
+                <div class="p-4 border border-slate-100 rounded-2xl text-[11px]">Arquitectura logica y fisica de alto nivel</div>
+                <div class="p-4 border border-slate-100 rounded-2xl text-[11px]">Principios y estandares de arquitectura</div>
+                <div class="p-4 border border-slate-100 rounded-2xl text-[11px]">Mapa de capacidades y dominios</div>
+            </div>
+        </div>
+        <div class="footer-info"><div>Data Architect Portfolio</div><div>Pagina 03</div></div>
+    </section>
+</body>
+</html>

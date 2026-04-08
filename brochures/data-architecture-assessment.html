@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Brochure Corporativo - Martin Duarte</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;800&family=Space+Grotesk:wght@300;500;700&display=swap');
+        :root { --primary: #0F172A; --brand: #2563EB; --bg-light: #FDFDFD; --surface: #FFFFFF; }
+        @page { size: A4; margin: 0; }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: var(--bg-light); color: var(--primary); margin: 0; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+        .page { width: 210mm; height: 297mm; padding: 20mm; page-break-after: always; position: relative; overflow: hidden; }
+        h1, h2, h3 { font-family: 'Space Grotesk', sans-serif; letter-spacing: -0.02em; }
+        .bento-card { background: var(--surface); border: 1px solid #E2E8F0; border-radius: 2rem; padding: 2rem; }
+        .brand-text { font-family: 'Space Grotesk'; font-weight: 800; letter-spacing: -0.05em; }
+        .service-accent { border-left: 6px solid var(--brand); padding-left: 1.5rem; }
+        .footer-info { position: absolute; bottom: 15mm; left: 20mm; right: 20mm; border-top: 1px solid #E2E8F0; padding-top: 10px; font-size: 10px; text-transform: uppercase; letter-spacing: 0.1em; color: #94A3B8; }
+    </style>
+</head>
+<body>
+    <section class="page flex flex-col justify-center bg-[#020617] text-white">
+        <div class="space-y-6">
+            <div class="text-sm font-black uppercase tracking-[0.3em] text-blue-500">Service Portfolio 2026</div>
+            <h1 class="text-7xl font-extrabold leading-none">Data Architecture<br><span class="text-blue-600">Assessment</span></h1>
+            <p class="text-xl text-slate-400 max-w-xl">Diagnostico estrategico para la evolucion hacia Agentes de IA.</p>
+        </div>
+        <div class="mt-20 bento-card bg-slate-900 border-slate-800 text-white inline-block max-w-md">
+            <p class="text-sm italic text-slate-400">"Preparo los datos hoy para rentabilizar productos manana."</p>
+        </div>
+        <div class="footer-info flex justify-between">
+            <div class="brand-text text-lg">MARTIN<span class="text-blue-600">DUARTE</span></div>
+            <div>Martynduarte@gmail.com | 1123797308</div>
+        </div>
+    </section>
+    <section class="page">
+        <h2 class="text-3xl font-bold mb-10">Sobre mi Perfil</h2>
+        <div class="grid grid-cols-2 gap-8">
+            <div class="space-y-6">
+                <p class="text-slate-600 leading-relaxed">Arquitecto de datos con mas de 15 anos de experiencia liderando iniciativas de modernizacion en banca, retail y oil &amp; gas. Foco en cloud, lakehouse y gobierno de datos.</p>
+                <div class="bento-card bg-blue-50 border-blue-100">
+                    <h3 class="font-bold text-blue-600 mb-2">Formacion Academica</h3>
+                    <ul class="text-sm space-y-1 text-slate-700">
+                        <li>&bull; Master en IA (UdeSA)</li>
+                        <li>&bull; Lic. en Big Data (UP)</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="space-y-4">
+                <h3 class="text-[10px] font-black uppercase text-slate-400 tracking-widest">Core Capabilities</h3>
+                <div class="flex flex-wrap gap-2">
+                    <span class="px-3 py-1 bg-slate-100 rounded-full text-[10px] font-bold">AWS/Azure</span>
+                    <span class="px-3 py-1 bg-slate-100 rounded-full text-[10px] font-bold">Databricks</span>
+                    <span class="px-3 py-1 bg-slate-100 rounded-full text-[10px] font-bold">FinOps</span>
+                    <span class="px-3 py-1 bg-slate-100 rounded-full text-[10px] font-bold">Governance</span>
+                </div>
+                <img src="https://via.placeholder.com/400x200/F8FAFC/64748B?text=Radar+Chart+Madurez" alt="Radar de madurez" class="rounded-3xl mt-4">
+            </div>
+        </div>
+        <div class="mt-12">
+            <h3 class="text-xl font-bold mb-6">Estructura del Portafolio</h3>
+            <div class="grid grid-cols-3 gap-4">
+                <div class="p-4 bg-slate-50 rounded-2xl border border-slate-100 text-[10px] font-bold text-center">Assessment</div>
+                <div class="p-4 bg-slate-50 rounded-2xl border border-slate-100 text-[10px] font-bold text-center">Blueprint</div>
+                <div class="p-4 bg-slate-50 rounded-2xl border border-slate-100 text-[10px] font-bold text-center">Strategy</div>
+            </div>
+        </div>
+        <div class="footer-info flex justify-between"><div>Data Strategy &amp; AI</div><div>Pagina 02</div></div>
+    </section>
+    <section class="page">
+        <div class="service-accent mb-12">
+            <h2 class="text-4xl font-extrabold">Data Architecture Assessment</h2>
+            <p class="text-slate-500 mt-2">Diagnostico y entendimiento del estado actual.</p>
+        </div>
+        <div class="grid grid-cols-2 gap-10">
+            <div class="space-y-6">
+                <div>
+                    <h4 class="text-xs font-black uppercase text-blue-600 mb-2">Definicion</h4>
+                    <p class="text-sm text-slate-600">Evaluacion estructurada para identificar riesgos, oportunidades de mejora y brechas hacia una plataforma moderna.</p>
+                </div>
+                <div>
+                    <h4 class="text-xs font-black uppercase text-blue-600 mb-2">Problematicas</h4>
+                    <ul class="text-sm text-slate-600 space-y-1">
+                        <li>&bull; Pipelines complejos o poco mantenibles</li>
+                        <li>&bull; Costos cloud sin control</li>
+                        <li>&bull; Ausencia de roadmap tecnico</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="bento-card bg-slate-50 border-none">
+                <h4 class="text-xs font-black uppercase text-slate-400 mb-4">Metodologia de Trabajo</h4>
+                <div class="space-y-4">
+                    <div class="flex gap-3"><span class="w-6 h-6 bg-blue-600 text-white rounded-full flex items-center justify-center text-[10px] font-bold">1</span><div class="text-[11px]"><strong>Business Context:</strong> Objetivos y necesidades analiticas.</div></div>
+                    <div class="flex gap-3"><span class="w-6 h-6 bg-blue-600 text-white rounded-full flex items-center justify-center text-[10px] font-bold">2</span><div class="text-[11px]"><strong>Current Mapping:</strong> Mapeo AS-IS de flujos y fuentes.</div></div>
+                    <div class="flex gap-3"><span class="w-6 h-6 bg-blue-600 text-white rounded-full flex items-center justify-center text-[10px] font-bold">3</span><div class="text-[11px]"><strong>Framework Evaluation:</strong> Escalabilidad y costos.</div></div>
+                    <div class="flex gap-3"><span class="w-6 h-6 bg-blue-600 text-white rounded-full flex items-center justify-center text-[10px] font-bold">4</span><div class="text-[11px]"><strong>Future Roadmap:</strong> Definicion TO-BE y quick wins.</div></div>
+                </div>
+            </div>
+        </div>
+        <div class="mt-12">
+            <h4 class="text-xs font-black uppercase text-blue-600 mb-4">Entregables Principales</h4>
+            <div class="grid grid-cols-2 gap-4">
+                <div class="p-4 border border-slate-100 rounded-2xl text-[11px]">&bull; Mapa de arquitectura actual (AS-IS)</div>
+                <div class="p-4 border border-slate-100 rounded-2xl text-[11px]">&bull; Diagnostico de capacidades y brechas</div>
+                <div class="p-4 border border-slate-100 rounded-2xl text-[11px]">&bull; Arquitectura objetivo de alto nivel</div>
+                <div class="p-4 border border-slate-100 rounded-2xl text-[11px]">&bull; Roadmap priorizado de evolucion</div>
+            </div>
+        </div>
+        <div class="footer-info flex justify-between"><div class="font-bold">MARTIN DUARTE</div><div>Pagina 03</div></div>
+    </section>
+</body>
+</html>

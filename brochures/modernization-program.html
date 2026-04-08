@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Modernization Program - Martin Duarte</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;800&family=Space+Grotesk:wght@300;500;700&display=swap');
+        :root { --primary: #0F172A; --brand: #2563EB; --bg-light: #FDFDFD; }
+        @page { size: A4; margin: 0; }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background: var(--bg-light); color: var(--primary); margin: 0; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+        .page { width: 210mm; height: 297mm; padding: 20mm; page-break-after: always; position: relative; }
+        h1, h2, h3 { font-family: 'Space Grotesk', sans-serif; letter-spacing: -0.02em; }
+        .bento-card { background: #FFFFFF; border: 1px solid #E2E8F0; border-radius: 2rem; padding: 2rem; }
+        .footer-info { position: absolute; bottom: 15mm; left: 20mm; right: 20mm; border-top: 1px solid #E2E8F0; padding-top: 10px; font-size: 10px; color: #94A3B8; display: flex; justify-content: space-between; text-transform: uppercase; }
+    </style>
+</head>
+<body>
+    <section class="page flex flex-col justify-center bg-[#020617] text-white">
+        <div class="space-y-6">
+            <div class="text-sm font-black uppercase tracking-[0.3em] text-blue-500">Service Portfolio 2026</div>
+            <h1 class="text-7xl font-extrabold leading-none">Modernization<br><span class="text-blue-600">Program</span></h1>
+            <p class="text-xl text-slate-400 max-w-xl">Diseno del programa para transformar plataformas legacy hacia arquitecturas Cloud.</p>
+        </div>
+        <div class="footer-info"><div class="font-bold">MARTIN<span class="text-blue-600">DUARTE</span></div><div>Martynduarte@gmail.com | 1123797308</div></div>
+    </section>
+    <section class="page">
+        <h2 class="text-4xl font-extrabold mb-8">Modernization Program</h2>
+        <div class="grid grid-cols-12 gap-6">
+            <div class="col-span-12 bento-card bg-[#020617] text-white flex justify-between items-center">
+                <div>
+                    <h4 class="text-xs font-black uppercase mb-2 text-blue-500">Enfoque Cloud</h4>
+                    <p class="text-sm">Estrategia de migracion y modernizacion por oleadas.</p>
+                </div>
+                <div class="text-right">
+                    <p class="text-3xl font-black">60% TCO</p>
+                    <p class="text-[9px] uppercase text-slate-400">Optimizacion de Costos</p>
+                </div>
+            </div>
+            <div class="col-span-6 bento-card">
+                <h4 class="text-xs font-black uppercase text-blue-600 mb-2">Problematicas</h4>
+                <p class="text-[11px] text-slate-600 leading-relaxed">Plataformas obsoletas, herramientas que no escalan y necesidad de migracion integral de pipelines.</p>
+            </div>
+            <div class="col-span-6 bento-card">
+                <h4 class="text-xs font-black uppercase text-blue-600 mb-2">Entregables</h4>
+                <p class="text-[11px] text-slate-600">Plan de migracion por fases, arquitectura target detallada y analisis de riesgos.</p>
+            </div>
+        </div>
+        <div class="footer-info"><div>Modernization</div><div>Pagina 02</div></div>
+    </section>
+</body>
+</html>

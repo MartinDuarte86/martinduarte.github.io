@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Data Platform Strategy - Martin Duarte</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;800&family=Space+Grotesk:wght@300;500;700&display=swap');
+        :root { --primary: #0F172A; --brand: #2563EB; --bg-light: #FDFDFD; }
+        @page { size: A4; margin: 0; }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background: var(--bg-light); color: var(--primary); margin: 0; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+        .page { width: 210mm; height: 297mm; padding: 20mm; page-break-after: always; position: relative; }
+        h1, h2, h3 { font-family: 'Space Grotesk', sans-serif; letter-spacing: -0.02em; }
+        .bento-card { background: #FFFFFF; border: 1px solid #E2E8F0; border-radius: 2rem; padding: 2rem; }
+        .footer-info { position: absolute; bottom: 15mm; left: 20mm; right: 20mm; border-top: 1px solid #E2E8F0; padding-top: 10px; font-size: 10px; color: #94A3B8; display: flex; justify-content: space-between; text-transform: uppercase; }
+    </style>
+</head>
+<body>
+    <section class="page flex flex-col justify-center bg-[#020617] text-white">
+        <div class="space-y-6">
+            <div class="text-sm font-black uppercase tracking-[0.3em] text-blue-500">Service Portfolio 2026</div>
+            <h1 class="text-7xl font-extrabold leading-none">Data Platform<br><span class="text-blue-600">Strategy</span></h1>
+            <p class="text-xl text-slate-400 max-w-xl">Diseno de la estrategia para evolucionar hacia plataformas modernas como Lakehouse.</p>
+        </div>
+        <div class="footer-info"><div class="font-bold">MARTIN<span class="text-blue-600">DUARTE</span></div><div>Martynduarte@gmail.com | 1123797308</div></div>
+    </section>
+    <section class="page">
+        <h2 class="text-4xl font-extrabold mb-8">Data Platform Strategy</h2>
+        <div class="grid grid-cols-12 gap-6">
+            <div class="col-span-12 bento-card bg-blue-600 text-white">
+                <h4 class="text-xs font-black uppercase mb-2">Resultado Esperado</h4>
+                <p class="text-lg font-bold">Claridad estrategica sobre como evolucionar la plataforma de datos.</p>
+            </div>
+            <div class="col-span-7 bento-card">
+                <h4 class="text-xs font-black uppercase text-blue-600 mb-4">Alcance del Servicio</h4>
+                <ul class="text-[11px] space-y-3">
+                    <li class="flex gap-2 font-medium"><span>&#10003;</span> Analisis del estado y necesidades futuras.</li>
+                    <li class="flex gap-2 font-medium"><span>&#10003;</span> Definicion del modelo target de Data Platform.</li>
+                    <li class="flex gap-2 font-medium"><span>&#10003;</span> Diseno de estrategias de ingestion y almacenamiento.</li>
+                    <li class="flex gap-2 font-medium"><span>&#10003;</span> Priorizacion evolutiva por fases.</li>
+                </ul>
+            </div>
+            <div class="col-span-5 space-y-4">
+                <div class="bento-card h-full flex flex-col justify-center text-center">
+                    <h4 class="text-2xl font-black text-blue-600">FinOps</h4>
+                    <p class="text-[10px] text-slate-400 uppercase font-bold">Optimizacion desde el diseno</p>
+                </div>
+            </div>
+        </div>
+        <div class="footer-info"><div>Strategy</div><div>Pagina 02</div></div>
+    </section>
+</body>
+</html>

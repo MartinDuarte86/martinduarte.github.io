@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Data Governance and Quality - Martin Duarte</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;800&family=Space+Grotesk:wght@300;500;700&display=swap');
+        :root { --primary: #0F172A; --brand: #2563EB; --bg-light: #FDFDFD; }
+        @page { size: A4; margin: 0; }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background: var(--bg-light); color: var(--primary); margin: 0; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+        .page { width: 210mm; height: 297mm; padding: 20mm; page-break-after: always; position: relative; overflow: hidden; }
+        h1, h2, h3 { font-family: 'Space Grotesk', sans-serif; letter-spacing: -0.02em; }
+        .bento-card { background: #FFFFFF; border: 1px solid #E2E8F0; border-radius: 2rem; padding: 2rem; }
+        .footer-info { position: absolute; bottom: 15mm; left: 20mm; right: 20mm; border-top: 1px solid #E2E8F0; padding-top: 10px; font-size: 10px; color: #94A3B8; display: flex; justify-content: space-between; text-transform: uppercase; }
+    </style>
+</head>
+<body>
+    <section class="page flex flex-col justify-center bg-[#020617] text-white">
+        <div class="space-y-6">
+            <div class="text-sm font-black uppercase tracking-[0.3em] text-blue-500">Complementary Services 2026</div>
+            <h1 class="text-7xl font-extrabold leading-none">Data Governance<br><span class="text-blue-600">&amp; Quality</span></h1>
+            <p class="text-xl text-slate-400 max-w-xl">Frameworks para mejorar ownership, confiabilidad y trazabilidad del dato en entornos enterprise.</p>
+        </div>
+        <div class="footer-info"><div class="font-bold">MARTIN<span class="text-blue-600">DUARTE</span></div><div>Martynduarte@gmail.com | 1123797308</div></div>
+    </section>
+    <section class="page">
+        <h2 class="text-4xl font-extrabold mb-10">Data Governance &amp; Quality</h2>
+        <div class="grid grid-cols-12 gap-6">
+            <div class="col-span-7 bento-card bg-slate-900 text-white">
+                <h4 class="text-xs font-black uppercase text-blue-500 mb-4">Problematicas de Calidad</h4>
+                <p class="text-sm text-slate-400 mb-4">Brechas de ownership, inconsistencia entre dominios, reglas ambiguas y falta de trazabilidad del dato.</p>
+                <div class="p-4 bg-slate-800 rounded-xl">
+                    <p class="text-xs font-bold">Solucion: definicion de frameworks de gobierno, responsabilidades y estandares para elevar la confiabilidad.</p>
+                </div>
+            </div>
+            <div class="col-span-5 bento-card border-blue-100 bg-blue-50">
+                <h4 class="text-xs font-black uppercase text-blue-600 mb-4">Entregables</h4>
+                <ul class="text-[10px] space-y-2 font-bold text-slate-700">
+                    <li>&bull; Modelo de gobierno y ownership</li>
+                    <li>&bull; Lineamientos de calidad y controles</li>
+                    <li>&bull; Metricas sugeridas de confiabilidad</li>
+                    <li>&bull; Recomendaciones de trazabilidad</li>
+                </ul>
+            </div>
+        </div>
+        <div class="mt-12 grid grid-cols-2 gap-4">
+            <div class="p-5 border border-slate-100 rounded-3xl">
+                <p class="text-xs font-bold text-slate-400 uppercase mb-2">Orientado a</p>
+                <p class="text-sm font-bold">Equipos con datos inconsistentes, dominios desacoplados o baja confianza analitica.</p>
+            </div>
+            <div class="p-5 border border-slate-100 rounded-3xl">
+                <p class="text-xs font-bold text-slate-400 uppercase mb-2">Resultado</p>
+                <p class="text-sm font-bold">Mayor claridad operativa para decidir, auditar y escalar sin ambiguedad.</p>
+            </div>
+        </div>
+        <div class="footer-info"><div>Governance &amp; Quality</div><div>Pagina 02</div></div>
+    </section>
+</body>
+</html>

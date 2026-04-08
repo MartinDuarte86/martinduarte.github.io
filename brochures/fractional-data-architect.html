@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fractional Data Architect - Martin Duarte</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;800&family=Space+Grotesk:wght@300;500;700&display=swap');
+        :root { --primary: #0F172A; --brand: #2563EB; --bg-light: #FDFDFD; }
+        @page { size: A4; margin: 0; }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background: var(--bg-light); color: var(--primary); margin: 0; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+        .page { width: 210mm; height: 297mm; padding: 20mm; page-break-after: always; position: relative; }
+        h1, h2, h3 { font-family: 'Space Grotesk', sans-serif; letter-spacing: -0.02em; }
+        .bento-card { background: #FFFFFF; border: 1px solid #E2E8F0; border-radius: 2rem; padding: 2rem; }
+        .footer-info { position: absolute; bottom: 15mm; left: 20mm; right: 20mm; border-top: 1px solid #E2E8F0; padding-top: 10px; font-size: 10px; color: #94A3B8; display: flex; justify-content: space-between; text-transform: uppercase; }
+    </style>
+</head>
+<body>
+    <section class="page flex flex-col justify-center bg-[#020617] text-white">
+        <div class="space-y-6">
+            <div class="text-sm font-black uppercase tracking-[0.3em] text-blue-500">Service Portfolio 2026</div>
+            <h1 class="text-7xl font-extrabold leading-none">Fractional Data<br><span class="text-blue-600">Architect</span></h1>
+            <p class="text-xl text-slate-400 max-w-xl">Liderazgo senior flexible sin necesidad de un rol full-time.</p>
+        </div>
+        <div class="footer-info"><div class="font-bold">MARTIN<span class="text-blue-600">DUARTE</span></div><div>Martynduarte@gmail.com | 1123797308</div></div>
+    </section>
+    <section class="page">
+        <h2 class="text-4xl font-extrabold mb-8 italic">Fractional Architect</h2>
+        <div class="bento-card mb-8"><p class="text-lg text-slate-700 italic">"Acceso a liderazgo arquitectonico senior con alta flexibilidad."</p></div>
+        <div class="grid grid-cols-2 gap-8">
+            <div class="space-y-6">
+                <h4 class="text-xs font-black uppercase text-blue-600">Metodologia de Acompanamiento</h4>
+                <ul class="text-sm space-y-4">
+                    <li class="border-l-4 border-slate-100 pl-4">Revision periodica de decisiones y diseno.</li>
+                    <li class="border-l-4 border-slate-100 pl-4">Mentoring a perfiles de ingenieria y analitica.</li>
+                    <li class="border-l-4 border-slate-100 pl-4">Priorizacion continua del roadmap evolutivo.</li>
+                </ul>
+            </div>
+            <div class="bento-card bg-slate-50 flex flex-col justify-center">
+                <h4 class="text-xs font-black uppercase text-center text-slate-400 mb-4">Beneficios</h4>
+                <div class="text-center space-y-4">
+                    <div><p class="text-2xl font-black text-blue-600">Velocidad</p><p class="text-[10px] uppercase font-bold text-slate-500">Para resolver dilemas tecnicos</p></div>
+                    <div><p class="text-2xl font-black text-blue-600">Calidad</p><p class="text-[10px] uppercase font-bold text-slate-500">En decisiones estrategicas</p></div>
+                </div>
+            </div>
+        </div>
+        <div class="footer-info"><div>Fractional Architect</div><div>Pagina 02</div></div>
+    </section>
+</body>
+</html>
