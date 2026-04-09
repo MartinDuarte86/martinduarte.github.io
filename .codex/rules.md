@@ -17,3 +17,6 @@ BRAND RULES - MARTIN DUARTE 2026
   - Ensure `ca-pub-1594572872514423` remains in `<head>`.
 - CTA:
   - Any `Agendar reunión` CTA must open the 5-step qualifier form.
+  - After form completion, redirect automatically to `https://calendly.com/martynduarte/sample-30min`.
+- Brochure downloads:
+  - Every service brochure must keep an HTML source and a PDF download derived from that HTML.

@@ -36,3 +36,4 @@ Use this skill when editing the booking modal and CTA flow.
 - Every `Agendar reunion` CTA must trigger this modal.
 - Keep the experience B2B and concise.
 - Avoid dead-end steps: always adapt the copy and controls to the selected service.
+- After the user completes the form, automatically redirect to `https://calendly.com/martynduarte/sample-30min`.

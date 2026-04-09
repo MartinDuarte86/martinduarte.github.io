@@ -35,8 +35,16 @@ Use this skill when creating or updating any brochure in `brochures/`.
 - Minimum 3 pages, maximum 6.
 - Prefer bold editorial layouts over generic report styling.
 - Keep the contact details visible on the last page and footer.
+- Each brochure must be export-ready as a downloadable PDF.
+- When wiring brochure CTAs or asset generation, treat the HTML file as the print source and produce a matching PDF artifact for download.
 
 ## Source Handling
 
 - If a Word source exists, extract the service definition and deliverables from it.
 - If no Word source exists, infer from the current service card and brochure copy, and state that assumption in the final handoff.
+
+## Output Expectation
+
+- Keep the HTML version as the canonical editable source.
+- Also generate or maintain a PDF download version derived from that HTML.
+- The downloadable PDF must preserve the same typography, spacing, colors, and page order as the HTML print layout.
