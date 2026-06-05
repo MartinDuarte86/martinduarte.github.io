@@ -139,6 +139,99 @@
             height: 100%;
             min-height: 250px;
         }
+
+        /* ── Dropdown Navigation ── */
+        .nav-dropdown-wrapper { position: relative; }
+        .nav-dropdown {
+            display: none;
+            position: absolute;
+            top: calc(100% + 1.25rem);
+            left: 50%;
+            transform: translateX(-50%);
+            min-width: 680px;
+            background: rgba(255,255,255,0.97);
+            border: 1px solid var(--line);
+            border-radius: 2rem;
+            padding: 1.75rem;
+            box-shadow: 0 32px 64px -12px rgba(15,23,42,0.12);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            gap: 0.75rem;
+            grid-template-columns: 1fr 1fr;
+            z-index: 100;
+        }
+        .nav-dropdown-wrapper:hover .nav-dropdown,
+        .nav-dropdown-wrapper:focus-within .nav-dropdown {
+            display: grid;
+        }
+        .nav-dd-col { display: flex; flex-direction: column; gap: 0.75rem; }
+        .nav-dd-cat {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 0.6rem;
+            font-weight: 800;
+            letter-spacing: 0.18em;
+            text-transform: uppercase;
+            color: #94A3B8;
+            padding: 0 0.75rem;
+            margin-bottom: 0.25rem;
+        }
+        .nav-dd-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.75rem;
+            padding: 0.85rem 0.85rem;
+            border-radius: 1.25rem;
+            text-decoration: none;
+            transition: background 0.2s ease;
+            cursor: pointer;
+        }
+        .nav-dd-item:hover { background: #F1F5F9; }
+        .nav-dd-item-icon {
+            width: 2.25rem;
+            height: 2.25rem;
+            border-radius: 0.75rem;
+            background: #EFF6FF;
+            color: #2563EB;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+            font-weight: 800;
+            flex-shrink: 0;
+        }
+        .nav-dd-item-icon.soon { background: #F8FAFC; color: #94A3B8; }
+        .nav-dd-item-title {
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: #0F172A;
+            line-height: 1.3;
+        }
+        .nav-dd-item-desc {
+            font-size: 0.65rem;
+            color: #64748B;
+            margin-top: 0.15rem;
+            line-height: 1.4;
+        }
+        .nav-dd-badge {
+            display: inline-block;
+            font-size: 0.55rem;
+            font-weight: 800;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            padding: 0.15rem 0.5rem;
+            border-radius: 9999px;
+            margin-top: 0.25rem;
+        }
+        .badge-soon { background: #F1F5F9; color: #94A3B8; }
+        .nav-caret {
+            width: 0.65rem;
+            height: 0.65rem;
+            display: inline-block;
+            margin-left: 0.25rem;
+            vertical-align: middle;
+            transition: transform 0.2s ease;
+        }
+        .nav-dropdown-wrapper:hover .nav-caret { transform: rotate(180deg); }
     </style>
 </head>
 <body class="antialiased selection:bg-blue-100 selection:text-blue-900">
@@ -149,9 +242,57 @@
             <div class="font-heading font-bold text-xl tracking-tighter">
                 MARTIN<span class="text-blue-600 font-black">DUARTE</span>
             </div>
-            <div class="hidden md:flex gap-10 text-[10px] font-black uppercase tracking-[0.2em] text-slate-500">
-                <a href="#codex" class="hover:text-blue-600 transition-colors">Codex</a>
-                <a href="#servicios" class="hover:text-blue-600 transition-colors">Servicios</a>
+            <div class="hidden md:flex gap-10 text-[10px] font-black uppercase tracking-[0.2em] text-slate-500 items-center">
+                <a href="#codex" class="hover:text-blue-600 transition-colors">Casos de Uso</a>
+
+                <!-- Dropdown Servicios -->
+                <div class="nav-dropdown-wrapper">
+                    <a href="#servicios" class="hover:text-blue-600 transition-colors flex items-center">
+                        Servicios
+                        <svg class="nav-caret" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/>
+                        </svg>
+                    </a>
+                    <div class="nav-dropdown" style="grid-template-columns: 1fr 1fr; min-width: 340px;">
+                        <!-- Columna izquierda -->
+                        <div class="nav-dd-col">
+                            <a href="#servicios" class="nav-dd-item">
+                                <div class="nav-dd-item-icon">📊</div>
+                                <div>
+                                    <div class="nav-dd-item-title">Data</div>
+                                    <div class="nav-dd-item-desc">Arquitectura, ingeniería, gobierno y analytics.</div>
+                                </div>
+                            </a>
+                            <a href="#ecommerce" class="nav-dd-item">
+                                <div class="nav-dd-item-icon">🛒</div>
+                                <div>
+                                    <div class="nav-dd-item-title">E-Commerce</div>
+                                    <div class="nav-dd-item-desc">Implementación TiendaNube — 3 planes.</div>
+                                </div>
+                            </a>
+                        </div>
+                        <!-- Columna derecha -->
+                        <div class="nav-dd-col">
+                            <div class="nav-dd-item" style="opacity:0.55; cursor:default;">
+                                <div class="nav-dd-item-icon soon">⚙</div>
+                                <div>
+                                    <div class="nav-dd-item-title">Desarrollo de Software</div>
+                                    <div class="nav-dd-item-desc">Plataformas a medida e integraciones.</div>
+                                    <span class="nav-dd-badge badge-soon">Próximamente</span>
+                                </div>
+                            </div>
+                            <div class="nav-dd-item" style="opacity:0.55; cursor:default;">
+                                <div class="nav-dd-item-icon soon">⚡</div>
+                                <div>
+                                    <div class="nav-dd-item-title">Automatizaciones</div>
+                                    <div class="nav-dd-item-desc">Flujos autónomos y agentes de IA.</div>
+                                    <span class="nav-dd-badge badge-soon">Próximamente</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
                 <a href="#academia" class="hover:text-blue-600 transition-colors">Academia</a>
             </div>
             <button onclick="openBooking()" class="text-[10px] font-black bg-slate-900 text-white px-6 py-3 rounded-full hover:bg-blue-600 transition-all uppercase tracking-widest">
@@ -207,229 +348,433 @@
         <!-- Codex Section: Proyectos STAR-A -->
         <section id="codex" class="max-w-7xl mx-auto px-6 space-y-16">
             <div class="border-l-8 border-blue-600 pl-8">
-                <h2 class="text-4xl font-extrabold tracking-tight">Codex de Soluciones</h2>
+                <h2 class="text-4xl font-extrabold tracking-tight">Casos de Uso</h2>
                 <p class="text-slate-500 mt-4 text-lg">Casos de éxito donde la arquitectura desbloqueó el valor latente de los datos.</p>
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-12 gap-8 auto-rows-[340px]">
-                <!-- Caso PAE: Persistencia -->
+                <!-- Caso Energético: Governance Multi-Plataforma -->
                 <div class="bento-card md:col-span-8 p-10 flex flex-col justify-between group">
                     <div class="flex flex-col md:flex-row gap-10 h-full">
                         <div class="flex-1 space-y-6">
-                            <span class="px-3 py-1 bg-blue-50 text-blue-600 rounded-full text-[10px] font-black uppercase">PAE | Oil & Gas</span>
-                            <h3 class="text-3xl font-extrabold">Blueprint de Persistencia</h3>
+                            <span class="px-3 py-1 bg-blue-50 text-blue-600 rounded-full text-[10px] font-black uppercase">Sector Energético | Oil & Gas</span>
+                            <h3 class="text-3xl font-extrabold">Governance Multi-Plataforma</h3>
                             <p class="text-sm text-slate-500 leading-relaxed">
-                                Transformación de una solución efímera en una plataforma auditable. Eliminamos la saturación de caché mediante cluster MS SQL Server dedicado.
+                                Organización con múltiples plataformas analíticas críticas operando de forma aislada, sin cumplir estándares corporativos. Programa de homologación en 3 frentes simultáneos: plataforma BI (Spotfire), integración ERP con operaciones de campo y repositorio de datos sísmicos en nube.
                             </p>
-                            <div class="flex gap-4 pt-4">
+                            <div class="flex gap-6 pt-2 flex-wrap">
                                 <div class="text-center">
-                                    <p class="text-2xl font-black text-blue-600">< 10 min</p>
-                                    <p class="text-[9px] uppercase font-bold text-slate-400">Update Grillas</p>
+                                    <p class="text-2xl font-black text-blue-600">−80%</p>
+                                    <p class="text-[9px] uppercase font-bold text-slate-400">Tiempo gestión OT</p>
                                 </div>
                                 <div class="text-center">
-                                    <p class="text-2xl font-black text-slate-900">100%</p>
-                                    <p class="text-[9px] uppercase font-bold text-slate-400">Historial</p>
+                                    <p class="text-2xl font-black text-slate-900">3</p>
+                                    <p class="text-[9px] uppercase font-bold text-slate-400">Frentes simultáneos</p>
+                                </div>
+                                <div class="text-center">
+                                    <p class="text-2xl font-black text-blue-600">0</p>
+                                    <p class="text-[9px] uppercase font-bold text-slate-400">Duplicación de datos</p>
                                 </div>
                             </div>
                         </div>
                         <div class="flex-1 flex items-center justify-center">
                             <div class="chart-container">
-                                <canvas id="paeRadarChart"></canvas>
+                                <canvas id="energeticoRadarChart"></canvas>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <!-- Caso Hermes: Real-Time -->
+                <!-- Caso Educativo: Diagnóstico AWS Glue -->
                 <div class="bento-card md:col-span-4 p-8 bg-slate-900 text-white">
-                    <span class="text-amber-500 text-[10px] font-black uppercase tracking-widest">Proyecto Hermes</span>
-                    <h3 class="text-xl font-bold mt-2">Ingesta Real-Time</h3>
-                    <p class="text-[11px] text-slate-400 mt-4">Latencia < 0.5s para telemetría de perforación mediante Azure Entra ID Application Proxy.</p>
-                    <div class="mt-8 chart-container h-32">
-                        <canvas id="hermesLatencyChart"></canvas>
-                    </div>
-                </div>
-
-                <!-- Caso Cargo Five: FinOps -->
-                <div class="bento-card md:col-span-4 p-8">
-                    <span class="text-blue-600 text-[10px] font-black uppercase">SaaS | Cargo Five</span>
-                    <h3 class="text-xl font-bold mt-2">Lakehouse Lambda</h3>
-                    <p class="text-[11px] text-slate-500 mt-4">Optimización de payloads de 140KB a 5KB, habilitando observabilidad y reduciendo TCO operativo.</p>
-                    <div class="mt-8 bg-blue-50 p-4 rounded-2xl flex items-center justify-between border border-blue-100">
-                        <span class="text-2xl">⚡</span>
+                    <span class="text-amber-500 text-[10px] font-black uppercase tracking-widest">Sector Educativo | Diagnóstico Cloud</span>
+                    <h3 class="text-xl font-bold mt-2">Optimización Serverless AWS</h3>
+                    <p class="text-[11px] text-slate-400 mt-4">El 95% del cómputo diario era trabajo redundante. 73 pipelines duplicados y 2.5M archivos ineficientes en S3. Diagnóstico y rediseño arquitectónico en 4.5 semanas.</p>
+                    <div class="mt-6 bg-slate-800 p-4 rounded-2xl border border-slate-700 flex items-center justify-between">
+                        <span class="text-amber-400 text-lg">⚡</span>
                         <div class="text-right">
-                            <p class="text-2xl font-black text-blue-600">60%</p>
-                            <p class="text-[9px] uppercase font-bold text-slate-400 italic">Costo Optimizados</p>
+                            <p class="text-2xl font-black text-amber-400">−40%</p>
+                            <p class="text-[9px] uppercase font-bold text-slate-400">Facturación mensual</p>
                         </div>
                     </div>
                 </div>
 
-                <!-- Caso SAP: Integridad -->
+                <!-- Caso Logística: Lakehouse Lambda -->
+                <div class="bento-card md:col-span-4 p-8">
+                    <span class="text-blue-600 text-[10px] font-black uppercase">Sector Logístico | SaaS</span>
+                    <h3 class="text-xl font-bold mt-2">Lakehouse Lambda</h3>
+                    <p class="text-[11px] text-slate-500 mt-4">Procesamiento de +2.5M eventos mensuales con latencia near real-time. Speed Layer (OpenSearch) + Batch Layer (S3/Athena/Iceberg) con observabilidad completa de APIs.</p>
+                    <div class="mt-6 grid grid-cols-2 gap-3">
+                        <div class="bg-blue-50 p-3 rounded-2xl border border-blue-100 text-center">
+                            <p class="text-lg font-black text-blue-600">$500–900</p>
+                            <p class="text-[8px] uppercase font-bold text-slate-400">USD/mes TCO total AWS</p>
+                        </div>
+                        <div class="bg-slate-50 p-3 rounded-2xl border border-slate-100 text-center">
+                            <p class="text-lg font-black text-slate-900">2.5M</p>
+                            <p class="text-[8px] uppercase font-bold text-slate-400">Eventos/mes procesados</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Caso Financiero: Medallion Architecture -->
                 <div class="bento-card md:col-span-8 p-10 flex flex-col md:flex-row gap-10 items-center">
                     <div class="flex-1 space-y-4">
-                        <span class="text-indigo-600 text-[10px] font-black uppercase">Enterprise | SAP</span>
-                        <h3 class="text-2xl font-extrabold">Integridad Transaccional</h3>
-                        <p class="text-sm text-slate-500">Erradicación de triplicidad en Órdenes de Trabajo mediante validación por Hash e integración API-led corporativa.</p>
+                        <span class="text-indigo-600 text-[10px] font-black uppercase">Sector Financiero | Mercado de Valores</span>
+                        <h3 class="text-2xl font-extrabold">Medallion Architecture</h3>
+                        <p class="text-sm text-slate-500">Arquitectura analítica centralizada que saturaba el Data Warehouse con procesamiento pesado. Migración a Data Lake modular (Bronze / Silver / Gold) para offloading total del ETL fuera de Redshift, con gobierno de datos PII bajo normativa BCRA / Ley 25.326.</p>
+                        <div class="flex gap-6 pt-2">
+                            <div>
+                                <p class="text-lg font-black text-indigo-600">50+</p>
+                                <p class="text-[9px] uppercase font-bold text-slate-400">Pipelines migrados</p>
+                            </div>
+                            <div>
+                                <p class="text-lg font-black text-slate-900">100%</p>
+                                <p class="text-[9px] uppercase font-bold text-slate-400">Compliance regulatorio</p>
+                            </div>
+                        </div>
                     </div>
                     <div class="flex-1 w-full bg-slate-50 rounded-3xl p-6 border border-slate-100 flex items-center justify-center">
                         <div class="chart-container">
-                            <canvas id="sapDoughnutChart"></canvas>
+                            <canvas id="financialDonutChart"></canvas>
                         </div>
                     </div>
                 </div>
             </div>
         </section>
 
-        <!-- Sección de Servicios Principales (Core) -->
+        <!-- Sección de Servicios: Data -->
         <section id="servicios" class="max-w-7xl mx-auto px-6 space-y-20">
             <div class="text-center max-w-3xl mx-auto space-y-6">
                 <h2 class="text-5xl font-extrabold tracking-tighter">Portafolio de Servicios</h2>
                 <p class="text-slate-500 text-lg leading-relaxed">Arquitectura estratégica diseñada para resolver problemáticas de negocio, ordenar la evolución tecnológica y acelerar la transformación.</p>
             </div>
 
-            <!-- Servicios Núcleo -->
-            <div class="space-y-8">
-                <!-- Assessment -->
-                <div class="service-card p-10 bg-white rounded-r-[3rem] shadow-sm flex flex-col lg:flex-row justify-between items-start gap-8">
-                    <div class="max-w-2xl space-y-4">
-                        <div class="flex items-center gap-4">
-                            <div class="w-12 h-12 bg-blue-100 text-blue-600 rounded-2xl flex items-center justify-center font-bold">01</div>
-                            <h3 class="text-3xl font-extrabold">Data Architecture Assessment</h3>
+            <!-- Grupo 1: Arquitectura Cloud de Datos -->
+            <div class="space-y-6">
+                <div class="flex items-center gap-4">
+                    <div class="w-2 h-8 bg-blue-600 rounded-full"></div>
+                    <h3 class="text-xl font-extrabold tracking-tight">Arquitectura Cloud de Datos</h3>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <!-- Diagnóstico -->
+                    <div class="bento-card p-8 flex flex-col gap-5">
+                        <div class="flex-1 space-y-3">
+                            <div class="w-10 h-10 bg-blue-100 text-blue-600 rounded-xl flex items-center justify-center font-black text-sm">01</div>
+                            <h4 class="text-lg font-extrabold leading-tight">Diagnóstico de Arquitectura de Datos</h4>
+                            <p class="text-[11px] text-blue-700 font-semibold leading-relaxed">Antes de invertir en tecnología, entendé qué tiene tu empresa y qué le falta realmente.</p>
+                            <ul class="text-[11px] text-slate-500 leading-relaxed space-y-1">
+                                <li>→ Mapeamos cómo fluye la información hoy y dónde frena decisiones.</li>
+                                <li>→ Identificamos costos innecesarios y riesgos operativos.</li>
+                                <li>→ Entregamos un plan con prioridades claras y quick wins.</li>
+                            </ul>
                         </div>
-                        <p class="text-slate-500 leading-relaxed">Evaluación estructurada de la arquitectura actual para identificar riesgos, brechas de capacidad y prioridades de evolución hacia una plataforma moderna y escalable.</p>
-                        <div class="flex flex-wrap gap-2 pt-2">
-                            <span class="text-[10px] font-bold uppercase text-slate-400 tracking-widest px-3 py-1 bg-slate-100 rounded-full">AS-IS Mapping</span>
-                            <span class="text-[10px] font-bold uppercase text-slate-400 tracking-widest px-3 py-1 bg-slate-100 rounded-full">Roadmap Priorizado</span>
-                            <span class="text-[10px] font-bold uppercase text-slate-400 tracking-widest px-3 py-1 bg-slate-100 rounded-full">Quick Wins</span>
-                        </div>
-                    </div>
-                    <div class="w-full lg:w-auto">
-                        <a href="/brochures/data-architecture-assessment.pdf" download="martin-duarte-data-architecture-assessment.pdf" class="block w-full px-8 py-4 border-2 border-slate-900 text-slate-900 rounded-full font-bold hover:bg-slate-900 hover:text-white transition-all text-xs uppercase tracking-widest text-center">
+                        <a href="/brochures/data-architecture-assessment.pdf" target="_blank" rel="noopener" aria-label="Descargar brochure Diagnóstico de Arquitectura de Datos" class="block w-full px-6 py-3 border-2 border-slate-900 text-slate-900 rounded-full font-bold hover:bg-slate-900 hover:text-white transition-all text-[10px] uppercase tracking-widest text-center">
                             Descargar Brochure 📥
                         </a>
                     </div>
-                </div>
 
-                <!-- Blueprint -->
-                <div class="service-card p-10 bg-white rounded-r-[3rem] shadow-sm flex flex-col lg:flex-row justify-between items-start gap-8">
-                    <div class="max-w-2xl space-y-4">
-                        <div class="flex items-center gap-4">
-                            <div class="w-12 h-12 bg-blue-100 text-blue-600 rounded-2xl flex items-center justify-center font-bold">02</div>
-                            <h3 class="text-3xl font-extrabold">Enterprise Data Architecture Blueprint</h3>
+                    <!-- Blueprint -->
+                    <div class="bento-card p-8 flex flex-col gap-5">
+                        <div class="flex-1 space-y-3">
+                            <div class="w-10 h-10 bg-blue-100 text-blue-600 rounded-xl flex items-center justify-center font-black text-sm">02</div>
+                            <h4 class="text-lg font-extrabold leading-tight">Blueprint de Arquitectura Empresarial</h4>
+                            <p class="text-[11px] text-blue-700 font-semibold leading-relaxed">El mapa que necesitás para saber a dónde va tu plataforma de datos, sin volver a improvisar.</p>
+                            <ul class="text-[11px] text-slate-500 leading-relaxed space-y-1">
+                                <li>→ Arquitectura de referencia que conecta datos con cada área del negocio.</li>
+                                <li>→ Principios técnicos para que cada proyecto vaya en la misma dirección.</li>
+                                <li>→ Reducís el costo de integrar sistemas nuevos.</li>
+                            </ul>
                         </div>
-                        <p class="text-slate-500 leading-relaxed">Definición de una arquitectura de referencia que alinee negocio, dominios de información, principios técnicos y componentes de plataforma.</p>
-                        <div class="flex flex-wrap gap-2 pt-2">
-                            <span class="text-[10px] font-bold uppercase text-slate-400 tracking-widest px-3 py-1 bg-slate-100 rounded-full">Arquitectura Lógica/Física</span>
-                            <span class="text-[10px] font-bold uppercase text-slate-400 tracking-widest px-3 py-1 bg-slate-100 rounded-full">Principios Enterprise</span>
-                        </div>
-                    </div>
-                    <div class="w-full lg:w-auto">
-                        <a href="/brochures/enterprise-data-architecture-blueprint.pdf" download="martin-duarte-enterprise-data-architecture-blueprint.pdf" class="block w-full px-8 py-4 border-2 border-slate-900 text-slate-900 rounded-full font-bold hover:bg-slate-900 hover:text-white transition-all text-xs uppercase tracking-widest text-center">
+                        <a href="/brochures/enterprise-data-architecture-blueprint.pdf" target="_blank" rel="noopener" aria-label="Descargar brochure Blueprint de Arquitectura Empresarial" class="block w-full px-6 py-3 border-2 border-slate-900 text-slate-900 rounded-full font-bold hover:bg-slate-900 hover:text-white transition-all text-[10px] uppercase tracking-widest text-center">
                             Descargar Brochure 📥
                         </a>
                     </div>
-                </div>
 
-                <!-- Strategy -->
-                <div class="service-card p-10 bg-white rounded-r-[3rem] shadow-sm flex flex-col lg:flex-row justify-between items-start gap-8">
-                    <div class="max-w-2xl space-y-4">
-                        <div class="flex items-center gap-4">
-                            <div class="w-12 h-12 bg-blue-100 text-blue-600 rounded-2xl flex items-center justify-center font-bold">03</div>
-                            <h3 class="text-3xl font-extrabold">Data Platform Strategy</h3>
+                    <!-- Estrategia de Migración -->
+                    <div class="bento-card p-8 flex flex-col gap-5">
+                        <div class="flex-1 space-y-3">
+                            <div class="w-10 h-10 bg-blue-100 text-blue-600 rounded-xl flex items-center justify-center font-black text-sm">03</div>
+                            <h4 class="text-lg font-extrabold leading-tight">Estrategia de Migración de Datos</h4>
+                            <p class="text-[11px] text-blue-700 font-semibold leading-relaxed">De hoja de ruta vaga a un plan ejecutivo con criterios, tecnología y modelo operativo definidos.</p>
+                            <ul class="text-[11px] text-slate-500 leading-relaxed space-y-1">
+                                <li>→ Definimos la plataforma target (Cloud, Lakehouse, Híbrido).</li>
+                                <li>→ Criterios claros para evaluar tecnología sin atarse a un proveedor.</li>
+                                <li>→ Técnica y dirección hablando el mismo idioma desde el día uno.</li>
+                            </ul>
                         </div>
-                        <p class="text-slate-500 leading-relaxed">Definición de la visión target, criterios tecnológicos y modelo operativo evolutivo hacia plataformas sostenibles (Lakehouse/Cloud).</p>
-                    </div>
-                    <div class="w-full lg:w-auto">
-                        <a href="/brochures/data-platform-strategy.pdf" download="martin-duarte-data-platform-strategy.pdf" class="block w-full px-8 py-4 border-2 border-slate-900 text-slate-900 rounded-full font-bold hover:bg-slate-900 hover:text-white transition-all text-xs uppercase tracking-widest text-center">
+                        <a href="/brochures/data-migration-strategy.pdf" target="_blank" rel="noopener" aria-label="Descargar brochure Estrategia de Migración de Datos" class="block w-full px-6 py-3 border-2 border-slate-900 text-slate-900 rounded-full font-bold hover:bg-slate-900 hover:text-white transition-all text-[10px] uppercase tracking-widest text-center">
                             Descargar Brochure 📥
                         </a>
                     </div>
-                </div>
 
-                <!-- Modernization -->
-                <div class="service-card p-10 bg-white rounded-r-[3rem] shadow-sm flex flex-col lg:flex-row justify-between items-start gap-8">
-                    <div class="max-w-2xl space-y-4">
-                        <div class="flex items-center gap-4">
-                            <div class="w-12 h-12 bg-blue-100 text-blue-600 rounded-2xl flex items-center justify-center font-bold">04</div>
-                            <h3 class="text-3xl font-extrabold">Data Platform Modernization Program</h3>
+                    <!-- Modernización -->
+                    <div class="bento-card p-8 flex flex-col gap-5">
+                        <div class="flex-1 space-y-3">
+                            <div class="w-10 h-10 bg-blue-100 text-blue-600 rounded-xl flex items-center justify-center font-black text-sm">04</div>
+                            <h4 class="text-lg font-extrabold leading-tight">Modernización de Plataforma</h4>
+                            <p class="text-[11px] text-blue-700 font-semibold leading-relaxed">Migrás de un sistema legacy a una plataforma moderna sin detener la operación del negocio.</p>
+                            <ul class="text-[11px] text-slate-500 leading-relaxed space-y-1">
+                                <li>→ Programa paso a paso con hitos y ROI medible en cada etapa.</li>
+                                <li>→ Priorizamos cambios de mayor retorno desde el primer sprint.</li>
+                                <li>→ Mitigamos el riesgo de depender de tecnología que no escala.</li>
+                            </ul>
                         </div>
-                        <p class="text-slate-500 leading-relaxed">Diseño del programa de transformación para llevar plataformas legacy hacia arquitecturas Cloud/Lakehouse escalables y eficientes.</p>
-                    </div>
-                    <div class="w-full lg:w-auto">
-                        <a href="/brochures/modernization-program.pdf" download="martin-duarte-modernization-program.pdf" class="block w-full px-8 py-4 border-2 border-slate-900 text-slate-900 rounded-full font-bold hover:bg-slate-900 hover:text-white transition-all text-xs uppercase tracking-widest text-center">
+                        <a href="/brochures/modernization-program.pdf" target="_blank" rel="noopener" aria-label="Descargar brochure Modernización de Plataforma" class="block w-full px-6 py-3 border-2 border-slate-900 text-slate-900 rounded-full font-bold hover:bg-slate-900 hover:text-white transition-all text-[10px] uppercase tracking-widest text-center">
                             Descargar Brochure 📥
                         </a>
                     </div>
-                </div>
 
-                <!-- Fractional -->
-                <div class="service-card p-10 bg-white rounded-r-[3rem] shadow-sm flex flex-col lg:flex-row justify-between items-start gap-8 border-b-8 border-b-blue-600">
-                    <div class="max-w-2xl space-y-4">
-                        <div class="flex items-center gap-4">
-                            <div class="w-12 h-12 bg-blue-100 text-blue-600 rounded-2xl flex items-center justify-center font-bold">05</div>
-                            <h3 class="text-3xl font-extrabold">Fractional Enterprise Data Architect</h3>
+                    <!-- Arquitecto de Datos por Horas -->
+                    <div class="bento-card p-8 flex flex-col gap-5 border-2 border-blue-200">
+                        <div class="flex-1 space-y-3">
+                            <div class="w-10 h-10 bg-blue-600 text-white rounded-xl flex items-center justify-center font-black text-sm">05</div>
+                            <h4 class="text-lg font-extrabold leading-tight">Arquitecto de Datos por Horas</h4>
+                            <p class="text-[11px] text-blue-700 font-semibold leading-relaxed">La seniority de un Arquitecto Enterprise, disponible para tu empresa sin costo full-time.</p>
+                            <ul class="text-[11px] text-slate-500 leading-relaxed space-y-1">
+                                <li>→ Acompañamiento continuo para validar decisiones técnicas.</li>
+                                <li>→ Participación en reuniones estratégicas clave.</li>
+                                <li>→ Ideal para PyMEs que necesitan criterio experto sin rol fijo.</li>
+                            </ul>
                         </div>
-                        <p class="text-slate-500 leading-relaxed">Modelo de advisory continuo para acompañar decisiones, validar diseños y alinear equipos sin necesidad de incorporar un rol full-time.</p>
+                        <a href="/brochures/fractional-data-architect.pdf" target="_blank" rel="noopener" aria-label="Descargar brochure Arquitecto de Datos por Horas" class="block w-full px-6 py-3 bg-blue-600 text-white rounded-full font-bold hover:bg-blue-700 transition-all text-[10px] uppercase tracking-widest text-center shadow-lg shadow-blue-200">
+                            Descargar Brochure 📥
+                        </a>
                     </div>
-                    <div class="w-full lg:w-auto">
-                        <a href="/brochures/fractional-data-architect.pdf" download="martin-duarte-fractional-data-architect.pdf" class="block w-full px-8 py-4 border-2 border-slate-900 text-slate-900 rounded-full font-bold hover:bg-slate-900 hover:text-white transition-all text-xs uppercase tracking-widest text-center">
+
+                    <!-- FinOps -->
+                    <div class="bento-card p-8 flex flex-col gap-5">
+                        <div class="flex-1 space-y-3">
+                            <div class="w-10 h-10 bg-blue-100 text-blue-600 rounded-xl flex items-center justify-center font-black text-sm">06</div>
+                            <h4 class="text-lg font-extrabold leading-tight">FinOps y Optimización Cloud</h4>
+                            <p class="text-[11px] text-blue-700 font-semibold leading-relaxed">Reducimos el gasto en infraestructura cloud identificando recursos ociosos.</p>
+                            <ul class="text-[11px] text-slate-500 leading-relaxed space-y-1">
+                                <li>→ Análisis de costos en AWS o Azure con visibilidad total.</li>
+                                <li>→ Identificación de recursos sobredimensionados u ociosos.</li>
+                                <li>→ Más eficiencia operativa, menos factura mensual.</li>
+                            </ul>
+                        </div>
+                        <a href="/brochures/finops-cost-optimization.pdf" target="_blank" rel="noopener" aria-label="Descargar brochure FinOps y Optimización Cloud" class="block w-full px-6 py-3 border-2 border-slate-900 text-slate-900 rounded-full font-bold hover:bg-slate-900 hover:text-white transition-all text-[10px] uppercase tracking-widest text-center">
                             Descargar Brochure 📥
                         </a>
                     </div>
                 </div>
             </div>
 
-            <!-- Servicios Complementarios -->
-            <div class="pt-20 space-y-12">
-                <div class="text-center">
-                    <h4 class="text-[10px] font-black uppercase tracking-[0.5em] text-slate-400">Capacidades Complementarias</h4>
+            <!-- Grupo 2: Ingeniero de Datos -->
+            <div class="space-y-6">
+                <div class="flex items-center gap-4">
+                    <div class="w-2 h-8 bg-blue-600 rounded-full"></div>
+                    <h3 class="text-xl font-extrabold tracking-tight">Ingeniero de Datos</h3>
                 </div>
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    <div class="p-8 bento-card border-none bg-slate-50 flex flex-col justify-between gap-8">
-                        <div>
-                            <h5 class="font-bold text-sm mb-3">Cloud Data Architecture</h5>
-                            <p class="text-[11px] text-slate-500 leading-relaxed">Diseño en AWS y Azure contemplando escalabilidad, seguridad e integración multi-cloud.</p>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- Analytics & ML -->
+                    <div class="bento-card p-8 flex flex-col gap-5">
+                        <div class="flex-1 space-y-3">
+                            <div class="w-10 h-10 bg-blue-100 text-blue-600 rounded-xl flex items-center justify-center font-black text-sm">01</div>
+                            <h4 class="text-lg font-extrabold leading-tight">Analytics Avanzado y Machine Learning</h4>
+                            <p class="text-[11px] text-blue-700 font-semibold leading-relaxed">Habilitamos modelos predictivos sobre tus datos reales: anticipar demanda, detectar riesgo, entender al cliente.</p>
+                            <ul class="text-[11px] text-slate-500 leading-relaxed space-y-1">
+                                <li>→ Modelos de ML sobre datos operativos reales de tu negocio.</li>
+                                <li>→ Detección de patrones y anomalías automatizada.</li>
+                                <li>→ El paso natural después de ordenar los datos.</li>
+                            </ul>
                         </div>
-                        <a href="/brochures/cloud-data-architecture.pdf" download="martin-duarte-cloud-data-architecture.pdf" class="block w-full px-8 py-4 border-2 border-slate-900 text-slate-900 rounded-full font-bold hover:bg-slate-900 hover:text-white transition-all text-xs uppercase tracking-widest text-center">
+                        <a href="/brochures/advanced-analytics-ml.pdf" target="_blank" rel="noopener" aria-label="Descargar brochure Analytics Avanzado y Machine Learning" class="block w-full px-6 py-3 border-2 border-slate-900 text-slate-900 rounded-full font-bold hover:bg-slate-900 hover:text-white transition-all text-[10px] uppercase tracking-widest text-center">
                             Descargar Brochure 📥
                         </a>
                     </div>
-                    <div class="p-8 bento-card border-none bg-slate-50 flex flex-col justify-between gap-8">
-                        <div>
-                            <h5 class="font-bold text-sm mb-3">Data Governance & Quality</h5>
-                            <p class="text-[11px] text-slate-500 leading-relaxed">Frameworks de gobierno y estandarización para mejorar confiabilidad y trazabilidad del dato.</p>
+
+                    <!-- Data Engineering -->
+                    <div class="bento-card p-8 flex flex-col gap-5">
+                        <div class="flex-1 space-y-3">
+                            <div class="w-10 h-10 bg-blue-100 text-blue-600 rounded-xl flex items-center justify-center font-black text-sm">02</div>
+                            <h4 class="text-lg font-extrabold leading-tight">Data Engineering e Integración</h4>
+                            <p class="text-[11px] text-blue-700 font-semibold leading-relaxed">Conectamos sistemas y automatizamos flujos para que el dato correcto llegue al lugar correcto, en el momento justo.</p>
+                            <ul class="text-[11px] text-slate-500 leading-relaxed space-y-1">
+                                <li>→ Pipelines robustos y observables en producción.</li>
+                                <li>→ Integración entre sistemas dispersos (ERP, CRM, APIs).</li>
+                                <li>→ Eliminación de procesos manuales de sincronización.</li>
+                            </ul>
                         </div>
-                        <a href="/brochures/data-governance-quality.pdf" download="martin-duarte-data-governance-quality.pdf" class="block w-full px-8 py-4 border-2 border-slate-900 text-slate-900 rounded-full font-bold hover:bg-slate-900 hover:text-white transition-all text-xs uppercase tracking-widest text-center">
+                        <a href="/brochures/data-engineering-integration.pdf" target="_blank" rel="noopener" aria-label="Descargar brochure Data Engineering e Integración" class="block w-full px-6 py-3 border-2 border-slate-900 text-slate-900 rounded-full font-bold hover:bg-slate-900 hover:text-white transition-all text-[10px] uppercase tracking-widest text-center">
                             Descargar Brochure 📥
                         </a>
                     </div>
-                    <div class="p-8 bento-card border-none bg-slate-50 flex flex-col justify-between gap-8">
-                        <div>
-                            <h5 class="font-bold text-sm mb-3">FinOps & Cost Optimization</h5>
-                            <p class="text-[11px] text-slate-500 leading-relaxed">Análisis y optimización del costo operativo de plataformas cloud mediante eficiencia de workloads.</p>
+                </div>
+            </div>
+
+            <!-- Grupo 3: Gobierno de Datos -->
+            <div class="space-y-6">
+                <div class="flex items-center gap-4">
+                    <div class="w-2 h-8 bg-blue-600 rounded-full"></div>
+                    <h3 class="text-xl font-extrabold tracking-tight">Gobierno de Datos</h3>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="bento-card p-8 flex flex-col gap-5">
+                        <div class="flex-1 space-y-3">
+                            <div class="w-10 h-10 bg-blue-100 text-blue-600 rounded-xl flex items-center justify-center font-black text-sm">01</div>
+                            <h4 class="text-lg font-extrabold leading-tight">Gobierno y Calidad de Datos</h4>
+                            <p class="text-[11px] text-blue-700 font-semibold leading-relaxed">Ordenamos quién es dueño de cada dato, cómo se valida y cómo se reutiliza.</p>
+                            <ul class="text-[11px] text-slate-500 leading-relaxed space-y-1">
+                                <li>→ Políticas de gobierno con trazabilidad y linaje completo.</li>
+                                <li>→ Validación de calidad automatizada en cada pipeline.</li>
+                                <li>→ Cuando la información es confiable, las decisiones se aceleran.</li>
+                            </ul>
                         </div>
-                        <a href="/brochures/finops-cost-optimization.pdf" download="martin-duarte-finops-cost-optimization.pdf" class="block w-full px-8 py-4 border-2 border-slate-900 text-slate-900 rounded-full font-bold hover:bg-slate-900 hover:text-white transition-all text-xs uppercase tracking-widest text-center">
+                        <a href="/brochures/data-governance-quality.pdf" target="_blank" rel="noopener" aria-label="Descargar brochure Gobierno y Calidad de Datos" class="block w-full px-6 py-3 border-2 border-slate-900 text-slate-900 rounded-full font-bold hover:bg-slate-900 hover:text-white transition-all text-[10px] uppercase tracking-widest text-center">
                             Descargar Brochure 📥
                         </a>
                     </div>
-                    <div class="p-8 bento-card border-none bg-slate-50 flex flex-col justify-between gap-8">
-                        <div>
-                            <h5 class="font-bold text-sm mb-3">Data Engineering & Integration</h5>
-                            <p class="text-[11px] text-slate-500 leading-relaxed">Diseño de pipelines ETL/ELT y estrategias de APIs para automatización de flujos.</p>
+                    <div class="bento-card p-8 bg-slate-50 flex items-center justify-center">
+                        <div class="text-center space-y-3 max-w-xs">
+                            <p class="text-4xl">🛡️</p>
+                            <p class="text-[11px] text-slate-500 leading-relaxed italic">"Los datos sin gobierno son información sin valor. El activo más estratégico de una empresa es también el más subestimado."</p>
                         </div>
-                        <a href="/brochures/data-engineering-integration.pdf" download="martin-duarte-data-engineering-integration.pdf" class="block w-full px-8 py-4 border-2 border-slate-900 text-slate-900 rounded-full font-bold hover:bg-slate-900 hover:text-white transition-all text-xs uppercase tracking-widest text-center">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Grupo 4: Reporting y Visualización -->
+            <div class="space-y-6">
+                <div class="flex items-center gap-4">
+                    <div class="w-2 h-8 bg-blue-600 rounded-full"></div>
+                    <h3 class="text-xl font-extrabold tracking-tight">Reporting y Visualización</h3>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- Dashboards -->
+                    <div class="bento-card p-8 flex flex-col gap-5">
+                        <div class="flex-1 space-y-3">
+                            <div class="w-10 h-10 bg-blue-100 text-blue-600 rounded-xl flex items-center justify-center font-black text-sm">01</div>
+                            <h4 class="text-lg font-extrabold leading-tight">Desarrollo de Tablero y Dashboard</h4>
+                            <p class="text-[11px] text-blue-700 font-semibold leading-relaxed">Transformamos datos en decisiones. Dashboards ejecutivos que tu equipo realmente usa.</p>
+                            <ul class="text-[11px] text-slate-500 leading-relaxed space-y-1">
+                                <li>→ Diseño orientado a la decisión, no a la visualización decorativa.</li>
+                                <li>→ Conexión directa a tus fuentes de datos existentes.</li>
+                                <li>→ Actualizaciones automáticas sin intervención manual.</li>
+                            </ul>
+                        </div>
+                        <a href="/brochures/dashboard-development.pdf" target="_blank" rel="noopener" aria-label="Descargar brochure Desarrollo de Tablero y Dashboard" class="block w-full px-6 py-3 border-2 border-slate-900 text-slate-900 rounded-full font-bold hover:bg-slate-900 hover:text-white transition-all text-[10px] uppercase tracking-widest text-center">
                             Descargar Brochure 📥
                         </a>
                     </div>
-                    <div class="p-8 bento-card border-none bg-slate-50 lg:col-span-2 flex flex-col justify-between gap-8">
-                        <div>
-                            <h5 class="font-bold text-sm mb-3">Advanced Analytics & ML</h5>
-                            <p class="text-[11px] text-slate-500 leading-relaxed">Habilitación de capacidades analíticas avanzadas y modelos predictivos sobre plataformas modernas.</p>
+
+                    <!-- KPIs & OKRs -->
+                    <div class="bento-card p-8 flex flex-col gap-5">
+                        <div class="flex-1 space-y-3">
+                            <div class="w-10 h-10 bg-blue-100 text-blue-600 rounded-xl flex items-center justify-center font-black text-sm">02</div>
+                            <h4 class="text-lg font-extrabold leading-tight">Creación de KPI y OKR</h4>
+                            <p class="text-[11px] text-blue-700 font-semibold leading-relaxed">Definimos las métricas que importan y las conectamos con los objetivos del negocio.</p>
+                            <ul class="text-[11px] text-slate-500 leading-relaxed space-y-1">
+                                <li>→ Identificación de los indicadores que mueven tu negocio.</li>
+                                <li>→ Framework de OKRs alineado con la estrategia.</li>
+                                <li>→ Cada área sabe qué medir y para qué sirve.</li>
+                            </ul>
                         </div>
-                        <a href="/brochures/advanced-analytics-ml.pdf" download="martin-duarte-advanced-analytics-ml.pdf" class="block w-full md:w-auto px-8 py-4 border-2 border-slate-900 text-slate-900 rounded-full font-bold hover:bg-slate-900 hover:text-white transition-all text-xs uppercase tracking-widest self-start text-center">
+                        <a href="/brochures/kpi-okr-framework.pdf" target="_blank" rel="noopener" aria-label="Descargar brochure Creación de KPI y OKR" class="block w-full px-6 py-3 border-2 border-slate-900 text-slate-900 rounded-full font-bold hover:bg-slate-900 hover:text-white transition-all text-[10px] uppercase tracking-widest text-center">
                             Descargar Brochure 📥
                         </a>
                     </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Sección E-Commerce / TiendaNube -->
+        <section id="ecommerce" class="max-w-7xl mx-auto px-6 space-y-16">
+            <div class="border-l-8 border-blue-600 pl-8">
+                <div class="inline-flex items-center gap-3 px-4 py-2 bg-blue-50 border border-blue-100 rounded-full mb-4">
+                    <span class="text-[10px] font-black uppercase tracking-widest text-blue-700">Diseño Web · E-Commerce</span>
+                </div>
+                <h2 class="text-4xl font-extrabold tracking-tight">Tu tienda online, lista para vender.</h2>
+                <p class="text-slate-500 mt-4 text-lg max-w-2xl">Configuración profesional de tu tienda en TiendaNube. Carga de productos, medios de pago, envíos y capacitación incluidos. Empezás a vender desde el primer día, sin preocuparte por lo técnico.</p>
+            </div>
+
+            <!-- 3 Planes -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <!-- Plan Básico -->
+                <div class="bento-card p-8 flex flex-col gap-6">
+                    <div>
+                        <p class="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-2">Plan</p>
+                        <h3 class="text-2xl font-extrabold">Básico</h3>
+                        <p class="text-sm text-slate-500 mt-1">Tienda lista para operar</p>
+                        <p class="text-3xl font-black text-blue-600 mt-4">USD 180 – 250</p>
+                        <p class="text-[10px] text-slate-400 font-bold uppercase">Pago único · Entrega 5–7 días hábiles</p>
+                    </div>
+                    <ul class="text-sm text-slate-600 space-y-2 flex-1">
+                        <li class="font-bold text-slate-800 text-[10px] uppercase tracking-widest pb-1 border-b border-slate-100">Configuración y diseño</li>
+                        <li>✓ Config. completa: nombre, logo y colores</li>
+                        <li>✓ Template estándar a elección</li>
+                        <li>✓ Vinculación de dominio</li>
+                        <li>✓ WhatsApp + páginas institucionales con IA</li>
+                        <li>✓ Mails automáticos configurados</li>
+                        <li class="font-bold text-slate-800 text-[10px] uppercase tracking-widest pb-1 pt-2 border-b border-slate-100">Productos y pagos</li>
+                        <li>✓ Hasta 150 productos (fotos, variantes, stock)</li>
+                        <li>✓ Edición de fotos con IA</li>
+                        <li>✓ Pago Nube + Envío Nube activados</li>
+                        <li class="font-bold text-slate-800 text-[10px] uppercase tracking-widest pb-1 pt-2 border-b border-slate-100">Capacitación — 1 hora</li>
+                        <li>✓ Alta de productos, ventas, cupones</li>
+                    </ul>
+                    <button onclick="openBooking()" class="w-full py-4 border-2 border-slate-900 text-slate-900 rounded-full font-bold hover:bg-slate-900 hover:text-white transition-all text-xs uppercase tracking-widest">Consultar</button>
+                </div>
+
+                <!-- Plan Intermedio -->
+                <div class="bento-card p-8 flex flex-col gap-6 border-2 border-blue-600 relative">
+                    <div class="absolute -top-4 left-1/2 -translate-x-1/2 bg-blue-600 text-white text-[9px] font-black uppercase tracking-widest px-4 py-1.5 rounded-full">Más elegido</div>
+                    <div>
+                        <p class="text-[10px] font-black uppercase tracking-widest text-blue-600 mb-2">Plan</p>
+                        <h3 class="text-2xl font-extrabold">Intermedio</h3>
+                        <p class="text-sm text-slate-500 mt-1">Tienda completa y conectada</p>
+                        <p class="text-3xl font-black text-blue-600 mt-4">USD 350 – 480</p>
+                        <p class="text-[10px] text-slate-400 font-bold uppercase">Pago único · Entrega 10–14 días hábiles</p>
+                    </div>
+                    <ul class="text-sm text-slate-600 space-y-2 flex-1">
+                        <li class="font-bold text-blue-700 text-[10px] uppercase tracking-widest pb-1 border-b border-blue-100">Todo el plan básico, más:</li>
+                        <li>✓ Personalización avanzada (colores, tipografías, banners)</li>
+                        <li>✓ SEO con IA en cada producto</li>
+                        <li>✓ Hasta 300 productos · 2 centros de distribución</li>
+                        <li>✓ Mercado Pago + Andreani / OCA</li>
+                        <li>✓ Descuentos progresivos + cross-selling</li>
+                        <li>✓ Instagram, Facebook y Google Shopping</li>
+                        <li>✓ Panel de estadísticas</li>
+                        <li class="font-bold text-slate-800 text-[10px] uppercase tracking-widest pb-1 pt-2 border-b border-slate-100">Capacitación — 2 horas</li>
+                        <li>✓ Marketing, canales y reportes</li>
+                    </ul>
+                    <button onclick="openBooking()" class="w-full py-4 bg-blue-600 text-white rounded-full font-bold hover:bg-blue-700 transition-all text-xs uppercase tracking-widest shadow-lg shadow-blue-200">Consultar</button>
+                </div>
+
+                <!-- Plan Premium -->
+                <div class="bento-card p-8 flex flex-col gap-6">
+                    <div>
+                        <p class="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-2">Plan</p>
+                        <h3 class="text-2xl font-extrabold">Premium</h3>
+                        <p class="text-sm text-slate-500 mt-1">Solución 360° y multicanal</p>
+                        <p class="text-3xl font-black text-blue-600 mt-4">USD 600 – 900</p>
+                        <p class="text-[10px] text-slate-400 font-bold uppercase">Pago único · Entrega 18–25 días hábiles</p>
+                    </div>
+                    <ul class="text-sm text-slate-600 space-y-2 flex-1">
+                        <li class="font-bold text-slate-800 text-[10px] uppercase tracking-widest pb-1 border-b border-slate-100">Todo el intermedio, más:</li>
+                        <li>✓ Ajustes HTML/CSS del diseño</li>
+                        <li>✓ Carga ilimitada de productos</li>
+                        <li>✓ Múltiples centros de distribución</li>
+                        <li>✓ Checkout con tu identidad visual</li>
+                        <li>✓ Todos los medios de pago y operadores logísticos</li>
+                        <li>✓ TikTok, Pinterest y Marketplaces (Mercado Libre)</li>
+                        <li>✓ Panel financiero completo + análisis de cohortes</li>
+                        <li class="font-bold text-slate-800 text-[10px] uppercase tracking-widest pb-1 pt-2 border-b border-slate-100">Capacitación — 3 horas</li>
+                        <li>✓ Marketing multicanal + punto de venta (POS)</li>
+                    </ul>
+                    <button onclick="openBooking()" class="w-full py-4 border-2 border-slate-900 text-slate-900 rounded-full font-bold hover:bg-slate-900 hover:text-white transition-all text-xs uppercase tracking-widest">Consultar</button>
+                </div>
+            </div>
+
+            <!-- Módulos adicionales -->
+            <div class="p-8 bg-slate-50 rounded-[2.5rem] border border-slate-100 space-y-4">
+                <h4 class="font-bold text-sm uppercase tracking-widest text-slate-400">Módulos opcionales</h4>
+                <div class="grid grid-cols-2 md:grid-cols-3 gap-2">
+                    <div class="p-3 bg-white rounded-xl border border-slate-100 text-[10px] font-bold text-slate-600">💬 Chat Nube (WhatsApp 24hs)</div>
+                    <div class="p-3 bg-white rounded-xl border border-slate-100 text-[10px] font-bold text-slate-600">📧 Marketing Nube (email automatizado)</div>
+                    <div class="p-3 bg-white rounded-xl border border-slate-100 text-[10px] font-bold text-slate-600">🏪 Punto de Venta (POS integrado)</div>
+                    <div class="p-3 bg-white rounded-xl border border-slate-100 text-[10px] font-bold text-slate-600">🔗 Integración ERP (Dux, Odoo, Tango)</div>
+                    <div class="p-3 bg-white rounded-xl border border-slate-100 text-[10px] font-bold text-slate-600 md:col-span-2">🛠 Desarrollo a medida · Diseño avanzado</div>
                 </div>
             </div>
         </section>
@@ -534,25 +879,31 @@
                         </div>
                         <h4 class="font-bold text-slate-800">¿Sobre qué servicio quieres contactarte?</h4>
                         <div class="grid grid-cols-1 gap-2">
+                            <p class="text-[9px] font-black uppercase tracking-widest text-blue-600 px-1">Data</p>
                             <label class="qualifier-option p-4 border border-slate-100 rounded-2xl flex items-center gap-3 cursor-pointer hover:bg-blue-50">
                                 <input type="radio" name="service" value="assessment" class="accent-blue-600">
-                                <span class="text-sm font-medium">Data Architecture Assessment</span>
+                                <span class="text-sm font-medium">Diagnóstico de Arquitectura de Datos</span>
                             </label>
                             <label class="qualifier-option p-4 border border-slate-100 rounded-2xl flex items-center gap-3 cursor-pointer hover:bg-blue-50">
                                 <input type="radio" name="service" value="blueprint" class="accent-blue-600">
-                                <span class="text-sm font-medium">Enterprise Architecture Blueprint</span>
+                                <span class="text-sm font-medium">Blueprint de Arquitectura Empresarial</span>
                             </label>
                             <label class="qualifier-option p-4 border border-slate-100 rounded-2xl flex items-center gap-3 cursor-pointer hover:bg-blue-50">
                                 <input type="radio" name="service" value="strategy" class="accent-blue-600">
-                                <span class="text-sm font-medium">Data Platform Strategy</span>
+                                <span class="text-sm font-medium">Estrategia de Migración de Datos</span>
                             </label>
                             <label class="qualifier-option p-4 border border-slate-100 rounded-2xl flex items-center gap-3 cursor-pointer hover:bg-blue-50">
                                 <input type="radio" name="service" value="modernization" class="accent-blue-600">
-                                <span class="text-sm font-medium">Data Platform Modernization Program</span>
+                                <span class="text-sm font-medium">Modernización de Plataforma</span>
                             </label>
                             <label class="qualifier-option p-4 border border-slate-100 rounded-2xl flex items-center gap-3 cursor-pointer hover:bg-blue-50">
                                 <input type="radio" name="service" value="fractional" class="accent-blue-600">
-                                <span class="text-sm font-medium">Fractional Enterprise Data Architect</span>
+                                <span class="text-sm font-medium">Arquitecto de Datos por Horas</span>
+                            </label>
+                            <p class="text-[9px] font-black uppercase tracking-widest text-blue-600 px-1 pt-2">Diseño Web · E-Commerce</p>
+                            <label class="qualifier-option p-4 border border-slate-100 rounded-2xl flex items-center gap-3 cursor-pointer hover:bg-blue-50">
+                                <input type="radio" name="service" value="ecommerce" class="accent-blue-600">
+                                <span class="text-sm font-medium">Implementación TiendaNube</span>
                             </label>
                         </div>
                         <button onclick="nextStep(3)" class="w-full py-5 bg-blue-600 text-white rounded-2xl font-bold mt-4">Siguiente Pregunta</button>
@@ -740,24 +1091,24 @@
         }
 
         // --- Visualización de Datos (Charts) ---
-        
-        // 1. Radar Chart: PAE Blueprint
-        const ctxPae = document.getElementById('paeRadarChart').getContext('2d');
-        new Chart(ctxPae, {
+
+        // 1. Radar Chart: Energético | Governance Multi-Plataforma
+        const ctxEnerg = document.getElementById('energeticoRadarChart').getContext('2d');
+        new Chart(ctxEnerg, {
             type: 'radar',
             data: {
-                labels: ['Persistencia', 'Resiliencia', 'Seguridad', 'Rendimiento', 'Trazabilidad'],
+                labels: ['Governance', 'Seguridad', 'Integración', 'Observabilidad', 'Escalabilidad'],
                 datasets: [
                     {
-                        label: 'Legacy State',
-                        data: [20, 35, 40, 30, 15],
+                        label: 'Estado Inicial',
+                        data: [15, 30, 20, 10, 25],
                         backgroundColor: 'rgba(148, 163, 184, 0.2)',
                         borderColor: 'rgb(148, 163, 184)',
                         borderWidth: 1
                     },
                     {
-                        label: 'Solución Duarte',
-                        data: [98, 92, 95, 90, 100],
+                        label: 'Post-Implementación',
+                        data: [95, 98, 92, 88, 90],
                         backgroundColor: 'rgba(37, 99, 235, 0.2)',
                         borderColor: 'rgb(37, 99, 235)',
                         borderWidth: 3
@@ -778,49 +1129,29 @@
             }
         });
 
-        // 2. Line Chart: Hermes Latency
-        const ctxHermes = document.getElementById('hermesLatencyChart').getContext('2d');
-        new Chart(ctxHermes, {
-            type: 'line',
-            data: {
-                labels: ['0s', '1s', '2s', '3s', '4s', '5s'],
-                datasets: [{
-                    data: [450, 420, 480, 410, 430, 390],
-                    borderColor: '#f59e0b',
-                    borderWidth: 3,
-                    tension: 0.4,
-                    pointRadius: 0,
-                    fill: false
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                scales: {
-                    x: { display: false },
-                    y: { display: false, min: 0, max: 1000 }
-                },
-                plugins: { legend: { display: false } }
-            }
-        });
-
-        // 3. Doughnut: SAP Integrity
-        const ctxSap = document.getElementById('sapDoughnutChart').getContext('2d');
-        new Chart(ctxSap, {
+        // 2. Doughnut: Financiero | Medallion Architecture
+        const ctxFin = document.getElementById('financialDonutChart').getContext('2d');
+        new Chart(ctxFin, {
             type: 'doughnut',
             data: {
-                labels: ['Válidos', 'Duplicados Erradicados'],
+                labels: ['Bronze', 'Silver', 'Gold'],
                 datasets: [{
-                    data: [100, 0],
-                    backgroundColor: ['#2563eb', '#e2e8f0'],
+                    data: [45, 35, 20],
+                    backgroundColor: ['#CBD5E1', '#60A5FA', '#2563EB'],
                     borderWidth: 0
                 }]
             },
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
-                cutout: '85%',
-                plugins: { legend: { display: false } }
+                cutout: '72%',
+                plugins: {
+                    legend: {
+                        display: true,
+                        position: 'bottom',
+                        labels: { font: { size: 9, weight: 'bold' }, color: '#64748B', boxWidth: 10 }
+                    }
+                }
             }
         });
 
