@@ -1,6 +1,8 @@
 const ALLOWED_ORIGINS = [
   'https://martinduarte.com',
   'https://www.martinduarte.com',
+  'https://ia-landing-page-flax.vercel.app',
+  'https://ia-landing-page-martinduarte86s-projects.vercel.app',
   'http://localhost:3000',
   'http://localhost:5500',
   'http://127.0.0.1:5500',
