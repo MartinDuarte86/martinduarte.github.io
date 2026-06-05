@@ -1,0 +1,22 @@
+/* Cálido Artesanal — para moda, artesanías, marcas sustentables */
+:root {
+  --primary: #7C3D12;
+  --accent: #C2671A;
+  --bg: #FEFAF4;
+  --bg-section: #FDF3E3;
+  --bg-card: #FFF8EE;
+  --text: #2C1B0E;
+  --text-secondary: #6B4226;
+  --border: #E5C9A3;
+  --heading-font: 'Playfair Display', Georgia, serif;
+  --body-font: 'Lato', Arial, sans-serif;
+  --google-fonts: "https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Lato:wght@300;400;700&display=swap";
+}
+body { background: var(--bg); color: var(--text); font-family: var(--body-font); }
+h1, h2, h3 { font-family: var(--heading-font); color: var(--primary); }
+.btn-primary { background: var(--primary); color: #fff; }
+.btn-secondary { border: 2px solid var(--primary); color: var(--primary); background: transparent; }
+.card { background: var(--bg-card); border: 1px solid var(--border); }
+nav { background: rgba(254, 250, 244, .92); backdrop-filter: blur(8px); border-bottom: 1px solid var(--border); }
+.hero { background: var(--bg-section); }
+.testimonial { background: var(--bg-card); border-left: 4px solid var(--accent); }

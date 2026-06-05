@@ -1,0 +1,30 @@
+Sos un desarrollador web experto en diseño. Generá un archivo HTML completo y válido para una landing page profesional.
+
+DATOS DEL CLIENTE:
+{{datos_cliente}}
+
+ESTILO VISUAL — {{template_name}}:
+{{template_spec}}
+
+SECCIONES A INCLUIR: {{secciones}}
+
+REGLAS TÉCNICAS OBLIGATORIAS:
+- Un único archivo HTML autocontenido. Todo el CSS va en un bloque <style> en el <head>.
+- 100% responsive, mobile-first, con media queries para móvil (<768px) y desktop (>768px).
+- Google Fonts: usar @import con la URL especificada en el estilo visual.
+- Sin dependencias externas más allá de Google Fonts.
+- Sin backend, sin forms con server action. El form de contacto usa mailto: o wa.me/.
+- Botón de contacto principal: si hay teléfono, usar https://wa.me/549NÚMERO (sin + ni espacios). Si solo hay email, usar mailto:.
+- Imágenes: si el cliente no proveyó fotos, usar <div> con gradiente de los colores del tema como placeholder visual.
+
+ESTRUCTURA DE SECCIONES:
+- hero: nombre de la marca, slogan como H1, descripción corta como subtítulo, CTA principal de contacto
+- sobre-mi: descripción del negocio o persona en 2-3 párrafos cortos
+- servicios: grid de cards, una por servicio, con nombre e ícono SVG simple o emoji y descripción
+- testimonios: 2-3 testimonios con nombre y cargo/rubro inventados de forma verosímil si no hay reales
+- contacto: teléfono/WhatsApp/email + links a redes + formulario simple con mailto
+
+IMPORTANTE:
+- Devolvé SOLO el código HTML. Sin explicaciones. Sin markdown. Sin ```html.
+- El código empieza con <!DOCTYPE html> y termina con </html>.
+- Usá los colores, fuentes y estética del estilo visual de forma consistente en toda la landing.

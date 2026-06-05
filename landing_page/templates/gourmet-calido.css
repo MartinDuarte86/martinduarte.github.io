@@ -1,0 +1,24 @@
+/* Gourmet Cálido — para gastronomía, catering, restaurantes */
+:root {
+  --primary: #3D1C00;
+  --accent: #C9722A;
+  --bg: #FFFBF5;
+  --bg-section: #FEF3E2;
+  --bg-card: #FFF7ED;
+  --text: #2C1400;
+  --text-secondary: #7B4B1A;
+  --border: #FDDCAB;
+  --heading-font: 'Italiana', 'Georgia', serif;
+  --body-font: 'Josefin Sans', 'Helvetica Neue', sans-serif;
+  --google-fonts: "https://fonts.googleapis.com/css2?family=Italiana&family=Josefin+Sans:wght@300;400;600;700&display=swap";
+}
+body { background: var(--bg); color: var(--text); font-family: var(--body-font); }
+h1, h2, h3 { font-family: var(--heading-font); color: var(--primary); letter-spacing: 0.02em; }
+h1 { font-size: clamp(52px, 8vw, 100px); font-weight: 400; }
+.btn-primary { background: var(--primary); color: var(--bg); }
+.btn-secondary { border: 1px solid var(--primary); color: var(--primary); background: transparent; }
+.card { background: var(--bg-card); border: 1px solid var(--border); }
+nav { background: rgba(255,251,245,.94); backdrop-filter: blur(8px); border-bottom: 1px solid var(--border); }
+.hero { background: var(--primary); color: var(--bg); }
+.hero h1, .hero p { color: var(--bg); }
+.testimonial { background: var(--bg-section); border-top: 3px solid var(--accent); }

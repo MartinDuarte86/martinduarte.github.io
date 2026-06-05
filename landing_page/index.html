@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Diseñá tu Landing Page — Martín Duarte</title>
+  <meta name="description" content="Servicio automatizado: describí tu idea, elegí tu diseño y publicamos tu landing page en 48hs. $40.000 ARS.">
+  <link rel="canonical" href="https://martinduarte.com/landing_page/">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+  <!-- ─── Nav ─────────────────────────────────────────────────────── -->
+  <nav class="site-nav" aria-label="Navegación principal">
+    <a href="/" class="nav-logo" aria-label="Martín Duarte — inicio">
+      <span>MARTIN</span><span>DUARTE</span>
+    </a>
+    <a href="/" class="nav-back">← Volver al sitio</a>
+  </nav>
+
+  <main>
+
+    <!-- ─── Hero ──────────────────────────────────────────────────── -->
+    <section class="hero-section" aria-labelledby="hero-title">
+      <div class="hero-tag">Servicio automatizado · IA + deploy en 48hs</div>
+      <h1 class="hero-title" id="hero-title">
+        Diseñá tu<br><em>Landing Page</em>
+      </h1>
+      <p class="hero-sub">
+        Describí tu proyecto. La IA evalúa, diseña y genera 3 opciones visuales personalizadas para tu rubro. Vos elegís uno. Publicamos en 48hs.
+      </p>
+      <div class="price-pills" role="list">
+        <div class="price-pill price-pill--price" role="listitem">
+          <div>
+            <div class="pill-label">Precio base</div>
+            <div class="pill-value">$40.000 ARS</div>
+          </div>
+        </div>
+        <div class="price-pill" role="listitem">
+          <div>
+            <div class="pill-label">Entrega</div>
+            <div class="pill-value">48–72hs hábiles</div>
+          </div>
+        </div>
+        <div class="price-pill" role="listitem">
+          <div>
+            <div class="pill-label">Hosting</div>
+            <div class="pill-value">GitHub Pages — gratis</div>
+          </div>
+        </div>
+      </div>
+      <button id="start-btn" class="btn-primary" type="button">
+        Empezar ahora
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+      </button>
+    </section>
+
+    <!-- ─── How it works ──────────────────────────────────────────── -->
+    <section class="features-section" aria-labelledby="features-title">
+      <h2 class="features-title" id="features-title">Cómo funciona</h2>
+      <div class="features-grid">
+        <div class="feature-card">
+          <div class="feature-num">01</div>
+          <div class="feature-name">Describí tu idea</div>
+          <p class="feature-desc">Contale a la IA sobre tu negocio. Evalúa si aplica para una landing y, si sí, recolecta todo lo que necesita.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-num">02</div>
+          <div class="feature-name">Elegí tu diseño</div>
+          <p class="feature-desc">La IA selecciona los 3 estilos más usados en tu rubro y genera 3 previews con tus datos reales. Vos elegís uno.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-num">03</div>
+          <div class="feature-name">Publicamos en 48hs</div>
+          <p class="feature-desc">Martín revisa y aprueba. Se publica automáticamente en martinduarte.com/clientes/tu-marca/.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ─── Chat section ──────────────────────────────────────────── -->
+    <section id="chat-section" class="chat-section" aria-labelledby="chat-heading">
+      <h2 class="chat-heading" id="chat-heading">Contame sobre tu proyecto</h2>
+
+      <div class="chat-card" role="region" aria-label="Chat con asistente">
+        <div class="chat-card-header">
+          <div class="chat-avatar" aria-hidden="true">M</div>
+          <div class="chat-header-info">
+            <h3>Asistente de Martín Duarte</h3>
+            <p>Diseño web · Responde al instante</p>
+          </div>
+          <div class="chat-status" role="img" aria-label="En línea"></div>
+        </div>
+
+        <div id="chat-messages" class="chat-messages" role="log" aria-live="polite" aria-label="Historial del chat"></div>
+
+        <div class="chat-input-area">
+          <textarea
+            id="chat-input"
+            rows="1"
+            placeholder="Contá sobre tu proyecto..."
+            aria-label="Escribí tu mensaje"
+          ></textarea>
+          <button id="send-btn" type="button" aria-label="Enviar mensaje">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <line x1="22" y1="2" x2="11" y2="13"/>
+              <polygon points="22 2 15 22 11 13 2 9 22 2"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- Generating state -->
+      <div id="generating-state" hidden role="status" aria-live="polite">
+        <div class="generating-spinner" aria-hidden="true"></div>
+        <p id="generating-label">Generando tus diseños...</p>
+      </div>
+    </section>
+
+    <!-- ─── Preview section ───────────────────────────────────────── -->
+    <section id="previews-section" class="previews-section" hidden aria-labelledby="previews-heading">
+      <h2 class="section-heading" id="previews-heading">Elegí tu diseño</h2>
+      <p class="section-sub">Hacé click en el diseño que más te representa para avanzar con el pago.</p>
+      <div id="previews-grid" class="previews-grid" role="list" aria-label="Opciones de diseño"></div>
+    </section>
+
+    <!-- ─── Payment section ───────────────────────────────────────── -->
+    <section id="payment-section" class="payment-section" hidden aria-labelledby="payment-heading">
+      <div class="payment-card">
+        <h2 class="payment-heading" id="payment-heading">Confirmá tu pedido</h2>
+        <div class="payment-summary">
+          <div class="payment-row">
+            <span class="label">Marca</span>
+            <span class="value" id="payment-brand">—</span>
+          </div>
+          <div class="payment-row">
+            <span class="label">Diseño elegido</span>
+            <span class="value" id="payment-template">—</span>
+          </div>
+          <div class="payment-row">
+            <span class="label">Hosting</span>
+            <span class="value">GitHub Pages — gratis</span>
+          </div>
+          <div class="payment-row">
+            <span class="label">Entrega estimada</span>
+            <span class="value">48–72hs hábiles</span>
+          </div>
+        </div>
+        <div class="payment-total">
+          <span class="label">Total</span>
+          <span class="value">$40.000 ARS</span>
+        </div>
+        <div class="mp-btn-wrap">
+          <a id="mp-btn" href="#" target="_blank" rel="noopener noreferrer" class="btn-primary" style="width:100%;justify-content:center;">
+            Pagar con Mercado Pago
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+          </a>
+        </div>
+        <p class="payment-confirm-note">
+          Una vez realizado el pago, hacé click en el botón de abajo para notificar a Martín y avanzar con el deploy.
+        </p>
+        <button id="confirm-payment-btn" class="btn-primary" type="button" style="width:100%;justify-content:center;">
+          Ya pagué — confirmar pedido
+        </button>
+      </div>
+    </section>
+
+    <!-- ─── Success section ───────────────────────────────────────── -->
+    <section id="success-section" class="success-section" hidden aria-labelledby="success-heading">
+      <div class="success-card">
+        <div class="success-icon" role="img" aria-label="Éxito">✓</div>
+        <h2 id="success-heading">¡Pedido recibido!</h2>
+        <p>
+          Martín recibió el brief de <strong id="success-brand">tu marca</strong> y va a revisar el diseño y confirmar el pago.<br><br>
+          Te contactamos al <strong id="success-contact">tu contacto</strong> en las próximas 24–48hs para coordinar cualquier ajuste antes del deploy final.
+        </p>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ─── Footer ────────────────────────────────────────────────── -->
+  <footer class="site-footer">
+    <p>
+      <a href="/">martinduarte.com</a> · Servicio de Landing Pages · v1.0
+    </p>
+  </footer>
+
+  <script type="module">
+    import { init } from './chat.js';
+    init().catch(err => {
+      console.error('Error inicializando el chat:', err);
+    });
+  </script>
+</body>
+</html>

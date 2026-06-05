@@ -1,0 +1,23 @@
+/* Minimalista — para marca personal, consultoría, inmobiliaria */
+:root {
+  --primary: #0F172A;
+  --accent: #2563EB;
+  --bg: #FFFFFF;
+  --bg-section: #F8FAFC;
+  --bg-card: #FFFFFF;
+  --text: #0F172A;
+  --text-secondary: #64748B;
+  --border: #E2E8F0;
+  --heading-font: 'Space Grotesk', 'Segoe UI', sans-serif;
+  --body-font: 'Plus Jakarta Sans', 'Segoe UI', sans-serif;
+  --google-fonts: "https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600&display=swap";
+}
+body { background: var(--bg); color: var(--text); font-family: var(--body-font); }
+h1, h2, h3 { font-family: var(--heading-font); color: var(--primary); letter-spacing: -0.02em; }
+.btn-primary { background: var(--accent); color: #fff; }
+.btn-secondary { border: 2px solid var(--primary); color: var(--primary); background: transparent; }
+.card { background: var(--bg-card); border: 1px solid var(--border); box-shadow: 0 2px 12px rgba(15,23,42,.06); }
+nav { background: rgba(255,255,255,.85); backdrop-filter: blur(12px); border-bottom: 1px solid var(--border); }
+.hero { background: linear-gradient(135deg, #0F172A 0%, #1E3A5F 100%); color: #fff; }
+.hero h1, .hero p { color: #fff; }
+.testimonial { background: var(--bg-section); border: 1px solid var(--border); }

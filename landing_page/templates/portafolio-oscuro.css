@@ -1,0 +1,24 @@
+/* Portafolio Oscuro — para fotografía, video, arte, diseño gráfico */
+:root {
+  --primary: #F8FAFC;
+  --accent: #A855F7;
+  --bg: #09090B;
+  --bg-section: #18181B;
+  --bg-card: #18181B;
+  --text: #F8FAFC;
+  --text-secondary: #A1A1AA;
+  --border: #27272A;
+  --heading-font: 'Bebas Neue', 'Impact', sans-serif;
+  --body-font: 'Inter', 'Helvetica Neue', sans-serif;
+  --google-fonts: "https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;500;600&display=swap";
+}
+body { background: var(--bg); color: var(--text); font-family: var(--body-font); }
+h1, h2, h3 { font-family: var(--heading-font); color: var(--text); letter-spacing: 0.04em; }
+h1 { font-size: clamp(64px, 10vw, 140px); line-height: 0.95; letter-spacing: 0.02em; }
+h2 { font-size: clamp(36px, 5vw, 64px); }
+.btn-primary { background: var(--accent); color: #fff; border-radius: 4px; }
+.btn-secondary { border: 1px solid var(--border); color: var(--text); background: transparent; border-radius: 4px; }
+.card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; }
+nav { background: rgba(9,9,11,.90); backdrop-filter: blur(12px); border-bottom: 1px solid var(--border); }
+.hero { background: var(--bg); min-height: 90vh; display: flex; align-items: center; }
+.testimonial { background: var(--bg-section); border: 1px solid var(--border); border-radius: 8px; }

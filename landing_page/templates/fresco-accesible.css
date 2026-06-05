@@ -1,0 +1,23 @@
+/* Fresco Accesible — para educación, cursos, talleres */
+:root {
+  --primary: #1D4ED8;
+  --accent: #F59E0B;
+  --bg: #FFFFFF;
+  --bg-section: #EFF6FF;
+  --bg-card: #FFFFFF;
+  --text: #111827;
+  --text-secondary: #6B7280;
+  --border: #BFDBFE;
+  --heading-font: 'Nunito', 'Segoe UI', sans-serif;
+  --body-font: 'Nunito', 'Segoe UI', sans-serif;
+  --google-fonts: "https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;600;700;800;900&display=swap";
+}
+body { background: var(--bg); color: var(--text); font-family: var(--body-font); }
+h1, h2, h3 { font-family: var(--heading-font); color: var(--primary); font-weight: 800; }
+.btn-primary { background: var(--primary); color: #fff; font-weight: 700; }
+.btn-secondary { border: 2px solid var(--primary); color: var(--primary); background: transparent; font-weight: 700; }
+.card { background: var(--bg-card); border: 2px solid var(--border); border-radius: 20px; }
+nav { background: rgba(255,255,255,.90); backdrop-filter: blur(8px); border-bottom: 2px solid var(--border); }
+.hero { background: linear-gradient(135deg, #1D4ED8 0%, #3B82F6 100%); color: #fff; }
+.hero h1, .hero p { color: #fff; }
+.testimonial { background: var(--bg-section); border-radius: 20px; border: 2px solid var(--border); }

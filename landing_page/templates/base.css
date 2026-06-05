@@ -1,0 +1,27 @@
+/* Base — estilos compartidos por todos los templates de cliente */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body { line-height: 1.65; -webkit-font-smoothing: antialiased; }
+img { max-width: 100%; display: block; }
+a { text-decoration: none; color: inherit; }
+ul, ol { list-style: none; }
+section { padding: 80px 24px; }
+.container { max-width: 1100px; margin: 0 auto; }
+.section-title { font-size: clamp(28px, 4vw, 44px); font-weight: 700; margin-bottom: 16px; letter-spacing: -0.02em; }
+.section-sub { font-size: 18px; line-height: 1.6; margin-bottom: 48px; opacity: .75; }
+.grid-3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 24px; }
+.card { border-radius: 16px; padding: 28px; }
+.btn { display: inline-block; padding: 14px 32px; border-radius: 100px; font-weight: 600; font-size: 16px; cursor: pointer; transition: transform .15s, box-shadow .15s; }
+.btn:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,0,0,.15); }
+nav { position: sticky; top: 0; z-index: 100; padding: 16px 24px; display: flex; align-items: center; justify-content: space-between; }
+.testimonial-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 24px; }
+.testimonial { border-radius: 16px; padding: 28px; }
+.testimonial-quote { font-size: 16px; line-height: 1.7; margin-bottom: 16px; font-style: italic; }
+.testimonial-author { font-weight: 600; font-size: 14px; }
+.contact-section { text-align: center; }
+.contact-links { display: flex; flex-wrap: wrap; gap: 12px; justify-content: center; margin-top: 32px; }
+@media (max-width: 768px) {
+  section { padding: 56px 20px; }
+  .grid-3 { grid-template-columns: 1fr; }
+  .hero-content { text-align: center; }
+}

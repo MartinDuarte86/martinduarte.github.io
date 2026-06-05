@@ -1,0 +1,46 @@
+name: Deploy Landing Page
+
+on:
+  workflow_dispatch:
+    inputs:
+      cliente_slug:
+        description: "Slug del cliente (ej: raiz-sustentable)"
+        required: true
+        type: string
+      html_content:
+        description: "HTML de la landing codificado en base64"
+        required: true
+        type: string
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout repositorio
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Crear directorio del cliente
+        run: mkdir -p clientes/${{ inputs.cliente_slug }}
+
+      - name: Escribir landing page
+        run: |
+          echo '${{ inputs.html_content }}' | base64 -d > clientes/${{ inputs.cliente_slug }}/index.html
+
+      - name: Verificar archivo generado
+        run: |
+          echo "Archivo generado:"
+          wc -c clientes/${{ inputs.cliente_slug }}/index.html
+          head -5 clientes/${{ inputs.cliente_slug }}/index.html
+
+      - name: Commit y push
+        run: |
+          git config user.name  "Martin Landing Bot"
+          git config user.email "martynduarte@gmail.com"
+          git add clientes/${{ inputs.cliente_slug }}/index.html
+          git commit -m "deploy: landing ${{ inputs.cliente_slug }}"
+          git push

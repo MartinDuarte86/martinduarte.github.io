@@ -1,0 +1,24 @@
+/* Editorial Limpio — para gastronomía, eventos, moda editorial */
+:root {
+  --primary: #1A1A2E;
+  --accent: #E63946;
+  --bg: #FAFAFA;
+  --bg-section: #F5F5F5;
+  --bg-card: #FFFFFF;
+  --text: #1A1A2E;
+  --text-secondary: #6B7280;
+  --border: #E5E7EB;
+  --heading-font: 'Cormorant Garamond', 'Georgia', serif;
+  --body-font: 'Inter', 'Helvetica Neue', sans-serif;
+  --google-fonts: "https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Inter:wght@300;400;500;600&display=swap";
+}
+body { background: var(--bg); color: var(--text); font-family: var(--body-font); }
+h1, h2, h3 { font-family: var(--heading-font); color: var(--primary); font-weight: 600; }
+h1 { font-size: clamp(48px, 7vw, 96px); line-height: 1.05; letter-spacing: -0.02em; }
+.btn-primary { background: var(--primary); color: #fff; border-radius: 0; padding: 14px 36px; }
+.btn-secondary { border: 1px solid var(--primary); color: var(--primary); background: transparent; border-radius: 0; }
+.card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 0; }
+nav { background: rgba(250,250,250,.95); backdrop-filter: blur(8px); border-bottom: 1px solid var(--border); }
+.hero { background: var(--primary); color: #fff; }
+.hero h1, .hero p { color: #fff; }
+.testimonial { background: var(--bg-section); border-left: 3px solid var(--accent); }

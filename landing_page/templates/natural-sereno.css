@@ -1,0 +1,22 @@
+/* Natural Sereno — para salud, bienestar, coaching, nutrición */
+:root {
+  --primary: #2D6A4F;
+  --accent: #52B788;
+  --bg: #F9FBF7;
+  --bg-section: #EDF6EC;
+  --bg-card: #FFFFFF;
+  --text: #1B4332;
+  --text-secondary: #52796F;
+  --border: #B7DFC7;
+  --heading-font: 'DM Serif Display', Georgia, serif;
+  --body-font: 'DM Sans', 'Helvetica Neue', sans-serif;
+  --google-fonts: "https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&display=swap";
+}
+body { background: var(--bg); color: var(--text); font-family: var(--body-font); }
+h1, h2, h3 { font-family: var(--heading-font); color: var(--primary); }
+.btn-primary { background: var(--primary); color: #fff; }
+.btn-secondary { border: 2px solid var(--primary); color: var(--primary); background: transparent; }
+.card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 20px; }
+nav { background: rgba(249,251,247,.92); backdrop-filter: blur(8px); border-bottom: 1px solid var(--border); }
+.hero { background: linear-gradient(160deg, #EDF6EC 0%, #D8F3DC 100%); }
+.testimonial { background: var(--bg-section); border-radius: 16px; }

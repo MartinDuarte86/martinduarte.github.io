@@ -1,0 +1,24 @@
+/* Moderno Oscuro — para tech, software, agencias digitales */
+:root {
+  --primary: #2563EB;
+  --accent: #3B82F6;
+  --bg: #0F172A;
+  --bg-section: #1E293B;
+  --bg-card: #1E293B;
+  --text: #F8FAFC;
+  --text-secondary: #94A3B8;
+  --border: #334155;
+  --heading-font: 'Space Grotesk', 'Segoe UI', sans-serif;
+  --body-font: 'Plus Jakarta Sans', 'Segoe UI', sans-serif;
+  --google-fonts: "https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600&display=swap";
+}
+body { background: var(--bg); color: var(--text); font-family: var(--body-font); }
+h1, h2, h3 { font-family: var(--heading-font); color: var(--text); letter-spacing: -0.02em; }
+.btn-primary { background: var(--primary); color: #fff; }
+.btn-secondary { border: 1px solid var(--border); color: var(--text); background: transparent; }
+.card { background: var(--bg-card); border: 1px solid var(--border); }
+nav { background: rgba(15,23,42,.90); backdrop-filter: blur(12px); border-bottom: 1px solid var(--border); }
+.hero { background: var(--bg); position: relative; overflow: hidden; }
+.hero::before { content:''; position:absolute; top:-50%; left:-50%; width:200%; height:200%;
+  background: radial-gradient(ellipse at center, rgba(37,99,235,.15) 0%, transparent 60%); }
+.testimonial { background: var(--bg-section); border: 1px solid var(--border); }
