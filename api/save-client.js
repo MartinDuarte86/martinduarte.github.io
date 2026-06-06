@@ -34,6 +34,20 @@ module.exports = async function handler(req, res) {
 
     if (action === 'create') {
       if (!client) return res.status(400).json({ error: 'client requerido' });
+
+      // Verificar si el email ya existe — previene registros duplicados
+      const existing = clientes.find(
+        c => c.email && c.email.toLowerCase() === (client.email || '').toLowerCase()
+      );
+      if (existing) {
+        return res.status(409).json({
+          error: 'email_exists',
+          estado: existing.estado,
+          id: existing.id,
+          nombre: existing.nombre,
+        });
+      }
+
       clientes.push(client);
     } else if (action === 'feedback') {
       if (!sessionId || !feedbackText) return res.status(400).json({ error: 'sessionId y feedbackText requeridos' });

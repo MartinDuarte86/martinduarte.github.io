@@ -62,13 +62,17 @@ module.exports = async function handler(req, res) {
     const basePath = `landing_page/dsn/${setId}`;
     const today    = new Date().toISOString().split('T')[0];
 
-    // Subir cada template HTML
+    // Subir cada template HTML en dsn/template/
     const templateMeta = [];
     for (let i = 0; i < templates.length; i++) {
       const tpl = templates[i];
-      const filePath = `${basePath}/template-${i + 1}.html`;
-      await putFile(filePath, tpl.html, null, `chore: add ${setId}/template-${i + 1}`);
-      templateMeta.push({ id: tpl.id, name: tpl.name, html: tpl.html });
+      const tplFile = `landing_page/dsn/template/${setId}-template-${i + 1}.html`;
+      await putFile(tplFile, tpl.html, null, `chore: add template/${setId}-template-${i + 1}`);
+      templateMeta.push({
+        id: tpl.id,
+        name: tpl.name,
+        file: `dsn/template/${setId}-template-${i + 1}.html`,
+      });
     }
 
     // Subir meta.json del set

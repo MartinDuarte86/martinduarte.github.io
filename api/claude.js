@@ -8,12 +8,46 @@ const ALLOWED_ORIGINS = [
   'http://127.0.0.1:5500',
 ];
 
+const ALLOWED_MODELS = {
+  'claude-haiku-4-5-20251001': true,
+  'claude-sonnet-4-6': true,
+};
+
 function isAllowedOrigin(origin) {
   if (!origin) return false;
-  // Allow Vercel preview deployments for this project
   if (/^https:\/\/[a-z0-9-]+-martinduarte86\.vercel\.app$/.test(origin)) return true;
   if (/^https:\/\/ia-landing-page[a-z0-9-]*\.vercel\.app$/.test(origin)) return true;
   return ALLOWED_ORIGINS.includes(origin);
+}
+
+// ─── Rate limiting en memoria ─────────────────────────────────────────────────
+// Nota: en Vercel serverless cada instancia tiene su propio mapa.
+// Para tráfico bajo esto es suficiente; para escalar, reemplazar con KV/Redis.
+
+const rateLimitChat = new Map();       // ip → { count, resetAt }
+const rateLimitGeneration = new Map(); // ip → { count, resetAt }
+
+const CHAT_LIMIT       = 10;  // requests por IP por hora (evaluación + onboarding)
+const GENERATION_LIMIT = 2;   // generaciones por IP por 24h
+const HOUR_MS          = 60 * 60 * 1000;
+const DAY_MS           = 24 * HOUR_MS;
+
+function checkRateLimit(map, ip, limit, windowMs) {
+  const now = Date.now();
+  const entry = map.get(ip);
+
+  if (!entry || now > entry.resetAt) {
+    map.set(ip, { count: 1, resetAt: now + windowMs });
+    return { allowed: true };
+  }
+
+  if (entry.count >= limit) {
+    const waitMin = Math.ceil((entry.resetAt - now) / 60000);
+    return { allowed: false, waitMin };
+  }
+
+  entry.count++;
+  return { allowed: true };
 }
 
 module.exports = async function handler(req, res) {
@@ -29,7 +63,6 @@ module.exports = async function handler(req, res) {
 
   if (req.method === 'OPTIONS') return res.status(200).end();
 
-  // Bloquear orígenes no autorizados
   if (origin && !isAllowedOrigin(origin)) {
     return res.status(403).json({ error: 'Origen no autorizado' });
   }
@@ -40,23 +73,46 @@ module.exports = async function handler(req, res) {
     return res.status(500).json({ error: 'Servicio no disponible' });
   }
 
-  const { messages, system, max_tokens = 4096 } = req.body;
+  const { messages, system, max_tokens = 4096, model, intent } = req.body;
 
   // Validaciones de entrada
   if (!Array.isArray(messages) || messages.length === 0) {
     return res.status(400).json({ error: 'messages es requerido' });
   }
-  if (messages.length > 40) {
+  if (messages.length > 20) {
     return res.status(400).json({ error: 'Conversación demasiado larga' });
   }
 
   const totalChars = messages.reduce((acc, m) => acc + String(m.content || '').length, 0)
     + String(system || '').length;
-  if (totalChars > 80000) {
+  if (totalChars > 60000) {
     return res.status(400).json({ error: 'Contenido demasiado extenso' });
   }
 
+  // Determinar modelo — whitelist explícita, default Sonnet
+  const selectedModel = ALLOWED_MODELS[model] ? model : 'claude-sonnet-4-6';
   const clampedTokens = Math.min(Number(max_tokens) || 4096, 8192);
+
+  // Rate limiting por IP
+  const ip = req.headers['x-forwarded-for']?.split(',')[0].trim() || req.socket?.remoteAddress || 'unknown';
+
+  if (intent === 'generation') {
+    const rl = checkRateLimit(rateLimitGeneration, ip, GENERATION_LIMIT, DAY_MS);
+    if (!rl.allowed) {
+      return res.status(429).json({
+        error: 'rate_limit',
+        message: `Límite de generaciones alcanzado. Podés volver a intentarlo en ${rl.waitMin} minutos.`,
+      });
+    }
+  } else {
+    const rl = checkRateLimit(rateLimitChat, ip, CHAT_LIMIT, HOUR_MS);
+    if (!rl.allowed) {
+      return res.status(429).json({
+        error: 'rate_limit',
+        message: `Demasiadas solicitudes. Esperá ${rl.waitMin} minuto${rl.waitMin !== 1 ? 's' : ''} e intentá de nuevo.`,
+      });
+    }
+  }
 
   try {
     const response = await fetch('https://api.anthropic.com/v1/messages', {
@@ -67,7 +123,7 @@ module.exports = async function handler(req, res) {
         'anthropic-version': '2023-06-01',
       },
       body: JSON.stringify({
-        model: 'claude-sonnet-4-6',
+        model: selectedModel,
         max_tokens: clampedTokens,
         system,
         messages,

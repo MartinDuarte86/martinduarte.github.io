@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Demo Marca Local — Landing Page</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: system-ui, sans-serif; background: #0F172A; color: #F8FAFC; }
+  nav  { padding: 20px 40px; background: rgba(15,23,42,.9); display: flex; justify-content: space-between; align-items: center; }
+  nav .logo { font-weight: 800; font-size: 18px; color: #2563EB; }
+  nav a { font-size: 13px; color: #94A3B8; text-decoration: none; }
+  .hero { padding: 100px 40px 80px; text-align: center; }
+  .hero h1 { font-size: 56px; font-weight: 900; line-height: 1.05; margin-bottom: 20px; }
+  .hero h1 em { color: #2563EB; font-style: normal; }
+  .hero p { font-size: 18px; color: #94A3B8; max-width: 520px; margin: 0 auto 36px; line-height: 1.65; }
+  .btn { display: inline-block; background: #2563EB; color: #fff; padding: 16px 36px; border-radius: 100px; font-weight: 700; text-decoration: none; font-size: 16px; }
+  .services { padding: 80px 40px; background: #1E293B; }
+  .services h2 { font-size: 32px; font-weight: 800; text-align: center; margin-bottom: 48px; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 24px; max-width: 900px; margin: 0 auto; }
+  .card { background: #0F172A; border: 1px solid #334155; border-radius: 20px; padding: 28px; }
+  .card h3 { font-size: 18px; font-weight: 700; margin-bottom: 10px; color: #2563EB; }
+  .card p { font-size: 14px; color: #94A3B8; line-height: 1.6; }
+  .contact { padding: 80px 40px; text-align: center; }
+  .contact h2 { font-size: 28px; font-weight: 800; margin-bottom: 12px; }
+  .contact p { color: #94A3B8; margin-bottom: 32px; }
+  footer { padding: 32px 40px; border-top: 1px solid #1E293B; text-align: center; font-size: 13px; color: #475569; }
+  .badge { display: inline-block; background: rgba(37,99,235,.15); color: #60A5FA; font-size: 11px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; padding: 5px 14px; border-radius: 100px; margin-bottom: 24px; }
+</style>
+</head>
+<body>
+<nav>
+  <span class="logo">DEMO MARCA</span>
+  <a href="#contacto">Contacto</a>
+</nav>
+<section class="hero">
+  <div class="badge">🖥 Mock Preview — Diseño Moderno Oscuro</div>
+  <h1>Tecnología que<br><em>impulsa tu negocio</em></h1>
+  <p>Empresa de desarrollo de software con 5 años de experiencia creando soluciones digitales a medida.</p>
+  <a href="#contacto" class="btn">Hablemos →</a>
+</section>
+<section class="services">
+  <h2>Nuestros Servicios</h2>
+  <div class="grid">
+    <div class="card"><h3>Desarrollo Web</h3><p>Sitios y aplicaciones web optimizados, rápidos y modernos.</p></div>
+    <div class="card"><h3>Apps Móviles</h3><p>Aplicaciones nativas para iOS y Android con tu identidad.</p></div>
+    <div class="card"><h3>Consultoría IT</h3><p>Estrategia tecnológica para escalar tu negocio de manera eficiente.</p></div>
+  </div>
+</section>
+<section class="contact" id="contacto">
+  <h2>¿Listo para empezar?</h2>
+  <p>Escribinos y coordinamos una reunión sin compromiso.</p>
+  <a href="https://wa.me/5491155551234" class="btn">WhatsApp +54 11 5555-1234</a>
+</section>
+<footer>© 2026 Demo Marca Local · martinduarte.com</footer>
+</body>
+</html>

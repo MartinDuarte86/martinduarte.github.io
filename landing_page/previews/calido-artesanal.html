@@ -1,0 +1,49 @@
+<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Lato:wght@300;400;700&display=swap');
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Lato',sans-serif;background:#FEFAF4;color:#2C1B0E}
+nav{padding:20px 40px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #E8D5B7}
+.logo{font-family:'Playfair Display',serif;font-size:20px;font-weight:700;color:#7C3D12}
+nav a{font-size:13px;color:#6B4226;text-decoration:none;letter-spacing:.05em}
+.hero{padding:90px 40px 80px;text-align:center;background:linear-gradient(180deg,#FFF8EE 0%,#FEFAF4 100%)}
+.tag{display:inline-block;font-size:10px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:#C2671A;border:1px solid #C2671A;border-radius:100px;padding:5px 16px;margin-bottom:28px}
+.hero h1{font-family:'Playfair Display',serif;font-size:clamp(36px,6vw,72px);font-weight:700;line-height:1.1;color:#2C1B0E;margin-bottom:20px}
+.hero h1 em{color:#C2671A;font-style:italic}
+.hero p{font-size:17px;color:#6B4226;max-width:500px;margin:0 auto 36px;line-height:1.7;font-weight:300}
+.btn{display:inline-block;background:#7C3D12;color:#FFF8EE;padding:15px 36px;border-radius:8px;font-weight:700;text-decoration:none;font-size:14px;letter-spacing:.05em}
+.services{padding:80px 40px;background:#FFF8EE}
+.services h2{font-family:'Playfair Display',serif;font-size:32px;text-align:center;margin-bottom:48px;color:#2C1B0E}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:20px;max-width:860px;margin:0 auto}
+.card{background:#FEFAF4;border:1px solid #E8D5B7;border-radius:16px;padding:28px}
+.card-icon{font-size:28px;margin-bottom:14px}
+.card h3{font-family:'Playfair Display',serif;font-size:17px;margin-bottom:8px;color:#7C3D12}
+.card p{font-size:13px;color:#6B4226;line-height:1.6}
+.contact{padding:72px 40px;text-align:center;background:#2C1B0E;color:#FFF8EE}
+.contact h2{font-family:'Playfair Display',serif;font-size:28px;margin-bottom:12px}
+.contact p{color:#C2671A;margin-bottom:28px;font-size:15px}
+.btn-light{display:inline-block;background:#C2671A;color:#FFF8EE;padding:14px 32px;border-radius:8px;font-weight:700;text-decoration:none;font-size:14px}
+footer{padding:24px 40px;text-align:center;font-size:12px;color:#6B4226;border-top:1px solid #E8D5B7}
+</style></head><body>
+<nav><span class="logo">Tu Marca</span><a href="#contacto">Contacto</a></nav>
+<section class="hero">
+  <div class="tag">Hecho a mano · Con amor</div>
+  <h1>Artesanía que <em>conecta</em><br>con lo auténtico</h1>
+  <p>Describí aquí el valor principal de tu negocio — lo que te hace único y por qué tus clientes te eligen.</p>
+  <a href="#contacto" class="btn">Ver productos →</a>
+</section>
+<section class="services">
+  <h2>Lo que ofrecemos</h2>
+  <div class="grid">
+    <div class="card"><div class="card-icon">🌿</div><h3>Servicio Principal</h3><p>Descripción breve de tu servicio o producto estrella, destacando su valor único.</p></div>
+    <div class="card"><div class="card-icon">✂️</div><h3>Segundo Servicio</h3><p>Otro aspecto de tu oferta que diferencia tu marca del resto del mercado.</p></div>
+    <div class="card"><div class="card-icon">📦</div><h3>Tercer Servicio</h3><p>Un beneficio adicional que completa la experiencia de tus clientes.</p></div>
+  </div>
+</section>
+<section class="contact" id="contacto">
+  <h2>¿Hablamos?</h2>
+  <p>Estamos para ayudarte a encontrar lo que buscás</p>
+  <a href="#" class="btn-light">Escribinos →</a>
+</section>
+<footer>© 2026 Tu Marca · Hecho con amor</footer>
+</body></html>

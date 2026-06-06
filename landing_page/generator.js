@@ -117,9 +117,17 @@ async function generatePreview(brief, templateId, promptTemplate) {
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
       messages: [{ role: 'user', content: prompt }],
-      max_tokens: 8192,
+      max_tokens: 6000,
+      intent: 'generation', // activa rate limit de generación en el backend
     }),
   });
+
+  if (response.status === 429) {
+    const data = await response.json().catch(() => ({}));
+    const err = new Error(data.message || 'Límite de generaciones alcanzado.');
+    err.rateLimitMessage = data.message || 'Alcanzaste el límite diario de generaciones. Intentá mañana.';
+    throw err;
+  }
 
   if (!response.ok) throw new Error(`Claude API error: ${response.status}`);
 

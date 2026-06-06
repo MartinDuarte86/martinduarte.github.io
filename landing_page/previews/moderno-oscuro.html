@@ -1,0 +1,50 @@
+<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600&display=swap');
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Plus Jakarta Sans',sans-serif;background:#0F172A;color:#F8FAFC}
+nav{padding:20px 40px;display:flex;justify-content:space-between;align-items:center;background:rgba(15,23,42,.85);backdrop-filter:blur(16px);border-bottom:1px solid rgba(255,255,255,.06)}
+.logo{font-family:'Space Grotesk',sans-serif;font-size:18px;font-weight:800;letter-spacing:-.03em}
+.logo span{color:#2563EB}
+nav a{font-size:12px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#94A3B8;text-decoration:none}
+.hero{padding:100px 40px 90px;text-align:center;position:relative;overflow:hidden}
+.hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 80% 60% at 50% 0%,rgba(37,99,235,.22) 0%,transparent 70%);pointer-events:none}
+.tag{display:inline-block;font-size:10px;font-weight:700;letter-spacing:.15em;text-transform:uppercase;color:#2563EB;background:rgba(37,99,235,.12);border:1px solid rgba(37,99,235,.3);border-radius:100px;padding:5px 16px;margin-bottom:28px}
+.hero h1{font-family:'Space Grotesk',sans-serif;font-size:clamp(36px,6vw,72px);font-weight:800;line-height:1.0;letter-spacing:-.03em;color:#F8FAFC;margin-bottom:20px}
+.hero h1 em{color:#2563EB;font-style:normal}
+.hero p{font-size:17px;color:#94A3B8;max-width:500px;margin:0 auto 36px;line-height:1.65;font-weight:300}
+.btn{display:inline-block;background:#2563EB;color:#fff;padding:15px 36px;border-radius:100px;font-weight:700;text-decoration:none;font-size:14px;box-shadow:0 0 32px rgba(37,99,235,.35)}
+.services{padding:80px 40px;background:#1E293B}
+.services h2{font-family:'Space Grotesk',sans-serif;font-size:32px;font-weight:800;letter-spacing:-.02em;text-align:center;margin-bottom:48px;color:#F8FAFC}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:20px;max-width:860px;margin:0 auto}
+.card{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07);border-radius:16px;padding:28px;backdrop-filter:blur(8px)}
+.dot{width:8px;height:8px;border-radius:50%;background:#2563EB;margin-bottom:16px;box-shadow:0 0 12px #2563EB}
+.card h3{font-family:'Space Grotesk',sans-serif;font-size:16px;font-weight:700;margin-bottom:8px;color:#F8FAFC}
+.card p{font-size:13px;color:#94A3B8;line-height:1.6}
+.contact{padding:80px 40px;text-align:center}
+.contact h2{font-family:'Space Grotesk',sans-serif;font-size:28px;font-weight:800;margin-bottom:12px}
+.contact p{color:#94A3B8;margin-bottom:28px}
+footer{padding:24px 40px;text-align:center;font-size:12px;color:#475569;border-top:1px solid rgba(255,255,255,.06)}
+</style></head><body>
+<nav><span class="logo">TU<span>MARCA</span></span><a href="#contacto">Contacto</a></nav>
+<section class="hero">
+  <div class="tag">Soluciones Digitales</div>
+  <h1>Tecnología que<br><em>escala</em> tu negocio</h1>
+  <p>Describí aquí el valor principal de tu negocio — lo que te hace único y por qué tus clientes te eligen.</p>
+  <a href="#contacto" class="btn">Empezar ahora →</a>
+</section>
+<section class="services">
+  <h2>Nuestros Servicios</h2>
+  <div class="grid">
+    <div class="card"><div class="dot"></div><h3>Servicio Principal</h3><p>Descripción breve de tu servicio o producto estrella, destacando su valor único.</p></div>
+    <div class="card"><div class="dot"></div><h3>Segundo Servicio</h3><p>Otro aspecto de tu oferta que diferencia tu marca del resto del mercado.</p></div>
+    <div class="card"><div class="dot"></div><h3>Tercer Servicio</h3><p>Un beneficio adicional que completa la experiencia de tus clientes.</p></div>
+  </div>
+</section>
+<section class="contact" id="contacto">
+  <h2>¿Listo para escalar?</h2>
+  <p>Hablemos sobre tu próximo proyecto</p>
+  <a href="#" class="btn">Contactanos →</a>
+</section>
+<footer>© 2026 Tu Marca · Soluciones Digitales</footer>
+</body></html>

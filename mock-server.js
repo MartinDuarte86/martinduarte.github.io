@@ -48,6 +48,31 @@ function mockClaudeResponse(body) {
     };
   }
 
+  // — Llamada de definición de marca (system contiene "identidad visual")
+  if (system && system.includes('identidad visual')) {
+    const brandUserMessages = (messages || []).filter(m => m.role === 'user');
+    if (brandUserMessages.length < 2) {
+      return {
+        content: [{
+          text: '¡Perfecto! Para definir tu identidad visual necesito saber:\n\n• ¿Qué colores te gustan o representan tu marca?\n• ¿Preferís un estilo moderno/minimalista o más clásico/colorido?\n• ¿Tenés alguna marca o sitio que te inspire?',
+        }],
+      };
+    }
+    return {
+      content: [{
+        text: '```json\n' + JSON.stringify({
+          colores_principales: ['#2563EB', '#1E293B', '#F8FAFC'],
+          estilo_visual: 'moderno minimalista',
+          tipografia: 'sans-serif geométrica, bold para títulos',
+          tono: 'profesional y directo',
+          referencias: 'estilo tech startup, limpio y funcional',
+          publico_objetivo: 'emprendedores y pequeñas empresas',
+          notas_adicionales: 'paleta azul corporativa con fondos oscuros',
+        }) + '\n```',
+      }],
+    };
+  }
+
   // — Llamada de onboarding (onboarding.txt)
   // Primer turno: pedir datos básicos
   const userMessages = (messages || []).filter(m => m.role === 'user');
@@ -180,15 +205,18 @@ function mockSaveDsn(body) {
   const setId   = `dsn-${nextNum}`;
   const today   = new Date().toISOString().split('T')[0];
 
-  // Guardar HTMLs en disco local
-  const setDir = path.join(__dirname, 'landing_page', 'dsn', setId);
-  fs.mkdirSync(setDir, { recursive: true });
+  // Guardar HTMLs en dsn/template/
+  const tplDir = path.join(__dirname, 'landing_page', 'dsn', 'template');
+  fs.mkdirSync(tplDir, { recursive: true });
 
   const templateMeta = (templates || []).map((tpl, i) => {
-    fs.writeFileSync(path.join(setDir, `template-${i + 1}.html`), tpl.html || '');
-    return { id: tpl.id, name: tpl.name, html: tpl.html };
+    fs.writeFileSync(path.join(tplDir, `${setId}-template-${i + 1}.html`), tpl.html || '');
+    return { id: tpl.id, name: tpl.name, file: `dsn/template/${setId}-template-${i + 1}.html` };
   });
 
+  // Guardar meta.json del set
+  const setDir = path.join(__dirname, 'landing_page', 'dsn', setId);
+  fs.mkdirSync(setDir, { recursive: true });
   const meta = { id: setId, rubro, fecha: today };
   fs.writeFileSync(path.join(setDir, 'meta.json'), JSON.stringify(meta, null, 2));
 

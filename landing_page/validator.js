@@ -1,19 +1,59 @@
-// Mejora 1 — Formulario de registro previo al chat
-// Gestiona validación, llamada a API y persistencia en clientes.json
+// Formulario de registro previo al chat
+// Gestiona validación, persistencia en clientes.json y sesión en localStorage
+
+const SESSION_KEY = 'mdlp_session'; // martinduarte landing page session
+const SESSION_TTL = 48 * 60 * 60 * 1000; // 48 horas
 
 let _clientData = null;
 
-function getClientData() {
+export function getClientData() {
   return _clientData;
 }
 
-// UUID v4 simple (sin crypto.randomUUID para compatibilidad)
+// ─── Sesión en localStorage ────────────────────────────────────────────────────
+
+export function saveSession(extra = {}) {
+  if (!_clientData) return;
+  try {
+    const current = JSON.parse(localStorage.getItem(SESSION_KEY) || '{}');
+    localStorage.setItem(SESSION_KEY, JSON.stringify({
+      ...current,
+      ...extra,
+      id: _clientData.id,
+      email: _clientData.email,
+      nombre: _clientData.nombre,
+      apellido: _clientData.apellido,
+      timestamp_inicio: _clientData.timestamp_inicio,
+      savedAt: Date.now(),
+    }));
+  } catch {}
+}
+
+function loadSession() {
+  try {
+    const raw = localStorage.getItem(SESSION_KEY);
+    if (!raw) return null;
+    const data = JSON.parse(raw);
+    if (!data.savedAt || Date.now() - data.savedAt > SESSION_TTL) {
+      localStorage.removeItem(SESSION_KEY);
+      return null;
+    }
+    return data;
+  } catch {
+    return null;
+  }
+}
+
+// ─── UUID simple ────────────────────────────────────────────────────────────────
+
 function generateId() {
   return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c => {
     const r = (Math.random() * 16) | 0;
     return (c === 'x' ? r : (r & 0x3) | 0x8).toString(16);
   });
 }
+
+// ─── Validaciones de formulario ────────────────────────────────────────────────
 
 function isValidEmailFormat(email) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email.trim());
@@ -29,23 +69,42 @@ function clearError(fieldId) {
 }
 
 function updateSubmitBtn() {
-  const nombre   = document.getElementById('reg-nombre')?.value.trim() || '';
-  const apellido = document.getElementById('reg-apellido')?.value.trim() || '';
-  const email    = document.getElementById('reg-email')?.value.trim() || '';
-  const btn      = document.getElementById('reg-submit');
+  const nombre    = document.getElementById('reg-nombre')?.value.trim() || '';
+  const apellido  = document.getElementById('reg-apellido')?.value.trim() || '';
+  const email     = document.getElementById('reg-email')?.value.trim() || '';
+  const telefono  = document.getElementById('reg-telefono')?.value.trim() || '';
+  const btn       = document.getElementById('reg-submit');
   if (!btn) return;
-  const ready = nombre.length >= 2 && apellido.length >= 2 && isValidEmailFormat(email);
+  // TODO: reactivar validación de email y teléfono cuando el servicio esté estable
+  const ready = nombre.length >= 2 && apellido.length >= 2 && email.length > 0;
   btn.disabled = !ready;
 }
 
+function resetBtn(btn, label) {
+  btn.disabled = false;
+  btn.classList.remove('loading');
+  // Preservar el texto original del botón si no se pasa label
+  if (label) {
+    btn.textContent = label;
+  } else {
+    btn.textContent = btn.dataset.originalLabel || 'Empezar el chat';
+  }
+}
+
+// ─── Llamadas a API ────────────────────────────────────────────────────────────
+
 async function validateEmailViaApi(email) {
-  const res = await fetch('/api/validate-email', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ email }),
-  });
-  if (!res.ok) return { deliverable: true, disposable: false }; // fail-open si la API falla
-  return res.json();
+  try {
+    const res = await fetch('/api/validate-email', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email }),
+    });
+    if (!res.ok) return { deliverable: true, disposable: false }; // fail-open
+    return res.json();
+  } catch {
+    return { deliverable: true, disposable: false }; // fail-open si el endpoint no existe
+  }
 }
 
 async function saveClientViaApi(client) {
@@ -54,10 +113,19 @@ async function saveClientViaApi(client) {
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ action: 'create', client }),
   });
-  if (!res.ok) {
-    const err = await res.json().catch(() => ({}));
-    throw new Error(err.error || `Error ${res.status}`);
+
+  const data = await res.json().catch(() => ({}));
+
+  if (res.status === 409) {
+    // Email ya registrado
+    return { conflict: true, ...data };
   }
+
+  if (!res.ok) {
+    throw new Error(data.error || `Error ${res.status}`);
+  }
+
+  return { conflict: false };
 }
 
 export async function saveFeedback(sessionId, feedbackText) {
@@ -68,11 +136,52 @@ export async function saveFeedback(sessionId, feedbackText) {
   });
 }
 
+// ─── Mensaje contextual para emails ya registrados ────────────────────────────
+
+function buildReturnMessage(estado, nombre) {
+  const name = nombre ? ` ${nombre}` : '';
+  switch (estado) {
+    case 'en_chat':
+      return `Hola${name}, ya tenés una sesión activa en este dispositivo. Recargá la página para retomar desde donde quedaste.`;
+    case 'generado':
+    case 'template_elegido':
+      return `Hola${name}, ya generaste tus diseños. Si querés avanzar o tenés dudas, escribime a hola@martinduarte.com.`;
+    case 'pagado':
+    case 'aprobado':
+      return `Hola${name}, tu landing page está en proceso. Te avisamos cuando esté lista.`;
+    default:
+      return `Este email ya está registrado. Si necesitás ayuda escribime a hola@martinduarte.com.`;
+  }
+}
+
+// ─── Inicialización del formulario ────────────────────────────────────────────
+
 export function initRegistrationForm(onSuccess) {
   const form = document.getElementById('registration-form');
   if (!form) return;
 
-  ['reg-nombre', 'reg-apellido', 'reg-email'].forEach(id => {
+  // Verificar sesión activa en localStorage — saltear formulario si existe
+  const session = loadSession();
+  if (session?.id && session?.nombre) {
+    _clientData = {
+      id: session.id,
+      nombre: session.nombre,
+      apellido: session.apellido || '',
+      email: session.email || '',
+      timestamp_inicio: session.timestamp_inicio || new Date().toISOString(),
+      estado: session.phase || 'en_chat',
+    };
+
+    form.hidden = true;
+    const chatSection = document.getElementById('chat-section');
+    if (chatSection) chatSection.removeAttribute('data-locked');
+
+    onSuccess(_clientData);
+    return;
+  }
+
+  // Sin sesión — mostrar formulario normal
+  ['reg-nombre', 'reg-apellido', 'reg-email', 'reg-telefono'].forEach(id => {
     document.getElementById(id)?.addEventListener('input', () => {
       if (id === 'reg-email') {
         const val = document.getElementById('reg-email').value.trim();
@@ -87,43 +196,30 @@ export function initRegistrationForm(onSuccess) {
   });
 
   document.getElementById('reg-submit')?.addEventListener('click', async () => {
-    const nombre   = document.getElementById('reg-nombre').value.trim();
-    const apellido = document.getElementById('reg-apellido').value.trim();
-    const email    = document.getElementById('reg-email').value.trim();
+    const nombre    = document.getElementById('reg-nombre').value.trim();
+    const apellido  = document.getElementById('reg-apellido').value.trim();
+    const email     = document.getElementById('reg-email').value.trim();
+    const telefono  = document.getElementById('reg-telefono')?.value.trim() || '';
 
     if (nombre.length < 2)   { setError('reg-nombre', 'Mínimo 2 caracteres'); return; }
     if (apellido.length < 2) { setError('reg-apellido', 'Mínimo 2 caracteres'); return; }
-    if (!isValidEmailFormat(email)) { setError('reg-email', 'Revisá el formato del email'); return; }
 
     const btn = document.getElementById('reg-submit');
+    btn.dataset.originalLabel = btn.textContent.trim();
     btn.disabled = true;
-    btn.textContent = 'Verificando...';
+    btn.textContent = 'Guardando...';
     btn.classList.add('loading');
 
     try {
-      const result = await validateEmailViaApi(email);
+      // TODO: reactivar validación de email y teléfono
 
-      if (result.disposable) {
-        setError('reg-email', 'Por favor usá un email personal o de trabajo');
-        btn.disabled = false;
-        btn.textContent = 'Continuar';
-        btn.classList.remove('loading');
-        return;
-      }
-
-      if (!result.deliverable) {
-        setError('reg-email', 'Este email no parece válido. ¿Está bien escrito?');
-        btn.disabled = false;
-        btn.textContent = 'Continuar';
-        btn.classList.remove('loading');
-        return;
-      }
-
+      // Armar registro y guardar — la API retorna 409 si el email existe
       _clientData = {
         id: generateId(),
         nombre,
         apellido,
         email,
+        telefono,
         timestamp_inicio: new Date().toISOString(),
         estado: 'en_chat',
         template_elegido: null,
@@ -131,10 +227,41 @@ export function initRegistrationForm(onSuccess) {
         dsn_carpeta: null,
       };
 
-      // Guardar en GitHub (no bloquea el flujo si falla)
-      saveClientViaApi(_clientData).catch(err => console.warn('No se pudo guardar cliente:', err));
+      const saveResult = await saveClientViaApi(_clientData);
 
-      // Ocultar formulario y habilitar chat
+      if (saveResult.conflict) {
+        const { estado, nombre: existingNombre, id: existingId } = saveResult;
+
+        // Si el proceso está incompleto (en_chat) → restaurar sesión y avanzar
+        if (!estado || estado === 'en_chat') {
+          _clientData = {
+            id: existingId || generateId(),
+            nombre: existingNombre || nombre,
+            apellido,
+            email,
+            telefono,
+            timestamp_inicio: new Date().toISOString(),
+            estado: 'en_chat',
+          };
+          saveSession({ phase: 'en_chat' });
+          form.classList.add('reg-form--done');
+          setTimeout(() => { form.hidden = true; }, 350);
+          const chatSection = document.getElementById('chat-section');
+          if (chatSection) chatSection.removeAttribute('data-locked');
+          onSuccess(_clientData);
+          return;
+        }
+
+        // Si ya generó diseños o pagó → mostrar mensaje informativo
+        setError('reg-email', buildReturnMessage(estado, existingNombre));
+        resetBtn(btn, 'Empezar el chat');
+        _clientData = null;
+        return;
+      }
+
+      // 3. Guardar sesión en localStorage y habilitar chat
+      saveSession({ phase: 'en_chat' });
+
       form.classList.add('reg-form--done');
       setTimeout(() => { form.hidden = true; }, 350);
 
@@ -143,13 +270,14 @@ export function initRegistrationForm(onSuccess) {
 
       onSuccess(_clientData);
     } catch (err) {
-      console.error('Registration error:', err);
-      setError('reg-email', 'Error al verificar. Intentá de nuevo.');
-      btn.disabled = false;
-      btn.textContent = 'Continuar';
-      btn.classList.remove('loading');
+      console.warn('No se pudo guardar cliente, continuando de todas formas:', err);
+      // El guardado remoto falló (p. ej. GH_TOKEN no configurado) — seguimos igual
+      saveSession({ phase: 'en_chat' });
+      form.classList.add('reg-form--done');
+      setTimeout(() => { form.hidden = true; }, 350);
+      const chatSection = document.getElementById('chat-section');
+      if (chatSection) chatSection.removeAttribute('data-locked');
+      onSuccess(_clientData);
     }
   });
 }
-
-export { getClientData };

@@ -1,0 +1,57 @@
+<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Inter:wght@300;400;500;600&display=swap');
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Inter',sans-serif;background:#FAFAFA;color:#1A1A2E}
+nav{padding:20px 40px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #E5E7EB}
+.logo{font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:700;letter-spacing:.02em;color:#1A1A2E}
+nav a{font-size:11px;font-weight:500;letter-spacing:.18em;text-transform:uppercase;color:#6B7280;text-decoration:none}
+.hero{padding:100px 40px 90px;background:#1A1A2E;color:#FAFAFA}
+.issue{font-size:10px;font-weight:500;letter-spacing:.2em;text-transform:uppercase;color:#E63946;margin-bottom:32px}
+.hero h1{font-family:'Cormorant Garamond',serif;font-size:clamp(48px,8vw,110px);font-weight:600;line-height:.96;letter-spacing:-.01em;color:#FAFAFA;margin-bottom:28px}
+.hero h1 em{color:#E63946;font-style:italic}
+.hero-row{display:flex;align-items:flex-end;justify-content:space-between;gap:40px}
+.hero p{font-size:15px;color:#9CA3AF;max-width:340px;line-height:1.7;font-weight:300}
+.btn{display:inline-block;background:#E63946;color:#FAFAFA;padding:14px 32px;font-size:11px;font-weight:500;letter-spacing:.15em;text-transform:uppercase;text-decoration:none}
+.divider{height:1px;background:#E5E7EB;margin:0 40px}
+.services{padding:80px 40px;background:#FAFAFA}
+.services h2{font-family:'Cormorant Garamond',serif;font-size:40px;font-weight:600;margin-bottom:48px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:0;border-top:1px solid #E5E7EB}
+.card{padding:28px;border-right:1px solid #E5E7EB}
+.card:last-child{border-right:none}
+.label{font-size:9px;font-weight:500;letter-spacing:.2em;text-transform:uppercase;color:#E63946;margin-bottom:14px}
+.card h3{font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:600;margin-bottom:10px}
+.card p{font-size:13px;color:#6B7280;line-height:1.6}
+.contact{padding:80px 40px;text-align:center;background:#1A1A2E;color:#FAFAFA}
+.contact h2{font-family:'Cormorant Garamond',serif;font-size:36px;margin-bottom:16px;font-style:italic}
+.contact p{color:#9CA3AF;margin-bottom:28px;font-size:14px;letter-spacing:.05em}
+footer{padding:20px 40px;text-align:center;font-size:11px;color:#9CA3AF;border-top:1px solid #E5E7EB}
+</style></head><body>
+<nav><span class="logo">Tu Marca</span><a href="#contacto">Contacto</a></nav>
+<section class="hero">
+  <div class="issue">Editorial · Volumen I</div>
+  <div class="hero-row">
+    <h1>El Arte<br>de lo <em>Excepcional</em></h1>
+    <div style="max-width:280px;padding-bottom:8px">
+      <p>Describí aquí el valor principal de tu negocio — lo que te hace único y por qué tus clientes te eligen.</p>
+      <br>
+      <a href="#contacto" class="btn">Ver colección</a>
+    </div>
+  </div>
+</section>
+<div class="divider"></div>
+<section class="services">
+  <h2>Lo que creamos</h2>
+  <div class="grid">
+    <div class="card"><div class="label">01</div><h3>Servicio Principal</h3><p>Descripción breve de tu servicio o producto estrella, destacando su valor único.</p></div>
+    <div class="card"><div class="label">02</div><h3>Segundo Servicio</h3><p>Otro aspecto de tu oferta que diferencia tu marca del resto.</p></div>
+    <div class="card"><div class="label">03</div><h3>Tercer Servicio</h3><p>Un beneficio adicional que completa la experiencia.</p></div>
+  </div>
+</section>
+<section class="contact" id="contacto">
+  <h2>Reservá tu experiencia</h2>
+  <p>Plazas limitadas · Atención personalizada</p>
+  <a href="#" class="btn" style="background:#E63946">Escribinos →</a>
+</section>
+<footer>© 2026 Tu Marca · Edición Limitada</footer>
+</body></html>

@@ -1,0 +1,49 @@
+<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&display=swap');
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'DM Sans',sans-serif;background:#F9FBF7;color:#1B4332}
+nav{padding:20px 40px;display:flex;justify-content:space-between;align-items:center;background:#F9FBF7;border-bottom:1px solid #D1FAE5}
+.logo{font-family:'DM Serif Display',serif;font-size:20px;color:#2D6A4F}
+nav a{font-size:12px;font-weight:500;letter-spacing:.08em;color:#52796F;text-decoration:none}
+.hero{padding:96px 40px 80px;text-align:center;background:linear-gradient(180deg,#EDF6EC 0%,#F9FBF7 100%)}
+.tag{display:inline-block;font-size:10px;font-weight:500;letter-spacing:.15em;text-transform:uppercase;color:#2D6A4F;background:rgba(82,183,136,.15);border:1px solid rgba(82,183,136,.3);border-radius:100px;padding:5px 18px;margin-bottom:28px}
+.hero h1{font-family:'DM Serif Display',serif;font-size:clamp(36px,6vw,68px);line-height:1.1;color:#1B4332;margin-bottom:20px}
+.hero h1 em{color:#52B788;font-style:italic}
+.hero p{font-size:17px;color:#52796F;max-width:480px;margin:0 auto 36px;line-height:1.7;font-weight:300}
+.btn{display:inline-block;background:#2D6A4F;color:#F9FBF7;padding:15px 36px;border-radius:24px;font-weight:600;text-decoration:none;font-size:14px}
+.services{padding:80px 40px;background:#EDF6EC}
+.services h2{font-family:'DM Serif Display',serif;font-size:34px;text-align:center;margin-bottom:48px;color:#1B4332}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:20px;max-width:860px;margin:0 auto}
+.card{background:#F9FBF7;border:1px solid #D1FAE5;border-radius:24px;padding:28px}
+.leaf{font-size:26px;margin-bottom:14px}
+.card h3{font-family:'DM Serif Display',serif;font-size:18px;margin-bottom:8px;color:#2D6A4F}
+.card p{font-size:13px;color:#52796F;line-height:1.65}
+.contact{padding:72px 40px;text-align:center;background:#2D6A4F}
+.contact h2{font-family:'DM Serif Display',serif;font-size:30px;color:#F9FBF7;margin-bottom:12px}
+.contact p{color:#52B788;margin-bottom:28px;font-size:15px}
+.btn-light{display:inline-block;background:#52B788;color:#1B4332;padding:14px 32px;border-radius:24px;font-weight:700;text-decoration:none;font-size:14px}
+footer{padding:24px 40px;text-align:center;font-size:12px;color:#52796F;border-top:1px solid #D1FAE5}
+</style></head><body>
+<nav><span class="logo">Tu Marca</span><a href="#contacto">Contacto</a></nav>
+<section class="hero">
+  <div class="tag">Bienestar · Salud · Coaching</div>
+  <h1>Tu camino hacia el<br><em>equilibrio</em> que buscás</h1>
+  <p>Describí aquí el valor principal de tu negocio — lo que te hace único y por qué tus clientes te eligen.</p>
+  <a href="#contacto" class="btn">Comenzar →</a>
+</section>
+<section class="services">
+  <h2>Nuestros programas</h2>
+  <div class="grid">
+    <div class="card"><div class="leaf">🌱</div><h3>Servicio Principal</h3><p>Descripción breve de tu servicio o producto estrella, destacando su valor único.</p></div>
+    <div class="card"><div class="leaf">🧘</div><h3>Segundo Servicio</h3><p>Otro aspecto de tu oferta que diferencia tu marca del resto del mercado.</p></div>
+    <div class="card"><div class="leaf">✨</div><h3>Tercer Servicio</h3><p>Un beneficio adicional que completa la experiencia de tus clientes.</p></div>
+  </div>
+</section>
+<section class="contact" id="contacto">
+  <h2>¿Empezamos juntos?</h2>
+  <p>Primera sesión sin costo · Agenda abierta</p>
+  <a href="#" class="btn-light">Reservar turno →</a>
+</section>
+<footer>© 2026 Tu Marca · Bienestar integral</footer>
+</body></html>

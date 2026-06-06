@@ -656,3 +656,572 @@ body {
   .reg-form { padding: 28px 24px; }
   .preview-modal-container { width: 100vw; height: 100vh; border-radius: 0; }
 }
+
+/* ─── Pre-calificación ──────────────────────────────────────── */
+
+/* Select y radio dentro de la pre-calificación: texto negro sobre fondo oscuro */
+#prequalify-form select.reg-input,
+#registration-form select.reg-input {
+  color: #0F172A;
+  background: rgba(255,255,255,.92);
+  border-color: rgba(226,232,240,.8);
+}
+#prequalify-form select.reg-input option,
+#registration-form select.reg-input option {
+  color: #0F172A;
+  background: #ffffff;
+}
+
+.reg-radio-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  color: #0F172A;
+  cursor: pointer;
+  padding: 8px 14px;
+  border: 1px solid rgba(226,232,240,.8);
+  border-radius: 10px;
+  background: rgba(255,255,255,.92);
+  transition: border-color 0.2s, background 0.2s;
+}
+.reg-radio-label:has(input:checked) {
+  border-color: #2563EB;
+  background: #EFF6FF;
+  color: #1D4ED8;
+}
+.reg-radio-label input[type="radio"] { accent-color: #2563EB; }
+
+.preq-rejected {
+  background: #FEF2F2;
+  border: 1px solid #FCA5A5;
+  border-radius: 12px;
+  padding: 16px 20px;
+  margin-top: 8px;
+  font-size: 14px;
+  color: #7F1D1D;
+  line-height: 1.6;
+}
+.preq-rejected a { color: #DC2626; font-weight: 600; }
+
+/* ─── Flow Modal (3 pasos) ──────────────────────────────────── */
+
+.flow-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: flow-modal-in 0.22s ease;
+}
+.flow-modal[hidden] { display: none; }
+@keyframes flow-modal-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+.flow-modal--closing {
+  animation: flow-modal-out 0.28s ease forwards;
+  pointer-events: none;
+}
+@keyframes flow-modal-out {
+  to { opacity: 0; }
+}
+
+.flow-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0,0,0,.65);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+}
+
+.flow-container {
+  position: relative;
+  z-index: 1;
+  width: 90vw;
+  max-width: 560px;
+  max-height: 88vh;
+  overflow-y: auto;
+  background: #1E293B;
+  border: 1px solid rgba(255,255,255,.1);
+  border-radius: 24px;
+  box-shadow: 0 24px 80px rgba(0,0,0,.6);
+  display: flex;
+  flex-direction: column;
+  transition: max-width 0.4s cubic-bezier(.4,0,.2,1),
+              border-radius 0.4s cubic-bezier(.4,0,.2,1),
+              max-height 0.4s cubic-bezier(.4,0,.2,1);
+}
+.flow-container--full {
+  max-width: 100vw;
+  width: 100vw;
+  max-height: 100vh;
+  height: 100vh;
+  border-radius: 0;
+}
+
+.flow-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 24px 16px;
+  border-bottom: 1px solid rgba(255,255,255,.07);
+  flex-shrink: 0;
+}
+
+.flow-steps-indicator {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .06em;
+}
+.fsi-step       { color: var(--slate-soft); transition: color .2s; }
+.fsi-step--active { color: #F8FAFC; }
+.fsi-step--done   { color: #2563EB; }
+.fsi-sep          { color: rgba(255,255,255,.2); font-weight: 400; }
+
+.flow-close-btn {
+  background: rgba(255,255,255,.06);
+  border: none;
+  border-radius: 8px;
+  padding: 8px;
+  cursor: pointer;
+  color: var(--slate-soft);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background .15s, color .15s;
+}
+.flow-close-btn:hover { background: rgba(255,255,255,.12); color: #F8FAFC; }
+
+.flow-panel {
+  padding: 28px 28px 32px;
+  flex: 1;
+  overflow-y: auto;
+}
+.flow-panel--chat {
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+}
+.flow-panel--entering {
+  animation: flow-panel-in 0.3s ease;
+}
+@keyframes flow-panel-in {
+  from { opacity: 0; transform: translateX(16px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+.chat-section--modal {
+  padding: 24px 24px 0;
+  flex: 1;
+}
+.chat-section--modal .chat-card {
+  display: flex;
+  flex-direction: column;
+  height: calc(100vh - 220px);
+  min-height: 320px;
+}
+.chat-section--modal .chat-messages {
+  flex: 1;
+  height: auto;
+  max-height: none;
+}
+
+@media (max-width: 640px) {
+  .flow-container {
+    width: 100vw;
+    max-width: 100vw;
+    max-height: 92vh;
+    border-radius: 20px 20px 0 0;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    margin: 0;
+  }
+  .flow-modal { align-items: flex-end; }
+  .flow-container--full { border-radius: 0; max-height: 100vh; height: 100vh; }
+  .flow-panel { padding: 20px 20px 24px; }
+}
+
+/* ─── Chat carousel widget (diseños anteriores + nuevos) ─── */
+
+.message--widget {
+  align-items: flex-start;
+  gap: 10px;
+}
+.message--widget .message-avatar {
+  flex-shrink: 0;
+  margin-top: 4px;
+}
+
+.chat-carousel-widget {
+  background: rgba(255,255,255,.04);
+  border: 1px solid rgba(255,255,255,.1);
+  border-radius: 16px;
+  padding: 16px;
+  max-width: 100%;
+  width: 100%;
+  overflow: hidden;
+}
+.chat-carousel-widget--new {
+  border-color: rgba(37,99,235,.4);
+  background: rgba(37,99,235,.06);
+}
+
+.ccw-intro {
+  font-size: 14px;
+  color: var(--slate-soft);
+  margin-bottom: 14px;
+}
+.ccw-intro strong { color: #F8FAFC; }
+
+.ccw-slides {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.ccw-arrow {
+  flex-shrink: 0;
+  background: rgba(255,255,255,.08);
+  border: 1px solid rgba(255,255,255,.12);
+  border-radius: 8px;
+  width: 34px;
+  height: 34px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: #F8FAFC;
+  transition: background .15s;
+}
+.ccw-arrow:hover:not(:disabled) { background: rgba(255,255,255,.16); }
+.ccw-arrow:disabled { opacity: 0.3; cursor: default; }
+
+.ccw-viewport {
+  flex: 1;
+  overflow: hidden;
+  border-radius: 10px;
+}
+.ccw-track {
+  display: flex;
+  transition: transform 0.35s cubic-bezier(.4,0,.2,1);
+}
+
+.ccw-card {
+  flex: 0 0 100%;
+  min-width: 0;
+  padding: 0 2px;
+}
+.ccw-label {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .08em;
+  color: var(--slate-soft);
+  margin-bottom: 6px;
+}
+.ccw-iframe-wrap {
+  position: relative;
+  width: 100%;
+  padding-bottom: 62%;
+  background: #0F172A;
+  border-radius: 8px;
+  overflow: hidden;
+  cursor: pointer;
+}
+.ccw-iframe-wrap iframe {
+  position: absolute;
+  inset: 0;
+  width: 300%;
+  height: 300%;
+  transform: scale(0.333);
+  transform-origin: top left;
+  border: none;
+  pointer-events: none;
+}
+.ccw-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0,0,0,.5);
+  opacity: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: opacity .2s;
+}
+.ccw-iframe-wrap:hover .ccw-overlay { opacity: 1; }
+.ccw-select-btn { font-size: 12px; padding: 8px 16px; }
+
+.ccw-card-name {
+  font-size: 13px;
+  font-weight: 600;
+  color: #F8FAFC;
+  margin-top: 8px;
+}
+.ccw-card-desc {
+  font-size: 12px;
+  color: var(--slate-soft);
+  margin-top: 4px;
+}
+
+.ccw-indicator {
+  text-align: center;
+  font-size: 12px;
+  color: var(--slate-soft);
+  margin-top: 10px;
+}
+.ccw-actions {
+  margin-top: 12px;
+  display: flex;
+  justify-content: center;
+}
+.ccw-reject-btn {
+  font-size: 13px;
+  padding: 10px 20px;
+  width: 100%;
+}
+
+/* ─── File upload UI ─────────────────────────────────────── */
+
+.attach-btn {
+  flex-shrink: 0;
+  background: transparent;
+  border: none;
+  color: var(--slate-soft);
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color .15s, background .15s;
+}
+.attach-btn:hover { color: #2563EB; background: rgba(37,99,235,.1); }
+
+.attached-files-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 8px 12px 0;
+}
+.file-chip {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 12px;
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-weight: 500;
+}
+.file-chip--uploaded {
+  background: rgba(34,197,94,.12);
+  border: 1px solid rgba(34,197,94,.3);
+  color: #86efac;
+}
+.file-chip--pending {
+  background: rgba(37,99,235,.12);
+  border: 1px solid rgba(37,99,235,.3);
+  color: #93c5fd;
+}
+.file-chip-remove {
+  background: none;
+  border: none;
+  color: inherit;
+  cursor: pointer;
+  font-size: 14px;
+  line-height: 1;
+  padding: 0 2px;
+  opacity: 0.7;
+}
+.file-chip-remove:hover { opacity: 1; }
+.reg-radio-label input[type="radio"] { accent-color: #2563EB; }
+
+.preq-rejected {
+  background: #FEF2F2;
+  border: 1px solid #FCA5A5;
+  border-radius: 12px;
+  padding: 16px 20px;
+  margin-top: 8px;
+  font-size: 14px;
+  color: #7F1D1D;
+  line-height: 1.6;
+}
+.preq-rejected a { color: #DC2626; font-weight: 600; }
+
+/* ─── Flow Modal (3 pasos) ──────────────────────────────────── */
+
+.flow-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: flow-modal-in 0.22s ease;
+}
+.flow-modal[hidden] { display: none; }
+@keyframes flow-modal-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+.flow-modal--closing {
+  animation: flow-modal-out 0.28s ease forwards;
+  pointer-events: none;
+}
+@keyframes flow-modal-out {
+  to { opacity: 0; }
+}
+
+/* Overlay / backdrop */
+.flow-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.65);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+}
+
+/* Contenedor del modal */
+.flow-container {
+  position: relative;
+  z-index: 1;
+  width: 90vw;
+  max-width: 560px;
+  max-height: 88vh;
+  overflow-y: auto;
+  background: #1E293B;
+  border: 1px solid rgba(255,255,255,.1);
+  border-radius: 24px;
+  box-shadow: 0 24px 80px rgba(0,0,0,.6);
+  display: flex;
+  flex-direction: column;
+  transition: max-width 0.4s cubic-bezier(.4,0,.2,1),
+              border-radius 0.4s cubic-bezier(.4,0,.2,1),
+              max-height 0.4s cubic-bezier(.4,0,.2,1);
+}
+
+/* Paso 3: expande a pantalla completa */
+.flow-container--full {
+  max-width: 100vw;
+  width: 100vw;
+  max-height: 100vh;
+  height: 100vh;
+  border-radius: 0;
+}
+
+/* Header (indicador de pasos + botón cerrar) */
+.flow-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 24px 16px;
+  border-bottom: 1px solid rgba(255,255,255,.07);
+  flex-shrink: 0;
+}
+
+/* Indicador de pasos */
+.flow-steps-indicator {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .06em;
+}
+.fsi-step {
+  color: var(--slate-soft);
+  transition: color .2s;
+}
+.fsi-step--active { color: #F8FAFC; }
+.fsi-step--done   { color: #2563EB; }
+.fsi-sep {
+  color: rgba(255,255,255,.2);
+  font-weight: 400;
+}
+
+/* Botón cerrar */
+.flow-close-btn {
+  background: rgba(255,255,255,.06);
+  border: none;
+  border-radius: 8px;
+  padding: 8px;
+  cursor: pointer;
+  color: var(--slate-soft);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background .15s, color .15s;
+}
+.flow-close-btn:hover { background: rgba(255,255,255,.12); color: #F8FAFC; }
+
+/* Paneles de cada paso */
+.flow-panel {
+  padding: 28px 28px 32px;
+  flex: 1;
+  overflow-y: auto;
+}
+.flow-panel--chat {
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Animación de entrada de panel */
+.flow-panel--entering {
+  animation: flow-panel-in 0.3s ease;
+}
+@keyframes flow-panel-in {
+  from { opacity: 0; transform: translateX(16px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+/* Ajuste del chat dentro del modal: full-height */
+.chat-section--modal {
+  padding: 24px 24px 0;
+  flex: 1;
+}
+.chat-section--modal .chat-card {
+  display: flex;
+  flex-direction: column;
+  height: calc(100vh - 220px);
+  min-height: 320px;
+}
+.chat-section--modal .chat-messages {
+  flex: 1;
+  height: auto;
+  max-height: none;
+}
+
+/* ─── Responsive modal ──────────────────────────────────────── */
+@media (max-width: 640px) {
+  .flow-container {
+    width: 100vw;
+    max-width: 100vw;
+    max-height: 92vh;
+    border-radius: 20px 20px 0 0;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    margin: 0;
+  }
+  .flow-modal {
+    align-items: flex-end;
+  }
+  .flow-container--full {
+    border-radius: 0;
+    max-height: 100vh;
+    height: 100vh;
+  }
+  .flow-panel {
+    padding: 20px 20px 24px;
+  }
+}
