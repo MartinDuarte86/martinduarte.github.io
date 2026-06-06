@@ -1,4 +1,5 @@
-// Gestiona la generación de 3 previews HTML usando Claude API
+// Gestiona la generación de previews, modal de zoom y almacenamiento en dsn/
+import { saveFeedback } from './validator.js';
 
 const TEMPLATE_SPECS = {
   'calido-artesanal': {
@@ -124,8 +125,6 @@ async function generatePreview(brief, templateId, promptTemplate) {
 
   const data = await response.json();
   const html = data.content?.[0]?.text || '';
-
-  // Strip any markdown fences if Claude included them despite instructions
   return html.replace(/^```html?\n?/i, '').replace(/\n?```$/i, '').trim();
 }
 
@@ -146,8 +145,195 @@ async function generateAllPreviews(brief, onProgress) {
     });
   }
 
+  // Mejora 4: guardar el set en dsn/
+  await saveDsnSet(brief, results).catch(err => console.warn('No se pudo guardar dsn set:', err));
+
   return results;
 }
+
+// ─── Mejora 4: Guardado en dsn/ via GitHub REST API ──────────────────────────
+
+async function saveDsnSet(brief, previews) {
+  const res = await fetch('/api/save-dsn', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      rubro: brief.rubro,
+      clienteId: brief.cliente_id || null,
+      templates: previews.map(p => ({ id: p.id, name: p.name, html: p.html })),
+    }),
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.error || `Error ${res.status}`);
+  }
+  return res.json();
+}
+
+// ─── Mejora 2: Modal de preview con zoom ─────────────────────────────────────
+
+let _modalScale = 1;
+let _modalOnSelect = null;
+let _modalPreviewIndex = null;
+
+function openPreviewModal(preview, index, onSelect) {
+  const modal = document.getElementById('preview-modal');
+  if (!modal) return;
+
+  _modalScale = 1;
+  _modalOnSelect = onSelect;
+  _modalPreviewIndex = index;
+
+  document.getElementById('modal-title').textContent = preview.name;
+
+  const inner = document.getElementById('modal-preview-content');
+  inner.style.transform = 'scale(1)';
+  inner.innerHTML = '';
+
+  const iframe = document.createElement('iframe');
+  iframe.title = preview.name;
+  iframe.style.cssText = 'width:100%;height:100vh;border:none;display:block;pointer-events:none;';
+  inner.appendChild(iframe);
+  renderPreviewInIframe(iframe, preview.html);
+
+  modal.hidden = false;
+  document.body.style.overflow = 'hidden';
+
+  const wrap = document.getElementById('modal-preview-wrap');
+
+  // Zoom con scroll de mouse
+  function onWheel(e) {
+    e.preventDefault();
+    _modalScale += e.deltaY * -0.001;
+    _modalScale = Math.min(Math.max(0.5, _modalScale), 3);
+    inner.style.transform = `scale(${_modalScale})`;
+    inner.style.transformOrigin = 'top center';
+  }
+  wrap.addEventListener('wheel', onWheel, { passive: false });
+
+  // Reset con doble clic
+  function onDblClick() {
+    _modalScale = 1;
+    inner.style.transform = 'scale(1)';
+  }
+  inner.addEventListener('dblclick', onDblClick);
+
+  // Pinch en mobile via Hammer.js
+  if (typeof Hammer !== 'undefined') {
+    const hammer = new Hammer(wrap);
+    hammer.get('pinch').set({ enable: true });
+    let startScale = 1;
+    hammer.on('pinchstart', () => { startScale = _modalScale; });
+    hammer.on('pinch', (e) => {
+      _modalScale = Math.min(Math.max(0.5, startScale * e.scale), 3);
+      inner.style.transform = `scale(${_modalScale})`;
+      inner.style.transformOrigin = 'top center';
+    });
+    modal._hammerInstance = hammer;
+  }
+
+  // Guardar referencias para cleanup
+  modal._onWheel = onWheel;
+  modal._onDblClick = onDblClick;
+  modal._wrapEl = wrap;
+  modal._innerEl = inner;
+
+  // Cerrar con overlay
+  document.getElementById('modal-overlay').onclick = () => closePreviewModal();
+  document.getElementById('modal-close-btn').onclick = () => closePreviewModal();
+
+  // Botón elegir dentro del modal
+  document.getElementById('modal-select-btn').onclick = () => {
+    closePreviewModal();
+    if (_modalOnSelect) _modalOnSelect();
+  };
+}
+
+function closePreviewModal() {
+  const modal = document.getElementById('preview-modal');
+  if (!modal) return;
+
+  if (modal._wrapEl && modal._onWheel) {
+    modal._wrapEl.removeEventListener('wheel', modal._onWheel);
+  }
+  if (modal._innerEl && modal._onDblClick) {
+    modal._innerEl.removeEventListener('dblclick', modal._onDblClick);
+  }
+  if (modal._hammerInstance) {
+    modal._hammerInstance.destroy();
+    modal._hammerInstance = null;
+  }
+
+  modal.hidden = true;
+  document.body.style.overflow = '';
+
+  // Limpiar iframe
+  const inner = document.getElementById('modal-preview-content');
+  if (inner) {
+    const iframe = inner.querySelector('iframe');
+    if (iframe) cleanupPreviewUrl(iframe);
+    inner.innerHTML = '';
+  }
+}
+
+// ─── Mejora 3: Card alternativa ───────────────────────────────────────────────
+
+function addAltCard(grid, sessionId) {
+  const card = document.createElement('div');
+  card.className = 'preview-card preview-card--alt';
+  card.setAttribute('role', 'listitem');
+  card.innerHTML = `
+    <div class="alt-card-body">
+      <div class="alt-card-icon">✏️</div>
+      <div class="alt-card-title">Ninguno me representa / Quiero algo diferente</div>
+      <div class="alt-card-sub">Contanos qué estás buscando y lo tenemos en cuenta</div>
+    </div>
+    <div class="alt-card-feedback" id="alt-card-feedback">
+      <textarea
+        class="alt-feedback-textarea"
+        placeholder="Describí qué te gustaría: estilo, colores, referencias, lo que sea..."
+        maxlength="600"
+        aria-label="Feedback de diseño"
+      ></textarea>
+      <button class="alt-feedback-confirm" type="button">Listo, tenerlo en cuenta</button>
+      <div class="alt-feedback-saved">¡Gracias! Martín lo va a tener en cuenta.</div>
+    </div>`;
+  grid.appendChild(card);
+
+  const body    = card.querySelector('.alt-card-body');
+  const section = card.querySelector('.alt-card-feedback');
+  const btn     = card.querySelector('.alt-feedback-confirm');
+  const saved   = card.querySelector('.alt-feedback-saved');
+  const textarea = card.querySelector('.alt-feedback-textarea');
+
+  body.addEventListener('click', () => {
+    section.classList.add('visible');
+    textarea.focus();
+  });
+
+  btn.addEventListener('click', async () => {
+    const text = textarea.value.trim();
+    if (!text) return;
+
+    btn.disabled = true;
+    btn.textContent = 'Guardando...';
+
+    try {
+      if (sessionId) {
+        await saveFeedback(sessionId, text);
+      }
+      saved.classList.add('visible');
+      btn.style.display = 'none';
+    } catch (err) {
+      console.warn('No se pudo guardar feedback:', err);
+      saved.textContent = '¡Gracias! Fue registrado.';
+      saved.classList.add('visible');
+      btn.style.display = 'none';
+    }
+  });
+}
+
+// ─── Utilidades de iframe ─────────────────────────────────────────────────────
 
 function renderPreviewInIframe(iframe, html) {
   const blob = new Blob([html], { type: 'text/html' });
@@ -163,4 +349,12 @@ function cleanupPreviewUrl(iframe) {
   }
 }
 
-export { generateAllPreviews, renderPreviewInIframe, cleanupPreviewUrl, TEMPLATE_SPECS };
+export {
+  generateAllPreviews,
+  renderPreviewInIframe,
+  cleanupPreviewUrl,
+  openPreviewModal,
+  closePreviewModal,
+  addAltCard,
+  TEMPLATE_SPECS,
+};

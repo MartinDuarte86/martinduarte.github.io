@@ -7,6 +7,8 @@
   <meta name="description" content="Servicio automatizado: describí tu idea, elegí tu diseño y publicamos tu landing page en 48hs. $40.000 ARS.">
   <link rel="canonical" href="https://martinduarte.com/landing_page/">
   <link rel="stylesheet" href="styles.css">
+  <!-- Mejora 2: Hammer.js para pinch-to-zoom en mobile -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hammer.js/2.0.8/hammer.min.js" defer></script>
 </head>
 <body>
 
@@ -77,8 +79,53 @@
       </div>
     </section>
 
+    <!-- ─── Mejora 1: Formulario de registro ──────────────────────── -->
+    <section id="registration-section" class="registration-section" aria-labelledby="reg-heading">
+      <div id="registration-form" class="reg-form">
+        <h2 class="reg-heading" id="reg-heading">Antes de empezar, contanos quién sos</h2>
+        <p class="reg-sub">Necesitamos tus datos para personalizar la experiencia y coordinar el proyecto.</p>
+
+        <div class="reg-fields">
+          <div class="reg-field-group">
+            <label for="reg-nombre" class="reg-label">Nombre</label>
+            <input
+              id="reg-nombre" type="text" class="reg-input"
+              placeholder="María" autocomplete="given-name"
+              aria-describedby="reg-nombre-error"
+            >
+            <span id="reg-nombre-error" class="reg-error" hidden></span>
+          </div>
+
+          <div class="reg-field-group">
+            <label for="reg-apellido" class="reg-label">Apellido</label>
+            <input
+              id="reg-apellido" type="text" class="reg-input"
+              placeholder="González" autocomplete="family-name"
+              aria-describedby="reg-apellido-error"
+            >
+            <span id="reg-apellido-error" class="reg-error" hidden></span>
+          </div>
+
+          <div class="reg-field-group reg-field-group--full">
+            <label for="reg-email" class="reg-label">Email</label>
+            <input
+              id="reg-email" type="email" class="reg-input"
+              placeholder="maria@ejemplo.com" autocomplete="email"
+              aria-describedby="reg-email-error"
+            >
+            <span id="reg-email-error" class="reg-error" hidden></span>
+          </div>
+        </div>
+
+        <button id="reg-submit" class="btn-primary reg-submit" type="button" disabled>
+          Continuar al chat
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+        </button>
+      </div>
+    </section>
+
     <!-- ─── Chat section ──────────────────────────────────────────── -->
-    <section id="chat-section" class="chat-section" aria-labelledby="chat-heading">
+    <section id="chat-section" class="chat-section" data-locked="true" aria-labelledby="chat-heading">
       <h2 class="chat-heading" id="chat-heading">Contame sobre tu proyecto</h2>
 
       <div class="chat-card" role="region" aria-label="Chat con asistente">
@@ -116,10 +163,39 @@
       </div>
     </section>
 
+    <!-- ─── Mejora 4: Carrusel de diseños previos ─────────────────── -->
+    <section id="carousel-section" class="carousel-section" hidden aria-labelledby="carousel-heading">
+      <div class="carousel-disclaimer" role="note" aria-live="polite">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        Estos diseños son ejemplos orientativos generados en base a tu descripción. Su objetivo es ayudarte a definir la identidad visual de tu marca, no representan el resultado final de tu landing page.
+      </div>
+
+      <h2 class="section-heading" id="carousel-heading">Diseños anteriores</h2>
+      <p class="section-sub">Explorá los diseños que generaste antes o generá nuevos.</p>
+
+      <div class="carousel-wrapper" aria-label="Carrusel de diseños">
+        <button class="carousel-arrow carousel-arrow--prev" id="carousel-prev" type="button" aria-label="Diseño anterior">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+        </button>
+        <div id="carousel-track" class="carousel-track" role="list"></div>
+        <button class="carousel-arrow carousel-arrow--next" id="carousel-next" type="button" aria-label="Diseño siguiente">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+        </button>
+      </div>
+
+      <div class="carousel-indicator" id="carousel-indicator" aria-live="polite"></div>
+
+      <div class="carousel-actions">
+        <button id="carousel-gen-new" class="btn-secondary" type="button">
+          Ninguno me convence — Generar 3 nuevos diseños
+        </button>
+      </div>
+    </section>
+
     <!-- ─── Preview section ───────────────────────────────────────── -->
     <section id="previews-section" class="previews-section" hidden aria-labelledby="previews-heading">
       <h2 class="section-heading" id="previews-heading">Elegí tu diseño</h2>
-      <p class="section-sub">Hacé click en el diseño que más te representa para avanzar con el pago.</p>
+      <p class="section-sub">Clic en una card para ver el preview completo. Después elegís el que más te gusta.</p>
       <div id="previews-grid" class="previews-grid" role="list" aria-label="Opciones de diseño"></div>
     </section>
 
@@ -181,9 +257,29 @@
   <!-- ─── Footer ────────────────────────────────────────────────── -->
   <footer class="site-footer">
     <p>
-      <a href="/">martinduarte.com</a> · Servicio de Landing Pages · v1.0
+      <a href="/">martinduarte.com</a> · Servicio de Landing Pages · v2.0
     </p>
   </footer>
+
+  <!-- ─── Mejora 2: Modal de preview con zoom ───────────────────── -->
+  <div id="preview-modal" class="preview-modal" hidden role="dialog" aria-modal="true" aria-labelledby="modal-title">
+    <div class="preview-modal-overlay" id="modal-overlay"></div>
+    <div class="preview-modal-container">
+      <div class="preview-modal-header">
+        <span id="modal-title" class="preview-modal-name"></span>
+        <div class="preview-modal-controls">
+          <span class="preview-zoom-hint">Scroll o pellizco para zoom · Doble clic para resetear</span>
+          <button id="modal-select-btn" class="btn-primary" type="button">Elegir este diseño</button>
+          <button id="modal-close-btn" class="preview-modal-close" type="button" aria-label="Cerrar preview">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+          </button>
+        </div>
+      </div>
+      <div id="modal-preview-wrap" class="preview-modal-content">
+        <div id="modal-preview-content" class="preview-modal-inner"></div>
+      </div>
+    </div>
+  </div>
 
   <script type="module">
     import { init } from './chat.js';

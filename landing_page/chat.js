@@ -1,6 +1,8 @@
 // Motor del chat: estado, prompts, llamadas a Claude y transiciones de UI
-import { generateAllPreviews, renderPreviewInIframe, cleanupPreviewUrl } from './generator.js';
+import { generateAllPreviews, renderPreviewInIframe, openPreviewModal, addAltCard } from './generator.js';
 import { sendNotification } from './notifier.js';
+import { initRegistrationForm, getClientData } from './validator.js';
+import { initCarousel } from './carousel.js';
 
 const MP_LINK = 'https://mpago.la/REEMPLAZAR'; // Actualizá con tu link de Mercado Pago
 
@@ -28,8 +30,28 @@ let state = {
 
 async function init() {
   await loadPrompts();
-  setupEventListeners();
-  appendMessage('ai', 'Hola. Contame sobre tu proyecto — ¿de qué se trata tu negocio o idea?');
+
+  // Mejora 1: Formulario previo al chat
+  initRegistrationForm((clientData) => {
+    // Saludo personalizado con el nombre del cliente
+    const nombre = clientData.nombre;
+    appendMessage('ai', `Hola ${nombre}. Contame sobre tu proyecto — ¿de qué se trata tu negocio o idea?`);
+    setupEventListeners();
+  });
+
+  // Mejora 4: Carrusel de diseños guardados
+  await initCarousel({
+    onSelectFromCarousel: (preview) => {
+      state.previews = [preview];
+      state.phase = PHASE.SELECTING;
+      document.getElementById('carousel-section').hidden = true;
+      showPreviewSection([preview]);
+    },
+    onGenerateNew: () => {
+      document.getElementById('carousel-section').hidden = true;
+      document.getElementById('chat-section').scrollIntoView({ behavior: 'smooth' });
+    },
+  });
 }
 
 async function loadPrompts() {
@@ -48,8 +70,8 @@ function setupEventListeners() {
 
   if (startBtn) {
     startBtn.addEventListener('click', () => {
-      document.getElementById('chat-section').scrollIntoView({ behavior: 'smooth' });
-      setTimeout(() => input?.focus(), 600);
+      document.getElementById('registration-section').scrollIntoView({ behavior: 'smooth' });
+      setTimeout(() => document.getElementById('reg-nombre')?.focus(), 600);
     });
   }
 
@@ -68,6 +90,7 @@ async function handleSend() {
   const input = document.getElementById('chat-input');
   const text = input?.value.trim();
   if (!text || state.phase === PHASE.GENERATING || state.phase === PHASE.NOTIFYING) return;
+  if (document.getElementById('chat-section').hasAttribute('data-locked')) return;
 
   input.value = '';
   appendMessage('user', text);
@@ -102,7 +125,6 @@ async function handleEvaluationTurn() {
   const result = extractJSON(raw);
 
   if (!result) {
-    // Claude no respondió en formato esperado, mostrar el texto directamente
     const displayText = raw.slice(0, 400);
     state.messages.push({ role: 'assistant', content: displayText });
     appendMessage('ai', displayText);
@@ -129,7 +151,6 @@ async function handleOnboardingTurn() {
   const isBriefComplete = brief && brief.nombre_marca && brief.rubro &&
     Array.isArray(brief.servicios) && brief.servicios.length > 0 && brief.contacto;
 
-  // Mostrar parte del texto (sin el bloque JSON)
   const displayText = raw.replace(/```json[\s\S]*?```/g, '').trim();
   if (displayText) {
     state.messages.push({ role: 'assistant', content: raw });
@@ -137,6 +158,14 @@ async function handleOnboardingTurn() {
   }
 
   if (isBriefComplete) {
+    // Enriquecer brief con datos del cliente registrado
+    const clientData = getClientData();
+    if (clientData) {
+      brief.cliente_nombre = `${clientData.nombre} ${clientData.apellido}`;
+      brief.cliente_email  = clientData.email;
+      brief.cliente_id     = clientData.id;
+    }
+
     state.brief = brief;
     state.phase = PHASE.GENERATING;
     setInputEnabled(false);
@@ -182,6 +211,7 @@ function showPreviewSection(previews) {
   previews.forEach((preview, i) => {
     const card = document.createElement('div');
     card.className = 'preview-card';
+    card.setAttribute('role', 'listitem');
     card.innerHTML = `
       <div class="preview-iframe-wrap">
         <iframe id="preview-iframe-${i}" title="${preview.name}" scrolling="no"></iframe>
@@ -198,10 +228,21 @@ function showPreviewSection(previews) {
     const iframe = document.getElementById(`preview-iframe-${i}`);
     renderPreviewInIframe(iframe, preview.html);
 
-    card.querySelector('.select-preview-btn').addEventListener('click', () => {
+    // Mejora 2: Clic en card (no en el botón) abre el modal
+    card.addEventListener('click', (e) => {
+      if (!e.target.closest('.select-preview-btn')) {
+        openPreviewModal(preview, i, () => selectPreview(i));
+      }
+    });
+
+    card.querySelector('.select-preview-btn').addEventListener('click', (e) => {
+      e.stopPropagation();
       selectPreview(i);
     });
   });
+
+  // Mejora 3: Card alternativa al final
+  addAltCard(grid, getClientData()?.id || null);
 }
 
 function selectPreview(index) {
@@ -244,7 +285,7 @@ async function handlePaymentConfirm() {
   document.getElementById('chat-section').scrollIntoView({ behavior: 'smooth' });
 
   try {
-    await sendNotification(state.brief, state.selectedPreview.html);
+    await sendNotification(state.brief, state.selectedPreview.html, getClientData());
     state.phase = PHASE.DONE;
     showSuccessSection();
   } catch (err) {

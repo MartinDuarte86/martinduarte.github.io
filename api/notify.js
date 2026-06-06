@@ -2,7 +2,7 @@ module.exports = async function handler(req, res) {
   if (req.method === 'OPTIONS') return res.status(200).end();
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
-  const { brief, html_elegido } = req.body;
+  const { brief, html_elegido, cliente } = req.body;
 
   if (!brief || !html_elegido) {
     return res.status(400).json({ error: 'Faltan datos: brief y html_elegido son requeridos' });
@@ -59,7 +59,7 @@ module.exports = async function handler(req, res) {
         from: process.env.EMAIL_FROM || 'Landing Bot <noreply@martinduarte.com>',
         to: ['martynduarte@gmail.com'],
         subject: `NUEVO CLIENTE — ${brief.nombre_marca} | Landing Page`,
-        html: buildEmail(brief, approveUrl, rejectUrl, previewUrl),
+        html: buildEmail(brief, approveUrl, rejectUrl, previewUrl, cliente),
       }),
     });
 
@@ -84,7 +84,7 @@ function slugify(text) {
     .replace(/^-+|-+$/g, '');
 }
 
-function buildEmail(brief, approveUrl, rejectUrl, previewUrl) {
+function buildEmail(brief, approveUrl, rejectUrl, previewUrl, cliente) {
   const serviciosHtml = Array.isArray(brief.servicios) && brief.servicios.length
     ? brief.servicios.map(s => `<li style="margin:6px 0;color:#334155;font-size:15px;">${s}</li>`).join('')
     : '<li style="color:#94A3B8;">No especificados</li>';
@@ -130,6 +130,24 @@ function buildEmail(brief, approveUrl, rejectUrl, previewUrl) {
     <div class="body">
       <div class="section-tag">Datos del cliente</div>
 
+      ${cliente ? `
+      <div class="field">
+        <div class="field-lbl">Nombre del cliente</div>
+        <div class="field-val">${cliente.nombre}</div>
+      </div>
+      <div class="field">
+        <div class="field-lbl">Email validado</div>
+        <div class="field-val">${cliente.email}</div>
+      </div>
+      <div class="field">
+        <div class="field-lbl">ID de sesión</div>
+        <div class="field-val" style="font-family:monospace;font-size:13px;color:#64748B;">${cliente.id}</div>
+      </div>
+      <div class="field">
+        <div class="field-lbl">Inicio de sesión</div>
+        <div class="field-val">${cliente.timestamp_inicio}</div>
+      </div>
+      <hr class="divider">` : ''}
       <div class="field">
         <div class="field-lbl">Contacto</div>
         <div class="field-val">${brief.contacto || 'No proporcionado'}</div>
@@ -166,6 +184,12 @@ function buildEmail(brief, approveUrl, rejectUrl, previewUrl) {
       </div>` : ''}
 
       <hr class="divider">
+      ${cliente?.feedback_diseño ? `<hr class="divider">
+      <div class="field">
+        <div class="field-lbl">Feedback de diseño del cliente:</div>
+        <div class="field-val" style="font-weight:400;font-size:14px;line-height:1.6;color:#475569;background:#F8FAFC;border:1px solid #E2E8F0;border-radius:10px;padding:12px 14px;margin-top:6px;">${cliente.feedback_diseño}</div>
+      </div>` : ''}
+
       <div class="field">
         <div class="field-lbl">Estado de pago</div>
         <span class="chip chip-warn">PENDIENTE — El cliente confirmó el pago</span>
