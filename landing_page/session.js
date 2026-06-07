@@ -39,16 +39,28 @@ function _save(session) {
   }
 }
 
+function _claveCliente(nombre, apellido) {
+  return `${String(nombre).trim().toLowerCase()}_${String(apellido || '').trim().toLowerCase()}`;
+}
+
 export function initSession(nombre, apellido) {
+  const claveCliente = _claveCliente(nombre, apellido);
+
   try {
     const raw = sessionStorage.getItem(SESSION_KEY);
     if (raw) {
       const existing = JSON.parse(raw);
       const age = Date.now() - new Date(existing.timestamp_inicio).getTime();
-      if (age < 2 * 60 * 60 * 1000) {
+      const claveExistente = _claveCliente(existing.nombre_cliente || '', existing.apellido_cliente || '');
+
+      // Recuperar solo si es el mismo cliente y la sesión no expiró —
+      // evita que datos de una conversación anterior contaminen una nueva
+      if (age < 2 * 60 * 60 * 1000 && claveExistente === claveCliente) {
         console.log('[Session] Sesión recuperada:', existing.id);
         return existing;
       }
+
+      sessionStorage.removeItem(SESSION_KEY);
     }
   } catch {}
 
@@ -57,6 +69,11 @@ export function initSession(nombre, apellido) {
   _save(session);
   console.log('[Session] Nueva sesión:', id);
   return session;
+}
+
+// Retorna el primer campo obligatorio pendiente de recolectar
+export function getCampoPendiente(session) {
+  return session?.campos_pendientes?.[0] || null;
 }
 
 // Actualiza un campo en collectedData. Si ya tiene valor, solo lo reemplaza
@@ -68,7 +85,17 @@ export function updateField(session, campo, valor) {
 
   const actual = session.collectedData[campo];
 
-  if (actual === null) {
+  // Valor especial: el usuario indicó que no tiene este dato
+  if (valor === '__no_tiene__') {
+    if (actual !== null) return;
+    session.collectedData[campo] = '__no_tiene__';
+    session.campos_pendientes = session.campos_pendientes.filter(c => c !== campo);
+    console.log(`[Session] ${campo} = (sin dato — usuario indicó que no tiene)`);
+    _save(session);
+    return;
+  }
+
+  if (actual === null || actual === '__no_tiene__') {
     session.collectedData[campo] = valor;
     session.campos_pendientes = session.campos_pendientes.filter(c => c !== campo);
     console.log(`[Session] ${campo} = ${JSON.stringify(valor)}`);
@@ -91,7 +118,7 @@ export function buildContextBlock(session) {
 
   const obtenidos = Object.entries(session.collectedData)
     .filter(([, v]) => v !== null)
-    .map(([k, v]) => `  - ${k}: ${Array.isArray(v) ? v.join(', ') : v}`)
+    .map(([k, v]) => `  - ${k}: ${v === '__no_tiene__' ? '(el cliente indicó que no tiene)' : (Array.isArray(v) ? v.join(', ') : v)}`)
     .join('\n');
 
   const pendientes = session.campos_pendientes.length > 0

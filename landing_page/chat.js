@@ -3,7 +3,7 @@ import { generateAllPreviews, renderPreviewInIframe, openPreviewModal, addAltCar
 import { sendNotification } from './notifier.js';
 import { initRegistrationForm, getClientData, saveSession } from './validator.js';
 import { initCarousel, buildChatCarouselWidget, buildPreviewsCarouselWidget } from './carousel.js';
-import { initSession, updateField, buildContextBlock } from './session.js';
+import { initSession, updateField, buildContextBlock, getCampoPendiente } from './session.js';
 import { extractFromMessage } from './extractor.js';
 
 const MP_LINK = 'https://mpago.la/1Dufc3b';
@@ -311,9 +311,13 @@ async function handleSend() {
     appendMessage('user', text);
     state.messages.push({ role: 'user', content: text });
 
-    // Extraer datos estructurados del mensaje y actualizar sesión
+    // Extraer datos estructurados del mensaje y actualizar sesión.
+    // Se pasa el campo pendiente actual para captura contextual posicional:
+    // guarda la respuesta como valor de lo que el bot estaba preguntando,
+    // sin depender de un diccionario de vocabulario por rubro.
     if (currentSession) {
-      const extracted = extractFromMessage(text);
+      const campoPendiente = getCampoPendiente(currentSession);
+      const extracted = extractFromMessage(text, campoPendiente);
       Object.entries(extracted).forEach(([campo, valor]) => updateField(currentSession, campo, valor));
     }
   }
@@ -477,13 +481,129 @@ function buildBriefFromSession(session) {
   };
 }
 
+// Extracción semántica con Claude — corre UNA vez al cierre del onboarding
+// para validar y completar lo que la captura contextual no haya cubierto
+// (corrige ortografía, normaliza servicios a array, agnóstica al rubro).
+// intent: 'extraction' queda excluida del rate limit de chat (api/claude.js).
+async function extractStructuredData(historial) {
+  const conversacion = historial
+    .filter(m => m.role === 'user')
+    .map((m, i) => `[${i + 1}] ${m.content}`)
+    .join('\n');
+
+  const prompt = `Analizá esta conversación de un cliente que quiere una landing page.
+Extraé sus datos con exactitud. Si algo no fue mencionado, usá null.
+
+CONVERSACIÓN:
+${conversacion}
+
+Respondé ÚNICAMENTE con JSON válido, sin texto adicional, sin markdown ni bloques de código:
+{
+  "nombre_marca": "nombre exacto del negocio o persona",
+  "rubro": "tipo de negocio en 2-4 palabras",
+  "servicios": ["servicio 1", "servicio 2"],
+  "contacto_wsp": "solo dígitos sin espacios ni caracteres especiales, o null",
+  "contacto_email": "email completo, o null",
+  "colores": "colores o paleta mencionada textualmente, o null",
+  "zona": "zona geográfica si la mencionó, o null",
+  "slogan": "frase o tagline si la mencionó, o null",
+  "redes": "usuario de Instagram u otras redes, o null",
+  "estilo_visual": "descripción del estilo visual si mencionó algo, o null"
+}
+
+REGLAS:
+- servicios SIEMPRE debe ser un array de strings, nunca un string plano
+- Corregí errores ortográficos en los valores (ej: "monotivuto" → "Monotributo")
+- Si mencionó el mismo servicio de distintas formas, unificalo en uno
+- contacto_wsp: solo dígitos, sin el 15 ni el +54 (ej: "1123797308")
+- No inventes datos — si no fue mencionado, null`;
+
+  try {
+    const data = await callClaude(
+      [{ role: 'user', content: prompt }],
+      'Sos un extractor de datos estructurados. Respondés SOLO con JSON válido sin markdown.',
+      {
+        model: 'claude-haiku-4-5-20251001',
+        max_tokens: 400,
+        intent: 'extraction',
+      }
+    );
+
+    const raw = data.content?.[0]?.text || '{}';
+    const clean = raw.replace(/```(?:json)?/g, '').trim();
+    const extracted = extractJSON(clean);
+
+    if (!extracted) {
+      console.warn('[ExtractorA] JSON inválido:', raw.slice(0, 200));
+      return null;
+    }
+
+    if (extracted.servicios && typeof extracted.servicios === 'string') {
+      extracted.servicios = extracted.servicios.split(/[,;\/]/).map(s => s.trim()).filter(Boolean);
+    }
+
+    console.log('[ExtractorA] Extracción semántica:', extracted);
+    return extracted;
+
+  } catch (err) {
+    console.error('[ExtractorA] Error:', err.message);
+    return null; // fail-open: si falla, seguimos con lo que ya teníamos
+  }
+}
+
 async function completarOnboarding(brief) {
-  // Rescatar datos de sesión que Claude puede haber omitido del JSON
+  const extracted = await extractStructuredData(state.messages);
+
+  if (extracted) {
+    // Los datos del brief de Claude tienen prioridad; la extracción semántica
+    // completa los huecos y corrige lo que vino mal formado
+    brief.nombre_marca  = brief.nombre_marca  || extracted.nombre_marca;
+    brief.rubro         = brief.rubro         || extracted.rubro;
+    brief.email         = brief.email         || extracted.contacto_email;
+    brief.estilo_visual = brief.estilo_visual || extracted.colores || extracted.estilo_visual;
+    brief.slogan        = brief.slogan        || extracted.slogan;
+
+    if (!brief.contacto) {
+      brief.contacto = extracted.contacto_wsp || extracted.contacto_email || '';
+    }
+    if (!brief.redes && extracted.redes) {
+      brief.redes = { instagram: extracted.redes };
+    }
+
+    const serviciosExtracted = Array.isArray(extracted.servicios) ? extracted.servicios : [];
+    const serviciosBrief = Array.isArray(brief.servicios)
+      ? brief.servicios
+      : (brief.servicios ? brief.servicios.split(/[,;\/]/).map(s => s.trim()).filter(Boolean) : []);
+
+    brief.servicios = serviciosExtracted.length >= serviciosBrief.length ? serviciosExtracted : serviciosBrief;
+
+    if (currentSession) {
+      const camposAActualizar = {
+        nombre_marca:   extracted.nombre_marca,
+        rubro:          extracted.rubro,
+        servicios:      extracted.servicios?.join(', '),
+        colores:        extracted.colores,
+        contacto_wsp:   extracted.contacto_wsp,
+        contacto_email: extracted.contacto_email,
+        zona:           extracted.zona,
+        slogan:         extracted.slogan,
+      };
+      Object.entries(camposAActualizar).forEach(([campo, valor]) => {
+        if (valor) updateField(currentSession, campo, valor);
+      });
+    }
+  }
+
+  // Rescate final desde session.collectedData por si ni el brief ni la
+  // extracción semántica trajeron el dato
   if (!brief.estilo_visual && currentSession?.collectedData?.colores) {
     brief.estilo_visual = currentSession.collectedData.colores;
   }
   if (!brief.contacto && currentSession?.collectedData?.contacto_wsp) {
     brief.contacto = currentSession.collectedData.contacto_wsp;
+  }
+  if (!brief.nombre_marca && currentSession?.collectedData?.nombre_marca) {
+    brief.nombre_marca = currentSession.collectedData.nombre_marca;
   }
 
   const clientData = getClientData();

@@ -1,10 +1,23 @@
 // landing_page/extractor.js
-// Extrae campos estructurados de un mensaje del usuario usando regex.
-// Sin llamadas a la API — procesamiento local, cero latencia.
+// Estrategia híbrida:
+// - Regex estructurado para teléfono, email, redes, slogan, fotos, logo (siempre corre)
+// - Captura contextual posicional para el campo pendiente actual (sin diccionario de
+//   vocabulario por rubro — agnóstica al tipo de negocio, sin dependencia humana)
+// La extracción semántica con Claude al cierre vive en chat.js (extractStructuredData).
 
-const PATTERNS = {
+// Elimina acentos/diacríticos para matching robusto independiente de tildes
+function _norm(str) {
+  return String(str)
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[̀-ͯ]/g, '');
+}
+
+// ─── Patrones estructurados (regex) ────────────────────────────────────────
+// Solo para datos con formato predecible: teléfono, email, redes, slogan, fotos, logo
+const STRUCTURED_PATTERNS = {
   contacto_wsp: [
-    /(?:whatsapp|wsp|cel|celular|teléfono|telefono|número|numero)[^\d]{0,10}(\d{6,15})/i,
+    /(?:whatsapp|wsp|cel(?:ular)?|tel(?:[eé]fono)?|n[uú]mero)[^\d]{0,10}(\d{6,15})/i,
     /(?:^|\s)(11\d{8})(?:\s|$)/,
     /(?:^|\s)(15\d{8})(?:\s|$)/,
     /(?:^|\s)(\d{10,11})(?:\s|$)/,
@@ -14,120 +27,108 @@ const PATTERNS = {
     /[\w.+-]+@[\w-]+\.[a-z]{2,}/i,
   ],
 
-  colores: [
-    /(?:color(?:es)?|paleta|tono[s]?)[^.]{0,10}(?:son?|es|:)?\s+([a-záéíóúñ,\s]+(?:y\s+[a-záéíóúñ]+)*)/i,
-    /(?:quiero|me\s+gusta|prefiero|en\s+tonos?\s+de?)\s+([a-záéíóúñ,\s]+(?:y\s+[a-záéíóúñ]+)*)\s*(?:color|tono)/i,
-    /((?:blanco|negro|gris|marrón|marron|beige|crema|azul|rojo|verde|naranja|amarillo|violeta|rosa|dorado|plateado)(?:[,\sy]+(?:blanco|negro|gris|marrón|marron|beige|crema|azul|rojo|verde|naranja|amarillo|violeta|rosa|dorado|plateado))*)/i,
-  ],
-
-  zona: [
-    /(?:zona|barrio|localidad|opero\s+en|estoy\s+en|ubicad[ao]\s+en)[^.]{0,4}\s+([a-záéíóúñ\s]+?)(?:\.|,|$)/i,
-    /(?:\ben\s+)(benavidez|palermo|belgrano|caballito|flores|villa\s+\w+|san\s+\w+|zona\s+norte|zona\s+sur|zona\s+oeste|caba|capital|buenos\s+aires|gba|conurbano)/i,
-  ],
-
-  horarios: [
-    /(?:de|desde)\s+(\d{1,2}(?::\d{2})?)\s*(?:a|hasta)\s+(\d{1,2}(?::\d{2})?)/i,
-    /(\d{1,2})\s*(?:a|hasta)\s*(\d{1,2})\s*(?:hs|horas)/i,
-  ],
-
-  tiene_fotos: [
-    /(?:tengo|sí\s+tengo|tenemos)\s+(?:fotos?|imágenes?|fotografías?)/i,
-    /no\s+tengo\s+(?:fotos?|imágenes?)/i,
-  ],
-
-  tiene_logo: [
-    /(?:tengo|sí\s+tengo|tenemos)\s+(?:logo|logotipo)/i,
-    /no\s+tengo\s+(?:logo|logotipo)/i,
-  ],
-
   redes: [
     /instagram[:\s]*@?([\w.]+)/i,
     /@([\w.]+)\s+(?:en\s+)?instagram/i,
-    /(?:no\s+tengo|no\s+tenemos)\s+(?:redes?|instagram|facebook)/i,
+    /(?:no\s+ten(?:go|emos)\s+(?:redes?|instagram|facebook))/i,
+  ],
+
+  slogan: [
+    /"([^"]{8,100})"/,
+    /'([^']{8,100})'/,
+    /(?:slogan|frase|lema|tagline)[:\s]+(.{8,100})(?:\.|$)/i,
+  ],
+
+  tiene_fotos: [
+    /(?:tengo|s[íi]\s+tengo|tenemos)\s+(?:fotos?|im[áa]genes?)/i,
+    /no\s+tengo\s+(?:fotos?|im[áa]genes?)/i,
+  ],
+
+  tiene_logo: [
+    /(?:tengo|s[íi]\s+tengo|tenemos)\s+(?:logo|logotipo)/i,
+    /no\s+tengo\s+(?:logo|logotipo)/i,
   ],
 };
 
-function _extractField(text, campo) {
-  for (const pattern of PATTERNS[campo]) {
-    const m = text.match(pattern);
-    if (m) return (m[1] || m[0]).trim();
+function _esNegativa(text) {
+  return /^(?:no|nop(?:e)?|ningun[oa]?|tampoco|sin\s+\w+|no\s+ten(?:go|emos)|no\s+hay|por\s+ahora\s+no)[\s.,!]*$/i.test(_norm(text).trim());
+}
+
+const LONGITUD_MINIMA = {
+  nombre_marca:   2,
+  rubro:          3,
+  servicios:      4,
+  colores:        3,
+  zona:           3,
+  slogan:         8,
+  descripcion:    10,
+  contacto_wsp:   6,
+  contacto_email: 6,
+  horarios:       3,
+  estilo_visual:  3,
+};
+
+// ─── Captura contextual posicional ─────────────────────────────────────────
+// Guarda la respuesta del usuario como valor del campo que el bot acababa de
+// preguntar. No clasifica ni reconoce vocabulario — lo guarda verbatim.
+// Esto la hace agnóstica al rubro: funciona igual para un estudio contable,
+// una peluquería canina o una inmobiliaria, sin mantenimiento de diccionarios.
+function extractContextual(userMessage, campoPendiente) {
+  if (!campoPendiente || !userMessage?.trim()) return null;
+
+  const texto = userMessage.trim();
+
+  if (_esNegativa(texto)) {
+    return { [campoPendiente]: '__no_tiene__' };
   }
-  return null;
-}
 
-function _extractNombreMarca(text) {
-  const patterns = [
-    /(?:se\s+llama|el\s+nombre\s+es|mi\s+(?:negocio|marca|emprendimiento)\s+(?:es|se\s+llama))\s*["']?([A-ZÁÉÍÓÚÑ][a-záéíóúñA-ZÁÉÍÓÚÑ\s]{2,40})["']?(?:\.|,|$)/i,
-    /^["']([A-ZÁÉÍÓÚÑ][a-záéíóúñ\s]{2,40})["']/m,
-  ];
-  for (const p of patterns) {
-    const m = text.match(p);
-    if (m?.[1]?.length > 2) return m[1].trim();
+  const minLen = LONGITUD_MINIMA[campoPendiente] || 2;
+  if (texto.length < minLen) return null;
+
+  if (campoPendiente === 'contacto_wsp') {
+    const digits = texto.replace(/\D/g, '');
+    if (digits.length < 8) return null;
+    return { contacto_wsp: digits };
   }
-  return null;
-}
 
-function _extractServicios(text) {
-  const keywords = [
-    'baño', 'corte', 'grooming', 'estilismo', 'tintura',
-    'diseño', 'desarrollo', 'consultoría', 'asesoría', 'clases', 'talleres',
-    'fotografía', 'video', 'catering', 'eventos', 'reparación', 'instalación',
-    'limpieza', 'mantenimiento', 'delivery', 'domicilio', 'online',
-  ];
-  const found = keywords.filter(kw => new RegExp(kw, 'i').test(text));
-  return found.length > 0 ? found.join(', ') : null;
-}
-
-function _extractSlogan(text) {
-  const patterns = [
-    /"([^"]{10,80})"/,
-    /'([^']{10,80})'/,
-    /(?:slogan|frase|lema)[:\s]+(.{10,80})(?:\.|$)/i,
-  ];
-  for (const p of patterns) {
-    const m = text.match(p);
-    if (m) return m[1].trim();
+  if (campoPendiente === 'contacto_email') {
+    if (!/@/.test(texto)) return null;
+    return { contacto_email: texto };
   }
-  return null;
-}
 
-function _extractRubro(text) {
-  const rubros = [
-    ['peluquería canina', /peluquer[ií]a\s+canina|groomin|mascotas\s+y\s+perros/i],
-    ['gastronomía',       /restaurant|cafeter[ií]a|panader[ií]a|catering|comida/i],
-    ['fotografía',        /fotograf[ií]a|sesión\s+de\s+fotos/i],
-    ['tecnología',        /software|aplicaci[oó]n|desarrollo\s+web|sistema/i],
-    ['salud',             /médico|psicólog|terapeuta|nutricionista|kinesiolog/i],
-    ['educación',         /clases|cursos|talleres|academia|profesor/i],
-    ['indumentaria',      /ropa|indumentaria|moda|tienda\s+de\s+ropa/i],
-    ['inmobiliaria',      /inmobiliaria|propiedades|alquiler|venta\s+de\s+casas/i],
-    ['consultoría',       /consultor[ií]a|asesor[ií]a|coach|mentoring/i],
-  ];
-  for (const [rubro, pattern] of rubros) {
-    if (pattern.test(text)) return rubro;
+  if (campoPendiente === 'colores' || campoPendiente === 'estilo_visual') {
+    const tieneColorOEstilo = /(blanco|negro|gris|marr[oó]n|beige|azul|rojo|verde|naranja|violeta|rosa|dorado|plateado|oscuro|claro|moderno|minimalista|elegante|formal|colorido|sobrio)/i.test(_norm(texto));
+    if (!tieneColorOEstilo && texto.length < 10) return null;
   }
-  return null;
+
+  return { [campoPendiente]: texto };
 }
 
-export function extractFromMessage(text) {
+function extractStructured(text) {
   const result = {};
-
-  for (const campo of Object.keys(PATTERNS)) {
-    const valor = _extractField(text, campo);
-    if (valor) result[campo] = valor;
+  for (const [campo, patterns] of Object.entries(STRUCTURED_PATTERNS)) {
+    for (const pattern of patterns) {
+      const m = text.match(pattern);
+      if (m) {
+        result[campo] = (m[1] || m[0]).trim();
+        break;
+      }
+    }
   }
-
-  const nombre = _extractNombreMarca(text);
-  if (nombre) result.nombre_marca = nombre;
-
-  const servicios = _extractServicios(text);
-  if (servicios) result.servicios = servicios;
-
-  const slogan = _extractSlogan(text);
-  if (slogan) result.slogan = slogan;
-
-  const rubro = _extractRubro(text);
-  if (rubro) result.rubro = rubro;
-
   return result;
 }
+
+// Combina extracción estructurada (siempre) + captura contextual posicional
+// (cuando se conoce el campo que el bot estaba preguntando).
+//
+// @param {string} text - Mensaje del usuario
+// @param {string|null} campoPendiente - Primer campo en campos_pendientes de la sesión
+export function extractFromMessage(text, campoPendiente = null) {
+  const structured = extractStructured(text);
+  const contextual = campoPendiente ? extractContextual(text, campoPendiente) : null;
+
+  // structured tiene prioridad para los campos que cubre (formato predecible)
+  return { ...contextual, ...structured };
+}
+
+export { _norm };

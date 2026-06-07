@@ -104,7 +104,9 @@ module.exports = async function handler(req, res) {
         message: `Límite de generaciones alcanzado. Podés volver a intentarlo en ${rl.waitMin} minutos.`,
       });
     }
-  } else {
+  } else if (intent !== 'extraction') {
+    // La extracción semántica de cierre es una llamada interna de soporte,
+    // no una interacción del usuario — no debe consumir su cupo de chat
     const rl = checkRateLimit(rateLimitChat, ip, CHAT_LIMIT, HOUR_MS);
     if (!rl.allowed) {
       return res.status(429).json({
