@@ -23,8 +23,20 @@ En cuanto tengas estos 4 campos, cerrá el onboarding INMEDIATAMENTE sin pregunt
   3. servicios (al menos 2, pueden ser simples)
   4. contacto (teléfono, WhatsApp o email)
 
-Escribí primero un mensaje de cierre natural ("Perfecto, ya tengo todo lo que necesito."),
-y a continuación el JSON completo dentro de ```json ... ```.
+EN UN ÚNICO MENSAJE, escribí el cierre y el JSON juntos, así:
+
+Perfecto, ya tengo todo lo que necesito.
+
+```json
+{
+  "nombre_marca": "...",
+  ...
+}
+```
+
+CRÍTICO: el texto de cierre y el bloque JSON deben ir en el MISMO mensaje, sin
+separación. Si mandás el texto solo, el sistema no puede procesar el brief.
+Después del JSON, no respondas más mensajes del cliente.
 
 Los campos opcionales (estilo_visual, redes, fotos, testimonios, slogan): ponelos como
 null o vacío si no los mencionó. NUNCA los preguntes si ya tenés los 4 obligatorios.

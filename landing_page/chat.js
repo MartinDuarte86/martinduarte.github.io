@@ -418,30 +418,160 @@ async function handleOnboardingTurn() {
   }
 
   if (isBriefComplete) {
-    const clientData = getClientData();
-    if (clientData) {
-      brief.cliente_nombre = `${clientData.nombre} ${clientData.apellido}`;
-      brief.cliente_email  = clientData.email;
-      brief.cliente_telefono = clientData.telefono || '';
-      brief.cliente_id     = clientData.id;
-    }
+    await completarOnboarding(brief);
+    return;
+  }
 
-    // Rescatar datos de sesión que Claude puede haber omitido del JSON
-    if (!brief.estilo_visual && currentSession?.collectedData?.colores) {
-      brief.estilo_visual = currentSession.collectedData.colores;
-    }
-    if (!brief.contacto && currentSession?.collectedData?.contacto_wsp) {
-      brief.contacto = currentSession.collectedData.contacto_wsp;
-    }
-
-    state.brief = brief;
-    saveSession({ phase: 'onboarding_done', brief: state.brief });
-
-    await startBrandOrCarouselFlow();
+  // Claude anunció el cierre pero no adjuntó el JSON en el mismo mensaje —
+  // construir el brief a partir de los datos ya recolectados en la sesión
+  if (!brief && detectarCierreOnboarding(raw)) {
+    console.warn('[Onboarding] Claude cerró sin JSON — construyendo brief desde sesión');
+    const briefDeSesion = buildBriefFromSession(currentSession);
+    if (briefDeSesion) await completarOnboarding(briefDeSesion);
   }
 }
 
+// Detecta frases de cierre del onboarding aunque no venga el JSON adjunto
+function detectarCierreOnboarding(texto) {
+  const frases = [
+    /ya tengo todo lo que necesito/i,
+    /con esto es suficiente/i,
+    /tenemos lo necesario/i,
+    /tu landing.*está lista/i,
+    /está lista para desarrollarse/i,
+    /brief completo/i,
+    /te contactaremos con los próximos pasos/i,
+  ];
+  return frases.some(f => f.test(texto));
+}
+
+// Reconstruye el brief mínimo a partir de session.collectedData cuando Claude
+// cierra el onboarding sin adjuntar el JSON
+function buildBriefFromSession(session) {
+  if (!session?.collectedData) return null;
+  const cd = session.collectedData;
+
+  if (!cd.nombre_marca || !cd.rubro) return null;
+
+  const serviciosArray = cd.servicios
+    ? (typeof cd.servicios === 'string'
+        ? cd.servicios.split(/[,;]/).map(s => s.trim()).filter(Boolean)
+        : cd.servicios)
+    : [];
+
+  const contacto = cd.contacto_wsp || cd.contacto_email || '';
+  if (serviciosArray.length === 0 || !contacto) return null;
+
+  return {
+    nombre_marca:  cd.nombre_marca,
+    rubro:         cd.rubro,
+    slogan:        cd.slogan || null,
+    descripcion:   cd.descripcion || null,
+    servicios:     serviciosArray,
+    contacto,
+    email:         cd.contacto_email || null,
+    redes:         cd.redes ? { instagram: cd.redes } : {},
+    testimonios:   [],
+    estilo_visual: cd.colores || cd.estilo_visual || null,
+    fotos:         cd.tiene_fotos === 'true',
+  };
+}
+
+async function completarOnboarding(brief) {
+  // Rescatar datos de sesión que Claude puede haber omitido del JSON
+  if (!brief.estilo_visual && currentSession?.collectedData?.colores) {
+    brief.estilo_visual = currentSession.collectedData.colores;
+  }
+  if (!brief.contacto && currentSession?.collectedData?.contacto_wsp) {
+    brief.contacto = currentSession.collectedData.contacto_wsp;
+  }
+
+  const clientData = getClientData();
+  if (clientData) {
+    brief.cliente_nombre   = `${clientData.nombre} ${clientData.apellido}`;
+    brief.cliente_email    = clientData.email;
+    brief.cliente_telefono = clientData.telefono || '';
+    brief.cliente_id       = clientData.id;
+  }
+
+  state.brief = brief;
+  saveSession({ phase: 'onboarding_done', brief: state.brief });
+
+  await startBrandOrCarouselFlow();
+}
+
+// Detecta si el cliente confirma el estilo visual ya dado, sin pedir cambios
+function detectarConfirmacionVisual(texto) {
+  const confirmaciones = [
+    /^(no|nope|así|así está|bien|ok|dale|perfecto|sí|si|seguimos)[\s.,!]*$/i,
+    /no.*cambiar/i,
+    /seguimos con eso/i,
+    /está bien así/i,
+    /solo eso/i,
+    /el diseño/i,
+  ];
+  return confirmaciones.some(f => f.test(texto.trim()));
+}
+
+// Convierte una descripción de colores en texto a códigos hex aproximados
+function extraerColoresHex(estiloVisual) {
+  const coloresMap = {
+    'violeta': '#7C3AED', 'morado': '#7C3AED', 'purple': '#7C3AED',
+    'negro': '#0F172A',   'black': '#0F172A',
+    'gris': '#6B7280',    'grey': '#6B7280',   'gray': '#6B7280',
+    'blanco': '#F8FAFC',  'white': '#F8FAFC',
+    'azul': '#2563EB',    'blue': '#2563EB',
+    'verde': '#16A34A',   'rojo': '#DC2626',
+    'naranja': '#EA580C', 'amarillo': '#CA8A04',
+    'marrón': '#92400E',  'marron': '#92400E',
+    'beige': '#D4B896',   'tierra': '#92400E',
+    'rosa': '#EC4899',    'dorado': '#B45309',
+  };
+
+  const texto = estiloVisual.toLowerCase();
+  const encontrados = [];
+  for (const [nombre, hex] of Object.entries(coloresMap)) {
+    if (texto.includes(nombre) && !encontrados.includes(hex)) {
+      encontrados.push(hex);
+    }
+  }
+  return encontrados.length > 0 ? encontrados.slice(0, 3) : ['#1E293B', '#7C3AED'];
+}
+
+// Avanza directo a generación con un brand brief básico derivado del estilo
+// visual ya dado en el onboarding — evita llamadas extra a Claude
+async function avanzarConBrandBriefBasico(estiloVisual) {
+  const brandBriefBasico = {
+    colores_principales: extraerColoresHex(estiloVisual),
+    estilo_visual: estiloVisual,
+    tipografia: 'moderna y profesional',
+    tono: 'formal y confiable',
+    referencias: null,
+    publico_objetivo: state.brief?.descripcion || 'profesionales y empresas',
+    notas_adicionales: null,
+  };
+
+  state.brandBrief = brandBriefBasico;
+  state.phase = PHASE.GENERATING;
+  setInputEnabled(false);
+
+  const fullBrief = { ...state.brief, ...brandBriefBasico };
+  saveSession({ phase: state.phase, brandBrief: state.brandBrief });
+
+  await proceedWithGeneration(fullBrief);
+}
+
 async function handleBrandDefinitionTurn() {
+  const lastUserMsg = state.messages[state.messages.length - 1]?.content || '';
+
+  // Si el cliente confirma el estilo visual ya dado en el onboarding, saltar
+  // directo a generación sin más preguntas (evita rate limit por llamadas extra)
+  if (state.brief?.estilo_visual && detectarConfirmacionVisual(lastUserMsg)) {
+    console.log('[Brand] Confirmación visual detectada — saltando a generación');
+    await avanzarConBrandBriefBasico(state.brief.estilo_visual);
+    return;
+  }
+
   const trimmedMessages = state.messages.slice(-BRAND_DEFINITION_MSG_LIMIT);
 
   // Construir system prompt con contexto del brief + archivos
@@ -492,6 +622,9 @@ async function handleBrandDefinitionTurn() {
     saveSession({ phase: state.phase, brandBrief: state.brandBrief });
 
     await proceedWithGeneration(fullBrief);
+  } else if (state.brief?.estilo_visual && detectarConfirmacionVisual(raw)) {
+    // Claude no devolvió colores en hex pero el cliente ya confirmó el estilo
+    await avanzarConBrandBriefBasico(state.brief.estilo_visual);
   }
 }
 
