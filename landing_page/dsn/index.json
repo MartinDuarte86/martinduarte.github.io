@@ -1,12 +1,1 @@
-[
-  {
-    "id": "dsn-001",
-    "rubro": "tech",
-    "fecha": "2026-06-06",
-    "templates": [
-      { "id": "moderno-oscuro",    "name": "Moderno Oscuro",         "file": "dsn/template/dsn-001-template-1.html" },
-      { "id": "minimalista",       "name": "Minimalista Profesional", "file": "dsn/template/dsn-001-template-2.html" },
-      { "id": "fresco-accesible",  "name": "Fresco Accesible",        "file": "dsn/template/dsn-001-template-3.html" }
-    ]
-  }
-]
+[]

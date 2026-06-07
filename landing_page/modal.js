@@ -97,9 +97,10 @@ const flowModal = (() => {
       btn.addEventListener('click', open);
     });
 
-    // Cerrar con overlay (solo pasos 1-2)
-    getEl('flow-overlay')?.addEventListener('click', () => {
-      if (currentStep < 3) close();
+    // Cerrar con clic fuera del contenedor (solo pasos 1-2)
+    // Se escucha en el modal raíz porque flow-container intercepta clicks sobre el overlay
+    getEl('flow-modal')?.addEventListener('click', (e) => {
+      if (currentStep < 3 && !getEl('flow-container')?.contains(e.target)) close();
     });
 
     // Cerrar con botón X

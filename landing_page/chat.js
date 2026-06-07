@@ -4,7 +4,7 @@ import { sendNotification } from './notifier.js';
 import { initRegistrationForm, getClientData, saveSession } from './validator.js';
 import { initCarousel, buildChatCarouselWidget, buildPreviewsCarouselWidget } from './carousel.js';
 
-const MP_LINK = 'https://mpago.la/REEMPLAZAR'; // Actualizá con tu link de Mercado Pago
+const MP_LINK = 'https://mpago.la/1Dufc3b';
 
 const MAX_UPLOAD_FILES = 5;
 const MAX_UPLOAD_BYTES = 10 * 1024 * 1024; // 10 MB
@@ -729,4 +729,3 @@ function escapeHtml(str) {
     .replace(/\n/g, '<br>');
 }
 
-export { init };

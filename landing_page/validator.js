@@ -75,8 +75,7 @@ function updateSubmitBtn() {
   const telefono  = document.getElementById('reg-telefono')?.value.trim() || '';
   const btn       = document.getElementById('reg-submit');
   if (!btn) return;
-  // TODO: reactivar validación de email y teléfono cuando el servicio esté estable
-  const ready = nombre.length >= 2 && apellido.length >= 2 && email.length > 0;
+  const ready = nombre.length >= 2 && apellido.length >= 2 && isValidEmailFormat(email);
   btn.disabled = !ready;
 }
 
