@@ -1,0 +1,15 @@
+
+  ╔══════════════════════════════════════════════════════════╗
+  ║         MOCK SERVER — Landing Page Webapp              ║
+  ╠══════════════════════════════════════════════════════════╣
+  ║  URL:     http://localhost:3000/landing_page/            ║
+  ║  Tokens:  ✗ ninguno consumido (Claude mockeado)         ║
+  ║  APIs:    ✗ Abstract API, GitHub API, Resend mockeados  ║
+  ╠══════════════════════════════════════════════════════════╣
+  ║  Flujo simulado:                                        ║
+  ║  1. Completar formulario (cualquier email válido)       ║
+  ║  2. Enviar 1 mensaje → IA pide más datos               ║
+  ║  3. Enviar 2° mensaje → genera 3 diseños mock           ║
+  ║  4. Ver modal, elegir, confirmar pago (log en consola)  ║
+  ╚══════════════════════════════════════════════════════════╝
+

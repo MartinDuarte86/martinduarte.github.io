@@ -1,0 +1,241 @@
+{
+  "timestamp": "2026-06-06T20:06:23",
+  "summary": {
+    "total": 46,
+    "passed": 34,
+    "failed": 9,
+    "skipped": 3
+  },
+  "tests": [
+    {
+      "name": "Smoke-1",
+      "status": "PASS",
+      "detail": "Página carga sin errores de consola"
+    },
+    {
+      "name": "Smoke-2",
+      "status": "PASS",
+      "detail": "Modal abre al clic 'Empezar ahora'"
+    },
+    {
+      "name": "Smoke-3",
+      "status": "PASS",
+      "detail": "Paso 1: proyecto válido avanza al paso 2"
+    },
+    {
+      "name": "Smoke-4",
+      "status": "PASS",
+      "detail": "Rechazo e-commerce/login (cubierto en Edge Paso1)"
+    },
+    {
+      "name": "Smoke-5",
+      "status": "PASS",
+      "detail": "Formulario completado con nombre + apellido + email"
+    },
+    {
+      "name": "Smoke-6",
+      "status": "PASS",
+      "detail": "Avanza al chat (paso 3) tras envío"
+    },
+    {
+      "name": "Smoke-7",
+      "status": "PASS",
+      "detail": "Chat: saludo con nombre del usuario"
+    },
+    {
+      "name": "Smoke-8",
+      "status": "FAIL",
+      "detail": "Esperaba >= 2 mensajes AI, encontré 0"
+    },
+    {
+      "name": "Smoke-16",
+      "status": "PASS",
+      "detail": "Recargar con sesión activa → modal va al paso 3"
+    },
+    {
+      "name": "Smoke-17",
+      "status": "PASS",
+      "detail": "localStorage limpio → modal va al paso 1"
+    },
+    {
+      "name": "P1-1",
+      "status": "PASS",
+      "detail": "Tienda online → rechazo visible, botón deshabilitado"
+    },
+    {
+      "name": "P1-2",
+      "status": "PASS",
+      "detail": "App con login → rechazo visible"
+    },
+    {
+      "name": "P1-3",
+      "status": "PASS",
+      "detail": "Pago=Sí → rechazo e-commerce"
+    },
+    {
+      "name": "P1-4",
+      "status": "PASS",
+      "detail": "Login=Sí → rechazo"
+    },
+    {
+      "name": "P1-5",
+      "status": "PASS",
+      "detail": "Sin campos seleccionados → botón deshabilitado"
+    },
+    {
+      "name": "P1-6",
+      "status": "PASS",
+      "detail": "Cerrar con botón X funciona correctamente"
+    },
+    {
+      "name": "P1-7",
+      "status": "PASS",
+      "detail": "Cerrar con tecla ESC funciona correctamente"
+    },
+    {
+      "name": "P1-8",
+      "status": "FAIL",
+      "detail": "Page.click: Timeout 30000ms exceeded.\nCall log:\n  - waiting for locator(\"#flow-overlay\")\n    - locator resolved to <div id=\"flow-overlay\" class=\"flow-overlay\"></div>\n  - attempting click action\n    2 × waiting for element to be visible, enabled and stable\n      - element is visible, enabled and stable\n      - scrolling into view if needed\n      - done scrolling\n      - <div class=\"reg-field-group reg-field-group--full\">…</div> from <div id=\"flow-container\" class=\"flow-container\">…</div> subtree intercepts pointer events\n    - retrying click action\n    - waiting 20ms\n    2 × waiting for element to be visible, enabled and stable\n      - element is visible, enabled and stable\n      - scrolling into view if needed\n      - done scrolling\n      - <div class=\"reg-field-group reg-field-group--full\">…</div> from <div id=\"flow-container\" class=\"flow-container\">…</div> subtree intercepts pointer events\n    - retrying click action\n      - waiting 100ms\n    56 × waiting for element to be visible, enabled and stable\n       - element is visible, enabled and stable\n       - scrolling into view if needed\n       - done scrolling\n       - <div class=\"reg-field-group reg-field-group--full\">…</div> from <div id=\"flow-container\" class=\"flow-container\">…</div> subtree intercepts pointer events\n     - retrying click action\n       - waiting 500ms\n"
+    },
+    {
+      "name": "R4",
+      "status": "FAIL",
+      "detail": "Page.click: Timeout 30000ms exceeded.\nCall log:\n  - waiting for locator(\"#reg-submit\")\n    - locator resolved to <button disabled type=\"button\" id=\"reg-submit\" class=\"btn-primary reg-submit\">…</button>\n  - attempting click action\n    2 × waiting for element to be visible, enabled and stable\n      - element is not enabled\n    - retrying click action\n    - waiting 20ms\n    2 × waiting for element to be visible, enabled and stable\n      - element is not enabled\n    - retrying click action\n      - waiting 100ms\n    57 × waiting for element to be visible, enabled and stable\n       - element is not enabled\n     - retrying click action\n       - waiting 500ms\n"
+    },
+    {
+      "name": "R5",
+      "status": "FAIL",
+      "detail": "Page.click: Timeout 30000ms exceeded.\nCall log:\n  - waiting for locator(\"#reg-submit\")\n    - locator resolved to <button disabled type=\"button\" id=\"reg-submit\" class=\"btn-primary reg-submit\">…</button>\n  - attempting click action\n    2 × waiting for element to be visible, enabled and stable\n      - element is not enabled\n    - retrying click action\n    - waiting 20ms\n    2 × waiting for element to be visible, enabled and stable\n      - element is not enabled\n    - retrying click action\n      - waiting 100ms\n    57 × waiting for element to be visible, enabled and stable\n       - element is not enabled\n     - retrying click action\n       - waiting 500ms\n"
+    },
+    {
+      "name": "R6",
+      "status": "FAIL",
+      "detail": "Email inválido fue aceptado"
+    },
+    {
+      "name": "R8",
+      "status": "PASS",
+      "detail": "ESC en paso 2 → modal se cierra"
+    },
+    {
+      "name": "R9",
+      "status": "FAIL",
+      "detail": "Page.click: Timeout 30000ms exceeded.\nCall log:\n  - waiting for locator(\"#flow-overlay\")\n    - locator resolved to <div id=\"flow-overlay\" class=\"flow-overlay\"></div>\n  - attempting click action\n    2 × waiting for element to be visible, enabled and stable\n      - element is visible, enabled and stable\n      - scrolling into view if needed\n      - done scrolling\n      - <div class=\"reg-fields\">…</div> from <div id=\"flow-container\" class=\"flow-container\">…</div> subtree intercepts pointer events\n    - retrying click action\n    - waiting 20ms\n    2 × waiting for element to be visible, enabled and stable\n      - element is visible, enabled and stable\n      - scrolling into view if needed\n      - done scrolling\n      - <div class=\"reg-fields\">…</div> from <div id=\"flow-container\" class=\"flow-container\">…</div> subtree intercepts pointer events\n    - retrying click action\n      - waiting 100ms\n    56 × waiting for element to be visible, enabled and stable\n       - element is visible, enabled and stable\n       - scrolling into view if needed\n       - done scrolling\n       - <div class=\"reg-fields\">…</div> from <div id=\"flow-container\" class=\"flow-container\">…</div> subtree intercepts pointer events\n     - retrying click action\n       - waiting 500ms\n"
+    },
+    {
+      "name": "R10",
+      "status": "PASS",
+      "detail": "Overlay en paso 3 → modal NO se cierra (fullscreen)"
+    },
+    {
+      "name": "C4",
+      "status": "PASS",
+      "detail": "Mensaje vacío no envía nada (user msgs: 0)"
+    },
+    {
+      "name": "C5",
+      "status": "FAIL",
+      "detail": "Enter no envió el mensaje"
+    },
+    {
+      "name": "C6",
+      "status": "PASS",
+      "detail": "Shift+Enter → salto de línea, no envía"
+    },
+    {
+      "name": "U7",
+      "status": "PASS",
+      "detail": "Botón 📎 oculto antes de BRAND_DEFINITION"
+    },
+    {
+      "name": "A1",
+      "status": "PASS",
+      "detail": "Página carga; nav, hero y card de servicio visibles"
+    },
+    {
+      "name": "A2",
+      "status": "PASS",
+      "detail": "Modal se abre en Paso 1; breadcrumb 'Verificar' activo"
+    },
+    {
+      "name": "A3",
+      "status": "PASS",
+      "detail": "Avanza a Paso 2; breadcrumb 'Verificar' done, 'Tus datos' activo"
+    },
+    {
+      "name": "A4",
+      "status": "PASS",
+      "detail": "Formulario completado; botón 'Empezar el chat' presente"
+    },
+    {
+      "name": "A5",
+      "status": "PASS",
+      "detail": "Modal avanza al Paso 3 (Tu landing) en fullscreen"
+    },
+    {
+      "name": "A6",
+      "status": "PASS",
+      "detail": "Saludo personalizado con nombre 'Test' detectado"
+    },
+    {
+      "name": "A7",
+      "status": "FAIL",
+      "detail": "Esperaba >= 2 mensajes AI, encontré 0"
+    },
+    {
+      "name": "A8",
+      "status": "PASS",
+      "detail": "Claude acepta el proyecto y pide más info (ONBOARDING)"
+    },
+    {
+      "name": "A9",
+      "status": "FAIL",
+      "detail": "Esperaba >= 3 mensajes AI, encontré 0"
+    },
+    {
+      "name": "A10-A11",
+      "status": "PASS",
+      "detail": "Preguntas de identidad visual respondidas"
+    },
+    {
+      "name": "A12-A13",
+      "status": "PASS",
+      "detail": "Proceso de generación detectado"
+    },
+    {
+      "name": "B1",
+      "status": "PASS",
+      "detail": "Llegó al chat correctamente (pasos A1-A5)"
+    },
+    {
+      "name": "B2",
+      "status": "SKIP",
+      "detail": "Carrusel no apareció — flujo continuó directo a brand definition"
+    },
+    {
+      "name": "B3",
+      "status": "SKIP",
+      "detail": "Depende de B2"
+    },
+    {
+      "name": "B5",
+      "status": "SKIP",
+      "detail": "Depende de B2"
+    },
+    {
+      "name": "D-Setup",
+      "status": "PASS",
+      "detail": "Sesión guardada en localStorage"
+    },
+    {
+      "name": "D2",
+      "status": "PASS",
+      "detail": "Con sesión activa → modal abre directamente en Paso 3"
+    },
+    {
+      "name": "D3",
+      "status": "PASS",
+      "detail": "Saludo con nombre guardado en sesión"
+    }
+  ]
+}
