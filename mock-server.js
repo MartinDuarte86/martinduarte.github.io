@@ -31,8 +31,8 @@ const MIME = {
 function mockClaudeResponse(body) {
   const { system, messages, max_tokens } = body;
 
-  // — Llamada de generación de HTML (generator.js, no tiene system, max_tokens 8192)
-  if (!system && max_tokens === 8192) {
+  // — Llamada de generación de HTML (generator.js, sin system, max_tokens 6000)
+  if (!system && max_tokens === 6000) {
     return { content: [{ text: mockGeneratedHtml() }] };
   }
 
@@ -41,64 +41,134 @@ function mockClaudeResponse(body) {
     return {
       content: [{
         text: '```json\n' + JSON.stringify({
-          respuesta_cliente: '¡Perfecto! Tu proyecto aplica muy bien para una landing page. Contame: ¿cómo se llama tu marca y a qué rubro pertenece?',
+          respuesta_cliente: '¡Perfecto! Tu proyecto aplica muy bien para una landing page. Vamos a armar todo paso a paso — arranquemos.',
           siguiente_accion: 'onboarding',
         }) + '\n```',
       }],
     };
   }
 
-  // — Llamada de definición de marca (system contiene "identidad visual")
-  if (system && system.includes('identidad visual')) {
-    const brandUserMessages = (messages || []).filter(m => m.role === 'user');
-    if (brandUserMessages.length < 2) {
-      return {
-        content: [{
-          text: '¡Perfecto! Para definir tu identidad visual necesito saber:\n\n• ¿Qué colores te gustan o representan tu marca?\n• ¿Preferís un estilo moderno/minimalista o más clásico/colorido?\n• ¿Tenés alguna marca o sitio que te inspire?',
-        }],
-      };
+  const userMessages = (messages || []).filter(m => m.role === 'user');
+  const turn = userMessages.length;
+
+  // — Sección Hero (prompt_hero.txt)
+  if (system && system.includes('sección Hero')) {
+    if (turn < 2) {
+      return { content: [{ text: '¿Cómo se llama tu marca y a qué rubro pertenece?' }] };
     }
     return {
       content: [{
-        text: '```json\n' + JSON.stringify({
-          colores_principales: ['#2563EB', '#1E293B', '#F8FAFC'],
-          estilo_visual: 'moderno minimalista',
-          tipografia: 'sans-serif geométrica, bold para títulos',
-          tono: 'profesional y directo',
-          referencias: 'estilo tech startup, limpio y funcional',
-          publico_objetivo: 'emprendedores y pequeñas empresas',
-          notas_adicionales: 'paleta azul corporativa con fondos oscuros',
+        text: 'Buenísimo, con eso ya tengo el Hero.\n\n```json\n' + JSON.stringify({
+          seccion: 'hero',
+          nombre_marca: 'Demo Marca Local',
+          rubro: 'peluquería',
+          slogan: 'Tu mejor versión, a un corte de distancia',
+          propuesta_valor: 'Cortes y tratamientos de peluquería a domicilio, con productos premium y atención personalizada.',
         }) + '\n```',
       }],
     };
   }
 
-  // — Llamada de onboarding (onboarding.txt)
-  // Primer turno: pedir datos básicos
-  const userMessages = (messages || []).filter(m => m.role === 'user');
-  if (userMessages.length < 2) {
+  // — Sección Sobre mí / Nosotros (prompt_sobre_mi.txt)
+  if (system && system.includes('"Sobre mí" o "Nosotros"')) {
+    if (turn < 2) {
+      return { content: [{ text: '¿Tu emprendimiento es personal o es una empresa/equipo?' }] };
+    }
     return {
       content: [{
-        text: '¡Genial! Para diseñar tu landing necesito algunos datos más:\n\n• ¿Cuáles son los servicios o productos principales?\n• ¿Tenés algún slogan o frase clave?\n• ¿Cómo prefieren que te contacten (WhatsApp, email, teléfono)?',
+        text: 'Genial, con esto alcanza para esta sección.\n\n```json\n' + JSON.stringify({
+          seccion: 'sobre_mi',
+          tipo: 'personal',
+          historia: 'Empecé haciendo cortes a domicilio para amigas y se fue corriendo la voz hasta que se convirtió en mi trabajo de tiempo completo.',
+          experiencia_o_equipo: 'Más de 6 años de experiencia en peluquería y tratamientos capilares.',
+          diferencial: 'Atención 100% personalizada, productos de calidad y horarios flexibles.',
+        }) + '\n```',
       }],
     };
   }
 
-  // Segundo turno: devolver brief completo y disparar generación
-  return {
-    content: [{
-      text: 'Perfecto, tengo todo lo que necesito. Vamos a generar tus diseños.\n\n```json\n' + JSON.stringify({
-        nombre_marca: 'Demo Marca Local',
-        rubro:        'tech',
-        servicios:    ['Desarrollo web', 'Apps móviles', 'Consultoría IT'],
-        contacto:     'WhatsApp +54 11 5555-1234',
-        email:        'hola@demomarca.com',
-        slogan:       'Tecnología que impulsa tu negocio',
-        descripcion:  'Empresa de desarrollo de software con 5 años de experiencia creando soluciones digitales a medida.',
-        secciones:    ['hero', 'servicios', 'sobre-mi', 'contacto'],
-      }) + '\n```',
-    }],
-  };
+  // — Sección Servicios (prompt_servicios.txt)
+  if (system && system.includes('sección Servicios')) {
+    if (turn < 2) {
+      return { content: [{ text: '¿Qué servicios ofrecés? Contame también una breve descripción de cada uno.' }] };
+    }
+    return {
+      content: [{
+        text: 'Con esos servicios ya armamos la sección.\n\n```json\n' + JSON.stringify({
+          seccion: 'servicios',
+          servicios: [
+            { nombre: 'Corte y peinado', descripcion: 'Cortes a medida y peinados para cualquier ocasión.' },
+            { nombre: 'Coloración', descripcion: 'Tinturas y mechas con productos profesionales.' },
+            { nombre: 'Tratamientos capilares', descripcion: 'Hidratación y reparación profunda para tu cabello.' },
+          ],
+          precio_visible: false,
+          precios: [],
+        }) + '\n```',
+      }],
+    };
+  }
+
+  // — Sección Testimonios (prompt_testimonios.txt)
+  if (system && system.includes('sección Testimonios')) {
+    if (turn < 2) {
+      return { content: [{ text: '¿Querés incluir una sección de testimonios de clientes en tu landing?' }] };
+    }
+    return {
+      content: [{
+        text: 'Te armé algunos testimonios verosímiles que podés reemplazar después por reales.\n\n```json\n' + JSON.stringify({
+          seccion: 'testimonios',
+          incluir: true,
+          testimonios: [
+            { nombre: 'Lucía Fernández', cargo_o_rubro: 'clienta frecuente', texto: 'Hace dos años que solo me corto el pelo con ella, siempre quedo encantada.' },
+            { nombre: 'Marina Sosa', cargo_o_rubro: 'clienta', texto: 'La atención a domicilio me cambió la rutina, súper recomendable.' },
+            { nombre: 'Carla Gómez', cargo_o_rubro: 'clienta', texto: 'Profesional, puntual y con productos de primera calidad.' },
+          ],
+          son_reales: false,
+        }) + '\n```',
+      }],
+    };
+  }
+
+  // — Sección Contacto (prompt_contacto.txt)
+  if (system && system.includes('sección Contacto')) {
+    if (turn < 2) {
+      return { content: [{ text: '¿Cuál es tu WhatsApp y tus redes sociales?' }] };
+    }
+    return {
+      content: [{
+        text: 'Con el WhatsApp ya armamos el botón de contacto.\n\n```json\n' + JSON.stringify({
+          seccion: 'contacto',
+          contacto_wsp: '1123456789',
+          email: '',
+          redes: { instagram: 'demo.marca', linkedin: '', facebook: '' },
+          zona: 'Zona norte del GBA',
+          horarios: 'Lunes a sábados de 9 a 19 hs',
+        }) + '\n```',
+      }],
+    };
+  }
+
+  // — Sección Diseño / identidad visual (prompt_diseno.txt)
+  if (system && system.includes('identidad visual')) {
+    if (turn < 2) {
+      return { content: [{ text: '¿Tenés alguna preferencia de colores o estilo para tu landing?' }] };
+    }
+    return {
+      content: [{
+        text: 'Con esa paleta y ese estilo ya podemos generar tus diseños.\n\n```json\n' + JSON.stringify({
+          seccion: 'diseno',
+          colores: ['violeta', 'negro'],
+          colores_hex: ['#7C3AED', '#0F172A'],
+          estilo: 'moderno y elegante',
+          tipografia: 'sans-serif moderna',
+          tono: 'cercano y profesional',
+          referencias: '',
+        }) + '\n```',
+      }],
+    };
+  }
+
+  return { content: [{ text: 'Entendido.' }] };
 }
 
 // HTML mínimo pero realista que devuelve el mock de generación

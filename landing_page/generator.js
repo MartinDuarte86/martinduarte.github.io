@@ -104,13 +104,12 @@ async function fetchPromptTemplate() {
 
 async function generatePreview(brief, templateId, promptTemplate) {
   const spec = TEMPLATE_SPECS[templateId];
-  const secciones = brief.secciones || ['hero', 'servicios', 'sobre-mi', 'testimonios', 'contacto'];
 
   const prompt = promptTemplate
     .replace('{{template_name}}', spec.name)
     .replace('{{template_spec}}', spec.spec)
-    .replace('{{datos_cliente}}', JSON.stringify(brief, null, 2))
-    .replace('{{secciones}}', secciones.join(', '));
+    .replace('{{full_brief}}', JSON.stringify(brief, null, 2))
+    .replace(/\{\{contacto_wsp\}\}/g, brief.contacto_wsp || '');
 
   const response = await fetch('/api/claude', {
     method: 'POST',

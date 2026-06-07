@@ -3,8 +3,6 @@ import { generateAllPreviews, renderPreviewInIframe, openPreviewModal, addAltCar
 import { sendNotification } from './notifier.js';
 import { initRegistrationForm, getClientData, saveSession } from './validator.js';
 import { initCarousel, buildChatCarouselWidget, buildPreviewsCarouselWidget } from './carousel.js';
-import { initSession, updateField, buildContextBlock, getCampoPendiente } from './session.js';
-import { extractFromMessage } from './extractor.js';
 
 const MP_LINK = 'https://mpago.la/1Dufc3b';
 
@@ -12,31 +10,50 @@ const MAX_UPLOAD_FILES = 5;
 const MAX_UPLOAD_BYTES = 3 * 1024 * 1024; // 3 MB — Vercel serverless body limit es 4.5 MB; base64 agrega ~33%
 
 const PHASE = {
-  GREETING:         'greeting',
-  EVALUATING:       'evaluating',
-  ONBOARDING:       'onboarding',
-  CAROUSEL_REVIEW:  'carousel_review',   // Esperando que el usuario elija o rechace diseños previos
-  BRAND_DEFINITION: 'brand_definition',  // Preguntas de identidad visual + archivos opcionales
-  GENERATING:       'generating',
-  SELECTING:        'selecting',
-  PAYMENT:          'payment',
-  NOTIFYING:        'notifying',
-  DONE:             'done',
+  GREETING:    'greeting',
+  EVALUATING:  'evaluating',
+  HERO:        'hero',
+  SOBRE_MI:    'sobre_mi',
+  SERVICIOS:   'servicios',
+  TESTIMONIOS: 'testimonios',
+  CONTACTO:    'contacto',
+  DISENO:      'diseno',
+  DSN_REVIEW:  'dsn_review', // carrusel de diseños anteriores
+  GENERATING:  'generating',
+  SELECTING:   'selecting',
+  PAYMENT:     'payment',
+  NOTIFYING:   'notifying',
+  DONE:        'done',
 };
 
-// Máximo de mensajes a enviar por fase — alineado con el hard limit de api/claude.js (20)
-const ONBOARDING_MSG_LIMIT      = 20;
-const BRAND_DEFINITION_MSG_LIMIT = 20;
+// Orden de las secciones del wizard — define las transiciones y el indicador de progreso
+const SECTION_ORDER = [
+  PHASE.HERO,
+  PHASE.SOBRE_MI,
+  PHASE.SERVICIOS,
+  PHASE.TESTIMONIOS,
+  PHASE.CONTACTO,
+  PHASE.DISENO,
+];
+
+// Máximo de mensajes a enviar por sección — alineado con el hard limit de api/claude.js (20)
+const SECTION_MSG_LIMIT = 10;
 
 let _isSending = false; // debounce: evita doble-clic y envíos duplicados
-let currentSession = null;
 
 let state = {
   phase: PHASE.GREETING,
-  messages: [],
-  prompts: { eval: '', onboarding: '', brand: '' },
-  brief: null,
-  brandBrief: null,
+  messages: [],          // historial de la sección/fase actual — se resetea entre secciones
+  prompts: {},
+  fullBrief: {           // se acumula sección por sección
+    hero:        null,
+    sobre_mi:    null,
+    servicios:   null,
+    testimonios: null,
+    contacto:    null,
+    diseno:      null,
+  },
+  brief: null,           // brief plano final, construido al cerrar la sección de diseño
   previews: [],
   selectedPreview: null,
   uploadedFiles: [], // { name, path, size, type }
@@ -52,8 +69,6 @@ export async function init() {
     window._chatSessionReady = true;
     window.flowModal?.goToStep(3);
 
-    currentSession = initSession(clientData.nombre, clientData.apellido);
-
     const nombre = clientData.nombre;
     appendMessage('ai', `Hola ${nombre}. Contame sobre tu proyecto — ¿de qué se trata tu negocio o idea?`);
     setupEventListeners();
@@ -61,62 +76,25 @@ export async function init() {
 }
 
 async function loadPrompts() {
+  const files = ['evaluacion', 'hero', 'sobre_mi', 'servicios', 'testimonios', 'contacto', 'diseno'];
   try {
-    const [evalRes, onboardRes] = await Promise.all([
-      fetch('/landing_page/prompts/evaluacion.txt'),
-      fetch('/landing_page/prompts/onboarding.txt'),
-    ]);
-    state.prompts.eval       = evalRes.ok ? await evalRes.text() : '';
-    state.prompts.onboarding = onboardRes.ok ? await onboardRes.text() : '';
+    const results = await Promise.all(
+      files.map(f => fetch(`/landing_page/prompts/prompt_${f}.txt`)
+        .then(r => r.ok ? r.text() : '')
+        .catch(() => ''))
+    );
+    files.forEach((f, i) => { state.prompts[f] = results[i]; });
   } catch {
-    // Continúa sin prompts externos; los inline funcionan igual
     console.warn('No se pudieron cargar los archivos de prompt.');
   }
 
-  // Prompt de definición de marca (inline — puede moverse a un .txt)
-  state.prompts.brand = `Sos el asistente de diseño de Martín Duarte. El cliente ya completó el brief de su negocio.
-Tu objetivo es definir la identidad visual haciéndole preguntas específicas cuando sea necesario.
-Temas a cubrir (solo los que falten — si ya están en el brief, no los repitas):
-- Paleta de colores (referencia o sensación que quiere transmitir)
-- Tipografía o estilo visual (moderno, clásico, minimalista, colorido, etc.)
-- Referencias visuales (marcas, sitios o estilos que le gustan)
-- Público objetivo y tono de comunicación
-
-Cuando tengas colores, estilo y al menos una referencia de público, respondé SOLO con este JSON sin texto adicional:
-\`\`\`json
-{
-  "colores_principales": ["#hex1", "#hex2"],
-  "estilo_visual": "moderno / minimalista / clásico / colorido / etc",
-  "tipografia": "descripción del estilo tipográfico",
-  "tono": "descripción del tono de comunicación",
-  "referencias": "descripción de referencias visuales mencionadas",
-  "publico_objetivo": "descripción del público",
-  "notas_adicionales": "cualquier dato extra relevante para el diseño"
-}
-\`\`\`
-
-═══════════════════════════════════════
-REGLAS DE COMUNICACIÓN — OBLIGATORIAS
-═══════════════════════════════════════
-
-CONTEXTO CRÍTICO:
-- Revisá siempre el historial completo antes de responder.
-- Si el cliente ya mencionó colores, estilos o referencias, NO volvás a preguntarlo.
-- Si está en los datos del brief inyectados al inicio del prompt, tomalo como confirmado.
-
-PREGUNTAS:
-- Máximo UNA por mensaje. Si necesitás varias, elegí la más importante primero.
-- No uses listas de preguntas. Preguntá en prosa natural.
-
-TONO:
-- Directo y profesional. Sin frases de chatbot: "¡Me encanta!", "¡Excelente!"
-- Acusá recibo de forma natural: "Bien." / "Lo tomo nota." / "Perfecto."
-
-EMOJIS:
-- Máximo 1 por mensaje, solo si suma algo genuino. Nunca al inicio de una oración.
-
-LONGITUD:
-- Máximo 3-4 líneas. Si el mensaje es más largo, estás poniendo demasiado en uno solo.`;
+  // evaluacion.txt no sigue la convención prompt_<nombre>.txt — se carga aparte
+  try {
+    const evalRes = await fetch('/landing_page/prompts/evaluacion.txt');
+    state.prompts.eval = evalRes.ok ? await evalRes.text() : '';
+  } catch {
+    state.prompts.eval = '';
+  }
 }
 
 function setupEventListeners() {
@@ -292,7 +270,7 @@ async function handleSend() {
 
   const blockedPhases = [
     PHASE.GENERATING, PHASE.NOTIFYING,
-    PHASE.CAROUSEL_REVIEW, PHASE.SELECTING, PHASE.PAYMENT, PHASE.DONE,
+    PHASE.DSN_REVIEW, PHASE.SELECTING, PHASE.PAYMENT, PHASE.DONE,
   ];
   if ((!text && state.pendingFiles.length === 0) || blockedPhases.includes(state.phase)) return;
   if (document.getElementById('chat-section')?.hasAttribute('data-locked')) return;
@@ -310,16 +288,6 @@ async function handleSend() {
   if (text) {
     appendMessage('user', text);
     state.messages.push({ role: 'user', content: text });
-
-    // Extraer datos estructurados del mensaje y actualizar sesión.
-    // Se pasa el campo pendiente actual para captura contextual posicional:
-    // guarda la respuesta como valor de lo que el bot estaba preguntando,
-    // sin depender de un diccionario de vocabulario por rubro.
-    if (currentSession) {
-      const campoPendiente = getCampoPendiente(currentSession);
-      const extracted = extractFromMessage(text, campoPendiente);
-      Object.entries(extracted).forEach(([campo, valor]) => updateField(currentSession, campo, valor));
-    }
   }
 
   if (state.phase === PHASE.GREETING) {
@@ -332,10 +300,8 @@ async function handleSend() {
   try {
     if (state.phase === PHASE.EVALUATING) {
       await handleEvaluationTurn();
-    } else if (state.phase === PHASE.ONBOARDING) {
-      await handleOnboardingTurn();
-    } else if (state.phase === PHASE.BRAND_DEFINITION) {
-      await handleBrandDefinitionTurn();
+    } else if (SECTION_ORDER.includes(state.phase)) {
+      await handleSectionTurn(state.phase);
     }
   } catch (err) {
     console.error(err);
@@ -347,7 +313,7 @@ async function handleSend() {
     _isSending = false;
     hideTyping();
     // Solo re-habilitar el input en fases donde el usuario debe escribir
-    const inputPhases = [PHASE.EVALUATING, PHASE.ONBOARDING, PHASE.BRAND_DEFINITION];
+    const inputPhases = [PHASE.EVALUATING, ...SECTION_ORDER];
     if (inputPhases.includes(state.phase)) {
       setInputEnabled(true);
       document.getElementById('chat-input')?.focus();
@@ -376,454 +342,250 @@ async function handleEvaluationTurn() {
 
   if (result.siguiente_accion === 'onboarding') {
     const lastUserMsg = state.messages.filter(m => m.role === 'user').slice(-1);
+
+    state.phase = PHASE.HERO;
     state.messages = lastUserMsg;
-    state.phase = PHASE.ONBOARDING;
+
+    document.getElementById('progress-bar')?.removeAttribute('hidden');
+    updateProgressIndicator(PHASE.HERO);
+    appendSectionDivider(PHASE.HERO);
+
+    await openSection(PHASE.HERO);
   } else if (result.siguiente_accion === 'rechazar') {
     appendMessage('system', 'Si tenés otra consulta o querés explorar otros servicios, escribime cuando quieras.');
     setInputEnabled(false);
   }
 }
 
-async function handleOnboardingTurn() {
-  const trimmedMessages = state.messages.slice(-ONBOARDING_MSG_LIMIT);
+// ─── Wizard por secciones ──────────────────────────────────────────────────────
 
-  const systemPrompt = state.prompts.onboarding + buildContextBlock(currentSession);
+async function handleSectionTurn(seccionKey) {
+  const systemPrompt = state.prompts[seccionKey] || '';
+  const trimmedMessages = state.messages.slice(-SECTION_MSG_LIMIT);
 
   const data = await callClaude(trimmedMessages, systemPrompt, {
     model: 'claude-haiku-4-5-20251001',
     max_tokens: 1024,
   });
+
   const raw = data.content?.[0]?.text || '';
+  const sectionData = extractJSON(raw);
 
-  const brief = extractJSON(raw);
-
-  // Normalizar servicios a array si Claude devolvió un string
-  if (brief?.servicios && typeof brief.servicios === 'string') {
-    brief.servicios = brief.servicios.split(/[,;\/]/).map(s => s.trim()).filter(Boolean);
-  }
-
-  // Normalizar contacto buscando en todos los campos posibles
-  const _contacto = brief?.contacto || brief?.telefono ||
-    brief?.whatsapp || brief?.wsp || brief?.email || '';
-  if (brief && _contacto) brief.contacto = _contacto;
-
-  const isBriefComplete = brief &&
-    brief.nombre_marca?.trim().length > 0 &&
-    brief.rubro?.trim().length > 0 &&
-    (Array.isArray(brief.servicios)
-      ? brief.servicios.length >= 1
-      : typeof brief.servicios === 'string' && brief.servicios.trim().length > 2) &&
-    _contacto.length > 0;
-
+  // Mostrar mensaje al usuario (sin el JSON)
   const displayText = raw.replace(/```json[\s\S]*?```/g, '').trim();
   if (displayText) {
     state.messages.push({ role: 'assistant', content: raw });
     appendMessage('ai', displayText);
   }
 
-  if (isBriefComplete) {
-    await completarOnboarding(brief);
-    return;
-  }
+  // Si el JSON tiene la sección correcta, acumular y avanzar
+  if (sectionData?.seccion === seccionKey) {
+    state.fullBrief[seccionKey] = sectionData;
+    saveSession({ phase: state.phase, fullBrief: state.fullBrief });
 
-  // Claude anunció el cierre pero no adjuntó el JSON en el mismo mensaje —
-  // construir el brief a partir de los datos ya recolectados en la sesión
-  if (!brief && detectarCierreOnboarding(raw)) {
-    console.warn('[Onboarding] Claude cerró sin JSON — construyendo brief desde sesión');
-    const briefDeSesion = buildBriefFromSession(currentSession);
-    if (briefDeSesion) await completarOnboarding(briefDeSesion);
+    await advanceToNextSection(seccionKey);
   }
 }
 
-// Detecta frases de cierre del onboarding aunque no venga el JSON adjunto
-function detectarCierreOnboarding(texto) {
-  const frases = [
-    /ya tengo todo lo que necesito/i,
-    /con esto es suficiente/i,
-    /tenemos lo necesario/i,
-    /tu landing.*está lista/i,
-    /está lista para desarrollarse/i,
-    /brief completo/i,
-    /te contactaremos con los próximos pasos/i,
-  ];
-  return frases.some(f => f.test(texto));
+async function advanceToNextSection(completedSection) {
+  const idx = SECTION_ORDER.indexOf(completedSection);
+  const nextPhase = SECTION_ORDER[idx + 1] || null;
+
+  if (nextPhase) {
+    state.phase = nextPhase;
+    state.messages = []; // resetear historial — cada sección arranca limpia
+    updateProgressIndicator(nextPhase);
+    appendSectionDivider(nextPhase);
+
+    if (nextPhase === PHASE.DISENO) {
+      const attachBtn = document.getElementById('attach-btn');
+      if (attachBtn) attachBtn.hidden = false;
+    }
+
+    await openSection(nextPhase);
+
+  } else {
+    // Todas las secciones completas → revisar diseños anteriores o generar nuevos
+    await startDesignPhase();
+  }
 }
 
-// Reconstruye el brief mínimo a partir de session.collectedData cuando Claude
-// cierra el onboarding sin adjuntar el JSON
-function buildBriefFromSession(session) {
-  if (!session?.collectedData) return null;
-  const cd = session.collectedData;
+const SECTION_INTROS = {
+  [PHASE.SOBRE_MI]:    '¿Tu emprendimiento es personal o es una empresa/equipo?',
+  [PHASE.SERVICIOS]:   '¿Qué servicios o productos ofrecés? Listámelos y te ayudo a describirlos.',
+  [PHASE.TESTIMONIOS]: '¿Querés incluir una sección de testimonios de clientes en tu landing?',
+  [PHASE.CONTACTO]:    '¿Cuál es tu WhatsApp o email de contacto para que los clientes te escriban?',
+  [PHASE.DISENO]:      '¿Tenés alguna preferencia de colores para tu landing, o me describís qué sensación querés transmitir?'
+    + ` Podés adjuntar imágenes o referencias con el 📎 (máx. ${MAX_UPLOAD_FILES} archivos, 3 MB c/u).`,
+};
 
-  if (!cd.nombre_marca || !cd.rubro) return null;
+async function openSection(phase) {
+  const intro = SECTION_INTROS[phase];
 
-  const serviciosArray = cd.servicios
-    ? (typeof cd.servicios === 'string'
-        ? cd.servicios.split(/[,;]/).map(s => s.trim()).filter(Boolean)
-        : cd.servicios)
-    : [];
+  if (intro) {
+    appendMessage('ai', intro);
+    state.messages.push({ role: 'assistant', content: intro });
+  } else {
+    // Hero no tiene intro fija — el modelo arranca la sección usando como
+    // contexto lo que el cliente ya contó durante la evaluación.
+    showTyping();
+    try {
+      await handleSectionTurn(phase);
+    } finally {
+      hideTyping();
+    }
+  }
 
-  const contacto = cd.contacto_wsp || cd.contacto_email || '';
-  if (serviciosArray.length === 0 || !contacto) return null;
+  setInputEnabled(true);
+  document.getElementById('chat-input')?.focus();
+}
+
+const SECTION_LABELS = {
+  [PHASE.HERO]:        'Sección 1 — Hero',
+  [PHASE.SOBRE_MI]:    'Sección 2 — Sobre mí / Nosotros',
+  [PHASE.SERVICIOS]:   'Sección 3 — Servicios',
+  [PHASE.TESTIMONIOS]: 'Sección 4 — Testimonios',
+  [PHASE.CONTACTO]:    'Sección 5 — Contacto',
+  [PHASE.DISENO]:      'Sección 6 — Estilo visual',
+  [PHASE.DSN_REVIEW]:  'Diseños anteriores',
+  [PHASE.GENERATING]:  'Generando tus diseños',
+};
+
+function appendSectionDivider(phase) {
+  const container = document.getElementById('chat-messages');
+  if (!container) return;
+  const label = SECTION_LABELS[phase];
+  if (!label) return;
+
+  const div = document.createElement('div');
+  div.className = 'section-divider';
+  div.innerHTML = `<span class="section-divider-label">${escapeHtml(label)}</span>`;
+  container.appendChild(div);
+  container.scrollTop = container.scrollHeight;
+}
+
+const PROGRESS_PHASE_INDEX = {
+  [PHASE.HERO]:        0,
+  [PHASE.SOBRE_MI]:    1,
+  [PHASE.SERVICIOS]:   2,
+  [PHASE.TESTIMONIOS]: 3,
+  [PHASE.CONTACTO]:    4,
+  [PHASE.DISENO]:      5,
+  [PHASE.DSN_REVIEW]:  6,
+  [PHASE.GENERATING]:  6,
+  [PHASE.SELECTING]:   6,
+};
+
+function updateProgressIndicator(phase) {
+  const steps = document.querySelectorAll('.progress-step');
+  if (!steps.length) return;
+
+  const current = PROGRESS_PHASE_INDEX[phase] ?? -1;
+
+  steps.forEach((step, i) => {
+    step.classList.toggle('progress-step--done',    i < current);
+    step.classList.toggle('progress-step--active',  i === current);
+    step.classList.toggle('progress-step--pending', i > current);
+  });
+}
+
+// Construye el brief plano final a partir de las secciones acumuladas —
+// es lo que consume generacion.txt y lo que se muestra en pago/éxito/notificación
+function buildFullBrief() {
+  const { hero, sobre_mi, servicios, testimonios, contacto, diseno } = state.fullBrief;
+  const clientData = getClientData();
 
   return {
-    nombre_marca:  cd.nombre_marca,
-    rubro:         cd.rubro,
-    slogan:        cd.slogan || null,
-    descripcion:   cd.descripcion || null,
-    servicios:     serviciosArray,
-    contacto,
-    email:         cd.contacto_email || null,
-    redes:         cd.redes ? { instagram: cd.redes } : {},
-    testimonios:   [],
-    estilo_visual: cd.colores || cd.estilo_visual || null,
-    fotos:         cd.tiene_fotos === 'true',
+    nombre_marca:    hero?.nombre_marca    || '',
+    rubro:           hero?.rubro           || '',
+    slogan:          hero?.slogan          || '',
+    propuesta_valor: hero?.propuesta_valor || '',
+
+    tipo:                 sobre_mi?.tipo                 || 'personal',
+    historia:             sobre_mi?.historia             || '',
+    experiencia_o_equipo: sobre_mi?.experiencia_o_equipo || '',
+    diferencial:          sobre_mi?.diferencial          || '',
+
+    servicios:      servicios?.servicios      || [],
+    precio_visible: servicios?.precio_visible || false,
+
+    testimonios: testimonios || { incluir: false, testimonios: [] },
+
+    contacto:     contacto?.contacto_wsp || contacto?.email || '',
+    contacto_wsp: contacto?.contacto_wsp || '',
+    email:        contacto?.email        || '',
+    redes:        contacto?.redes        || {},
+    zona:         contacto?.zona         || '',
+    horarios:     contacto?.horarios     || '',
+
+    colores:       diseno?.colores     || [],
+    colores_hex:   diseno?.colores_hex || ['#1E293B', '#7C3AED'],
+    estilo_visual: diseno?.estilo      || '',
+    tipografia:    diseno?.tipografia  || '',
+    tono:          diseno?.tono        || '',
+    referencias:   diseno?.referencias || '',
+
+    cliente_nombre: clientData ? `${clientData.nombre} ${clientData.apellido}` : '',
+    cliente_email:  clientData?.email || '',
+    cliente_id:     clientData?.id    || '',
   };
 }
 
-// Extracción semántica con Claude — corre UNA vez al cierre del onboarding
-// para validar y completar lo que la captura contextual no haya cubierto
-// (corrige ortografía, normaliza servicios a array, agnóstica al rubro).
-// intent: 'extraction' queda excluida del rate limit de chat (api/claude.js).
-async function extractStructuredData(historial) {
-  const conversacion = historial
-    .filter(m => m.role === 'user')
-    .map((m, i) => `[${i + 1}] ${m.content}`)
-    .join('\n');
+// ─── Flujo post-secciones: carrusel de diseños anteriores o generación nueva ──
 
-  const prompt = `Analizá esta conversación de un cliente que quiere una landing page.
-Extraé sus datos con exactitud. Si algo no fue mencionado, usá null.
-
-CONVERSACIÓN:
-${conversacion}
-
-Respondé ÚNICAMENTE con JSON válido, sin texto adicional, sin markdown ni bloques de código:
-{
-  "nombre_marca": "nombre exacto del negocio o persona",
-  "rubro": "tipo de negocio en 2-4 palabras",
-  "servicios": ["servicio 1", "servicio 2"],
-  "contacto_wsp": "solo dígitos sin espacios ni caracteres especiales, o null",
-  "contacto_email": "email completo, o null",
-  "colores": "colores o paleta mencionada textualmente, o null",
-  "zona": "zona geográfica si la mencionó, o null",
-  "slogan": "frase o tagline si la mencionó, o null",
-  "redes": "usuario de Instagram u otras redes, o null",
-  "estilo_visual": "descripción del estilo visual si mencionó algo, o null"
-}
-
-REGLAS:
-- servicios SIEMPRE debe ser un array de strings, nunca un string plano
-- Corregí errores ortográficos en los valores (ej: "monotivuto" → "Monotributo")
-- Si mencionó el mismo servicio de distintas formas, unificalo en uno
-- contacto_wsp: solo dígitos, sin el 15 ni el +54 (ej: "1123797308")
-- No inventes datos — si no fue mencionado, null`;
-
-  try {
-    const data = await callClaude(
-      [{ role: 'user', content: prompt }],
-      'Sos un extractor de datos estructurados. Respondés SOLO con JSON válido sin markdown.',
-      {
-        model: 'claude-haiku-4-5-20251001',
-        max_tokens: 400,
-        intent: 'extraction',
-      }
-    );
-
-    const raw = data.content?.[0]?.text || '{}';
-    const clean = raw.replace(/```(?:json)?/g, '').trim();
-    const extracted = extractJSON(clean);
-
-    if (!extracted) {
-      console.warn('[ExtractorA] JSON inválido:', raw.slice(0, 200));
-      return null;
-    }
-
-    if (extracted.servicios && typeof extracted.servicios === 'string') {
-      extracted.servicios = extracted.servicios.split(/[,;\/]/).map(s => s.trim()).filter(Boolean);
-    }
-
-    console.log('[ExtractorA] Extracción semántica:', extracted);
-    return extracted;
-
-  } catch (err) {
-    console.error('[ExtractorA] Error:', err.message);
-    return null; // fail-open: si falla, seguimos con lo que ya teníamos
-  }
-}
-
-async function completarOnboarding(brief) {
-  const extracted = await extractStructuredData(state.messages);
-
-  if (extracted) {
-    // Los datos del brief de Claude tienen prioridad; la extracción semántica
-    // completa los huecos y corrige lo que vino mal formado
-    brief.nombre_marca  = brief.nombre_marca  || extracted.nombre_marca;
-    brief.rubro         = brief.rubro         || extracted.rubro;
-    brief.email         = brief.email         || extracted.contacto_email;
-    brief.estilo_visual = brief.estilo_visual || extracted.colores || extracted.estilo_visual;
-    brief.slogan        = brief.slogan        || extracted.slogan;
-
-    if (!brief.contacto) {
-      brief.contacto = extracted.contacto_wsp || extracted.contacto_email || '';
-    }
-    if (!brief.redes && extracted.redes) {
-      brief.redes = { instagram: extracted.redes };
-    }
-
-    const serviciosExtracted = Array.isArray(extracted.servicios) ? extracted.servicios : [];
-    const serviciosBrief = Array.isArray(brief.servicios)
-      ? brief.servicios
-      : (brief.servicios ? brief.servicios.split(/[,;\/]/).map(s => s.trim()).filter(Boolean) : []);
-
-    brief.servicios = serviciosExtracted.length >= serviciosBrief.length ? serviciosExtracted : serviciosBrief;
-
-    if (currentSession) {
-      const camposAActualizar = {
-        nombre_marca:   extracted.nombre_marca,
-        rubro:          extracted.rubro,
-        servicios:      extracted.servicios?.join(', '),
-        colores:        extracted.colores,
-        contacto_wsp:   extracted.contacto_wsp,
-        contacto_email: extracted.contacto_email,
-        zona:           extracted.zona,
-        slogan:         extracted.slogan,
-      };
-      Object.entries(camposAActualizar).forEach(([campo, valor]) => {
-        if (valor) updateField(currentSession, campo, valor);
-      });
-    }
-  }
-
-  // Rescate final desde session.collectedData por si ni el brief ni la
-  // extracción semántica trajeron el dato
-  if (!brief.estilo_visual && currentSession?.collectedData?.colores) {
-    brief.estilo_visual = currentSession.collectedData.colores;
-  }
-  if (!brief.contacto && currentSession?.collectedData?.contacto_wsp) {
-    brief.contacto = currentSession.collectedData.contacto_wsp;
-  }
-  if (!brief.nombre_marca && currentSession?.collectedData?.nombre_marca) {
-    brief.nombre_marca = currentSession.collectedData.nombre_marca;
-  }
-
-  const clientData = getClientData();
-  if (clientData) {
-    brief.cliente_nombre   = `${clientData.nombre} ${clientData.apellido}`;
-    brief.cliente_email    = clientData.email;
-    brief.cliente_telefono = clientData.telefono || '';
-    brief.cliente_id       = clientData.id;
-  }
-
-  state.brief = brief;
-  saveSession({ phase: 'onboarding_done', brief: state.brief });
-
-  await startBrandOrCarouselFlow();
-}
-
-// Detecta si el cliente confirma el estilo visual ya dado, sin pedir cambios
-function detectarConfirmacionVisual(texto) {
-  const confirmaciones = [
-    /^(no|nope|así|así está|bien|ok|dale|perfecto|sí|si|seguimos)[\s.,!]*$/i,
-    /no.*cambiar/i,
-    /seguimos con eso/i,
-    /está bien así/i,
-    /solo eso/i,
-    /el diseño/i,
-  ];
-  return confirmaciones.some(f => f.test(texto.trim()));
-}
-
-// Convierte una descripción de colores en texto a códigos hex aproximados
-function extraerColoresHex(estiloVisual) {
-  const coloresMap = {
-    'violeta': '#7C3AED', 'morado': '#7C3AED', 'purple': '#7C3AED',
-    'negro': '#0F172A',   'black': '#0F172A',
-    'gris': '#6B7280',    'grey': '#6B7280',   'gray': '#6B7280',
-    'blanco': '#F8FAFC',  'white': '#F8FAFC',
-    'azul': '#2563EB',    'blue': '#2563EB',
-    'verde': '#16A34A',   'rojo': '#DC2626',
-    'naranja': '#EA580C', 'amarillo': '#CA8A04',
-    'marrón': '#92400E',  'marron': '#92400E',
-    'beige': '#D4B896',   'tierra': '#92400E',
-    'rosa': '#EC4899',    'dorado': '#B45309',
-  };
-
-  const texto = estiloVisual.toLowerCase();
-  const encontrados = [];
-  for (const [nombre, hex] of Object.entries(coloresMap)) {
-    if (texto.includes(nombre) && !encontrados.includes(hex)) {
-      encontrados.push(hex);
-    }
-  }
-  return encontrados.length > 0 ? encontrados.slice(0, 3) : ['#1E293B', '#7C3AED'];
-}
-
-// Avanza directo a generación con un brand brief básico derivado del estilo
-// visual ya dado en el onboarding — evita llamadas extra a Claude
-async function avanzarConBrandBriefBasico(estiloVisual) {
-  const brandBriefBasico = {
-    colores_principales: extraerColoresHex(estiloVisual),
-    estilo_visual: estiloVisual,
-    tipografia: 'moderna y profesional',
-    tono: 'formal y confiable',
-    referencias: null,
-    publico_objetivo: state.brief?.descripcion || 'profesionales y empresas',
-    notas_adicionales: null,
-  };
-
-  state.brandBrief = brandBriefBasico;
-  state.phase = PHASE.GENERATING;
+async function startDesignPhase() {
   setInputEnabled(false);
+  appendMessage('system', 'Perfecto, ya tenemos todo. Un momento...');
 
-  const fullBrief = { ...state.brief, ...brandBriefBasico };
-  saveSession({ phase: state.phase, brandBrief: state.brandBrief });
-
-  await proceedWithGeneration(fullBrief);
-}
-
-async function handleBrandDefinitionTurn() {
-  const lastUserMsg = state.messages[state.messages.length - 1]?.content || '';
-
-  // Si el cliente confirma el estilo visual ya dado en el onboarding, saltar
-  // directo a generación sin más preguntas (evita rate limit por llamadas extra)
-  if (state.brief?.estilo_visual && detectarConfirmacionVisual(lastUserMsg)) {
-    console.log('[Brand] Confirmación visual detectada — saltando a generación');
-    await avanzarConBrandBriefBasico(state.brief.estilo_visual);
-    return;
-  }
-
-  const trimmedMessages = state.messages.slice(-BRAND_DEFINITION_MSG_LIMIT);
-
-  // Construir system prompt con contexto del brief + archivos
-  let brandSystem = state.prompts.brand;
-
-  // Inyectar datos ya recolectados para que Claude no vuelva a preguntar lo mismo
-  if (state.brief) {
-    const briefLines = [
-      state.brief.nombre_marca  && `- Nombre de marca: ${state.brief.nombre_marca}`,
-      state.brief.rubro         && `- Rubro: ${state.brief.rubro}`,
-      state.brief.slogan        && `- Slogan: "${state.brief.slogan}"`,
-      state.brief.descripcion   && `- Descripción: ${state.brief.descripcion}`,
-      state.brief.servicios?.length && `- Servicios: ${state.brief.servicios.join(', ')}`,
-      state.brief.contacto      && `- Contacto: ${state.brief.contacto}`,
-      state.brief.estilo_visual && `- Estilo/colores mencionados en onboarding: ${state.brief.estilo_visual}`,
-    ].filter(Boolean).join('\n');
-
-    brandSystem = `DATOS YA RECOLECTADOS DEL CLIENTE — NO volver a preguntar ninguno de estos:\n${briefLines}\n\nSi el cliente ya mencionó colores o estilo visual arriba, tomalo como punto de partida confirmado y avanzá. Solo pedí confirmación si el dato es ambiguo.\n\n${brandSystem}`;
-  }
-
-  if (state.uploadedFiles.length > 0) {
-    const fileList = state.uploadedFiles.map(f => `- ${f.name} (${Math.round(f.size / 1024)} KB)`).join('\n');
-    brandSystem += `\n\nEl usuario subió los siguientes archivos como referencia:\n${fileList}`;
-  }
-
-  const data = await callClaude(trimmedMessages, brandSystem, {
-    model: 'claude-haiku-4-5-20251001',
-    max_tokens: 1024,
-  });
-  const raw = data.content?.[0]?.text || '';
-
-  const brandBrief = extractJSON(raw);
-  const isBrandComplete = brandBrief && brandBrief.colores_principales && brandBrief.estilo_visual;
-
-  const displayText = raw.replace(/```json[\s\S]*?```/g, '').trim();
-  if (displayText) {
-    state.messages.push({ role: 'assistant', content: raw });
-    appendMessage('ai', displayText);
-  }
-
-  if (isBrandComplete) {
-    state.brandBrief = brandBrief;
-    state.phase = PHASE.GENERATING;
-    setInputEnabled(false);
-
-    // Combinar brief de negocio + brief de marca
-    const fullBrief = { ...state.brief, ...brandBrief };
-    saveSession({ phase: state.phase, brandBrief: state.brandBrief });
-
-    await proceedWithGeneration(fullBrief);
-  } else if (state.brief?.estilo_visual && detectarConfirmacionVisual(raw)) {
-    // Claude no devolvió colores en hex pero el cliente ya confirmó el estilo
-    await avanzarConBrandBriefBasico(state.brief.estilo_visual);
-  }
-}
-
-// ─── Flujo post-onboarding: carrusel previo o ir directo a marca ──────────────
-
-async function startBrandOrCarouselFlow() {
-  setInputEnabled(false);
-  appendMessage('system', 'Perfecto, tengo una idea clara de tu proyecto. Un momento...');
+  state.brief = buildFullBrief();
+  saveSession({ phase: 'secciones_completas', brief: state.brief });
 
   const sets = await initCarousel();
 
   if (sets && sets.length > 0) {
-    // Hay diseños anteriores → mostrar carrusel dentro del chat
-    state.phase = PHASE.CAROUSEL_REVIEW;
+    state.phase = PHASE.DSN_REVIEW;
+    updateProgressIndicator(PHASE.DSN_REVIEW);
 
-    appendMessage('ai', '¡Antes de generar nuevos diseños, revisemos los que ya existen! Quizás alguno encaja con lo que buscás.');
+    appendMessage('ai',
+      'Antes de generar nuevos diseños, revisemos los que ya existen. '
+      + 'Si alguno te convence podés elegirlo directamente.'
+    );
 
     const widget = buildChatCarouselWidget(sets, {
       onSelect: (preview) => {
-        // Usuario eligió un diseño anterior
         state.selectedPreview = preview;
         state.phase = PHASE.PAYMENT;
-        appendMessage('ai', `Excelente elección — ${preview.name}. Pasemos al paso de pago para confirmar tu pedido.`);
+        appendMessage('ai', `Buena elección — ${preview.name}. Pasemos al pago para confirmar tu pedido.`);
         showPaymentSection();
       },
       onReject: () => {
-        // Usuario no quiere ninguno → ir a definición de marca
-        appendMessage('ai', 'Entendido. Vamos a crear algo completamente nuevo para tu marca.');
-        enterBrandDefinitionPhase();
+        appendMessage('ai', 'Entendido. Generamos algo nuevo para tu marca.');
+        generateNewDesigns();
       },
     });
 
     if (widget) appendWidget(widget);
 
   } else {
-    // Sin diseños previos → ir directo a definición de marca
-    enterBrandDefinitionPhase();
+    await generateNewDesigns();
   }
 }
 
-function enterBrandDefinitionPhase() {
-  state.phase = PHASE.BRAND_DEFINITION;
-  state.messages = []; // Reset mensajes — el brief completo se inyecta en el system prompt de cada llamada
-
-  // Habilitar botón de adjunto
-  const attachBtn = document.getElementById('attach-btn');
-  if (attachBtn) attachBtn.hidden = false;
-
-  setInputEnabled(true);
-
-  // Si el brief ya tiene info de estilo visual, mencionarla en el saludo
-  const estiloExistente = state.brief?.estilo_visual;
-  const introEstilo = estiloExistente
-    ? `Ya mencionaste que preferís: ${estiloExistente}. ¿Querés ajustar algo o seguimos con eso?`
-    : `¿Tenés alguna referencia de colores o estilos que te gusten?`;
-
-  appendMessage('ai',
-    `Ahora definimos la identidad visual de tu marca. ${introEstilo} `
-    + `Podés adjuntar imágenes o logos de referencia con el 📎 (máx. ${MAX_UPLOAD_FILES} archivos, 3 MB c/u).`
-  );
-}
-
-// ─── Generación de previews ────────────────────────────────────────────────────
-
-async function proceedWithGeneration(fullBrief) {
+async function generateNewDesigns() {
+  state.phase = PHASE.GENERATING;
+  updateProgressIndicator(PHASE.GENERATING);
   appendMessage('system', 'Generando tus 3 diseños personalizados...');
   showGeneratingState();
 
   try {
-    state.previews = await generateAllPreviews(fullBrief || state.brief, (current, total, name) => {
+    state.previews = await generateAllPreviews(state.brief, (current, total, name) => {
       updateGeneratingProgress(current, total, name);
     });
 
     state.phase = PHASE.SELECTING;
     hideGeneratingState();
-
     saveSession({ phase: state.phase, generated: true });
 
-    // Mostrar los 3 nuevos diseños como carrusel en el chat
     const widget = buildPreviewsCarouselWidget(state.previews, {
       onSelect: (preview, index) => selectPreview(index),
     });
@@ -831,7 +593,6 @@ async function proceedWithGeneration(fullBrief) {
     if (widget) {
       appendWidget(widget);
     } else {
-      // Fallback: sección grid clásica
       showPreviewSection(state.previews);
     }
 
@@ -840,10 +601,10 @@ async function proceedWithGeneration(fullBrief) {
     hideGeneratingState();
     const msg = err.rateLimitMessage
       ? err.rateLimitMessage
-      : 'No pude generar los diseños en este momento. Escribime y lo resolvemos.';
+      : 'No pude generar los diseños ahora. Escribime y lo resolvemos.';
     appendMessage('system', msg);
     setInputEnabled(true);
-    state.phase = PHASE.BRAND_DEFINITION;
+    state.phase = PHASE.DISENO;
   }
 }
 
@@ -1081,4 +842,3 @@ function escapeHtml(str) {
     .replace(/"/g, '&quot;')
     .replace(/\n/g, '<br>');
 }
-

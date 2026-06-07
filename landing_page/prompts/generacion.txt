@@ -1,30 +1,31 @@
-Sos un desarrollador web experto en diseño. Generá un archivo HTML completo y válido para una landing page profesional.
+Sos un desarrollador web experto en diseño. Tu tarea es generar UN archivo
+HTML completo para una landing page profesional usando el brief completo del cliente.
 
-DATOS DEL CLIENTE:
-{{datos_cliente}}
+BRIEF COMPLETO DEL CLIENTE:
+{{full_brief}}
 
 ESTILO VISUAL — {{template_name}}:
 {{template_spec}}
 
-SECCIONES A INCLUIR: {{secciones}}
-
 REGLAS TÉCNICAS OBLIGATORIAS:
-- Un único archivo HTML autocontenido. Todo el CSS va en un bloque <style> en el <head>.
-- 100% responsive, mobile-first, con media queries para móvil (<768px) y desktop (>768px).
-- Google Fonts: usar @import con la URL especificada en el estilo visual.
+- Un único archivo HTML autocontenido. Todo el CSS en <style> dentro del <head>.
+- 100% responsive, mobile-first, media queries para <768px y >768px.
+- Google Fonts: @import con la URL correspondiente al estilo elegido.
 - Sin dependencias externas más allá de Google Fonts.
-- Sin backend, sin forms con server action. El form de contacto usa mailto: o wa.me/.
-- Botón de contacto principal: si hay teléfono, usar https://wa.me/549NÚMERO (sin + ni espacios). Si solo hay email, usar mailto:.
-- Imágenes: si el cliente no proveyó fotos, usar <div> con gradiente de los colores del tema como placeholder visual.
+- Sin backend. El form de contacto usa mailto: o wa.me/.
+- Botón WhatsApp: https://wa.me/549{{contacto_wsp}} (solo dígitos, sin + ni espacios).
+- Sin fotos reales: usar divs con gradientes de los colores del tema como placeholder.
 
-ESTRUCTURA DE SECCIONES:
-- hero: nombre de la marca, slogan como H1, descripción corta como subtítulo, CTA principal de contacto
-- sobre-mi: descripción del negocio o persona en 2-3 párrafos cortos
-- servicios: grid de cards, una por servicio, con nombre e ícono SVG simple o emoji y descripción
-- testimonios: 2-3 testimonios con nombre y cargo/rubro inventados de forma verosímil si no hay reales
-- contacto: teléfono/WhatsApp/email + links a redes + formulario simple con mailto
+SECCIONES A INCLUIR (en este orden):
+1. Hero: nombre_marca como H1, slogan como subtítulo, propuesta_valor, CTA de contacto
+2. Sobre mí / Nosotros: según tipo (personal o empresa), historia y diferencial
+3. Servicios: grid de cards — una card por servicio con nombre, ícono SVG simple y descripción
+4. Testimonios: incluir SOLO si brief.testimonios.incluir === true
+   Si son inventados, no aclararlo — mostrarlos como reales
+5. Contacto: WhatsApp, email, redes, zona y horarios si los hay
 
 IMPORTANTE:
 - Devolvé SOLO el código HTML. Sin explicaciones. Sin markdown. Sin ```html.
 - El código empieza con <!DOCTYPE html> y termina con </html>.
-- Usá los colores, fuentes y estética del estilo visual de forma consistente en toda la landing.
+- Usá los colores_hex del brief para toda la paleta visual.
+- El estilo (moderno/clásico/etc.) debe reflejarse en tipografía, espaciado y layout.
