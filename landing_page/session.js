@@ -59,16 +59,30 @@ export function initSession(nombre, apellido) {
   return session;
 }
 
-// Actualiza un campo en collectedData. No sobreescribe si ya tiene valor.
+// Actualiza un campo en collectedData. Si ya tiene valor, solo lo reemplaza
+// cuando el nuevo es más específico (más largo) — evita que datos parciales
+// del extractor bloqueen datos reales dados después por el cliente.
 export function updateField(session, campo, valor) {
   if (valor === null || valor === undefined || valor === '') return;
   if (!(campo in session.collectedData)) return;
-  if (session.collectedData[campo] !== null) return;
 
-  session.collectedData[campo] = valor;
-  session.campos_pendientes = session.campos_pendientes.filter(c => c !== campo);
-  console.log(`[Session] ${campo} = ${JSON.stringify(valor)}`);
-  _save(session);
+  const actual = session.collectedData[campo];
+
+  if (actual === null) {
+    session.collectedData[campo] = valor;
+    session.campos_pendientes = session.campos_pendientes.filter(c => c !== campo);
+    console.log(`[Session] ${campo} = ${JSON.stringify(valor)}`);
+    _save(session);
+    return;
+  }
+
+  const lenActual = String(actual).replace(/\s/g, '').length;
+  const lenNuevo  = String(valor).replace(/\s/g, '').length;
+  if (lenNuevo > lenActual) {
+    console.log(`[Session] ${campo} actualizado: "${actual}" → "${valor}"`);
+    session.collectedData[campo] = valor;
+    _save(session);
+  }
 }
 
 // Retorna el bloque de contexto para inyectar al sistema de onboarding.

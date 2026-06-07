@@ -392,8 +392,24 @@ async function handleOnboardingTurn() {
   const raw = data.content?.[0]?.text || '';
 
   const brief = extractJSON(raw);
-  const isBriefComplete = brief && brief.nombre_marca && brief.rubro &&
-    Array.isArray(brief.servicios) && brief.servicios.length > 0 && brief.contacto;
+
+  // Normalizar servicios a array si Claude devolvió un string
+  if (brief?.servicios && typeof brief.servicios === 'string') {
+    brief.servicios = brief.servicios.split(/[,;\/]/).map(s => s.trim()).filter(Boolean);
+  }
+
+  // Normalizar contacto buscando en todos los campos posibles
+  const _contacto = brief?.contacto || brief?.telefono ||
+    brief?.whatsapp || brief?.wsp || brief?.email || '';
+  if (brief && _contacto) brief.contacto = _contacto;
+
+  const isBriefComplete = brief &&
+    brief.nombre_marca?.trim().length > 0 &&
+    brief.rubro?.trim().length > 0 &&
+    (Array.isArray(brief.servicios)
+      ? brief.servicios.length >= 1
+      : typeof brief.servicios === 'string' && brief.servicios.trim().length > 2) &&
+    _contacto.length > 0;
 
   const displayText = raw.replace(/```json[\s\S]*?```/g, '').trim();
   if (displayText) {
@@ -408,6 +424,14 @@ async function handleOnboardingTurn() {
       brief.cliente_email  = clientData.email;
       brief.cliente_telefono = clientData.telefono || '';
       brief.cliente_id     = clientData.id;
+    }
+
+    // Rescatar datos de sesión que Claude puede haber omitido del JSON
+    if (!brief.estilo_visual && currentSession?.collectedData?.colores) {
+      brief.estilo_visual = currentSession.collectedData.colores;
+    }
+    if (!brief.contacto && currentSession?.collectedData?.contacto_wsp) {
+      brief.contacto = currentSession.collectedData.contacto_wsp;
     }
 
     state.brief = brief;
