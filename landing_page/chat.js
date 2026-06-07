@@ -22,9 +22,9 @@ const PHASE = {
   DONE:             'done',
 };
 
-// Máximo de mensajes a enviar por fase para evitar historial largo
-const ONBOARDING_MSG_LIMIT      = 8;
-const BRAND_DEFINITION_MSG_LIMIT = 10;
+// Máximo de mensajes a enviar por fase — alineado con el hard limit de api/claude.js (20)
+const ONBOARDING_MSG_LIMIT      = 20;
+const BRAND_DEFINITION_MSG_LIMIT = 20;
 
 let _isSending = false; // debounce: evita doble-clic y envíos duplicados
 
