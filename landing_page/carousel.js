@@ -13,10 +13,18 @@ let _callbacks      = {};
 // ─── Carga desde dsn/index.json ───────────────────────────────────────────────
 
 async function loadDsnIndex() {
+  console.log('[DSN] Cargando dsn/index.json...');
   try {
-    const res = await fetch('/landing_page/dsn/index.json', { cache: 'no-store' });
-    if (!res.ok) return [];
+    const url = `/landing_page/dsn/index.json?t=${Date.now()}`;
+    const res = await fetch(url, { cache: 'no-store' });
+    console.log('[DSN] HTTP status:', res.status);
+    if (!res.ok) {
+      console.warn('[DSN] Error HTTP, retornando array vacío');
+      return [];
+    }
     const sets = await res.json();
+    console.log('[DSN] Sets encontrados:', sets.length);
+    if (!Array.isArray(sets) || sets.length === 0) return [];
 
     // Resolver file paths → html para cada template que no tenga html inline
     await Promise.all(
@@ -24,7 +32,7 @@ async function loadDsnIndex() {
         (set.templates || []).map(async tpl => {
           if (!tpl.html && tpl.file) {
             try {
-              const r = await fetch(`/landing_page/${tpl.file}`, { cache: 'no-store' });
+              const r = await fetch(`/landing_page/${tpl.file}?t=${Date.now()}`, { cache: 'no-store' });
               if (r.ok) tpl.html = await r.text();
             } catch {}
           }
@@ -33,7 +41,8 @@ async function loadDsnIndex() {
     );
 
     return sets;
-  } catch {
+  } catch (err) {
+    console.error('[DSN] Error al cargar index.json:', err.message);
     return [];
   }
 }

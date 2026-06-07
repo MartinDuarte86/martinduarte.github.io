@@ -4,20 +4,33 @@
 // Límites: máx 5 archivos, máx 10 MB total
 
 const MAX_FILES   = 5;
-const MAX_TOTAL_B = 10 * 1024 * 1024; // 10 MB
+const MAX_TOTAL_B = 3 * 1024 * 1024; // 3 MB — base64 overhead lleva el body a ~4 MB, bajo el límite de Vercel de 4.5 MB
 
 const ALLOWED_ORIGINS = [
   'https://martinduarte.com',
   'https://www.martinduarte.com',
+  'https://ia-landing-page-flax.vercel.app',
+  'http://localhost:3000',
+  'http://127.0.0.1:5500',
+  'http://localhost:5500',
 ];
 
-module.exports = async function handler(req, res) {
+function isAllowedOrigin(origin) {
+  if (!origin) return false;
+  if (/^https:\/\/ia-landing-page[a-z0-9-]*\.vercel\.app$/.test(origin)) return true;
+  if (/^https:\/\/[a-z0-9-]+-martinduarte86s-projects\.vercel\.app$/.test(origin)) return true;
+  return ALLOWED_ORIGINS.includes(origin);
+}
+
+async function handler(req, res) {
   // CORS
   const origin = req.headers.origin;
-  if (process.env.NODE_ENV !== 'development' && origin && !ALLOWED_ORIGINS.includes(origin)) {
+  if (isAllowedOrigin(origin)) {
+    res.setHeader('Access-Control-Allow-Origin', origin);
+    res.setHeader('Vary', 'Origin');
+  } else if (origin && process.env.NODE_ENV !== 'development') {
     return res.status(403).json({ error: 'Origen no permitido' });
   }
-  if (origin) res.setHeader('Access-Control-Allow-Origin', origin);
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
   if (req.method === 'OPTIONS') return res.status(200).end();
@@ -114,4 +127,6 @@ module.exports = async function handler(req, res) {
   }
 
   return res.status(200).json({ uploaded, errors });
-};
+}
+
+module.exports = handler;

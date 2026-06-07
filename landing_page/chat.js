@@ -7,7 +7,7 @@ import { initCarousel, buildChatCarouselWidget, buildPreviewsCarouselWidget } fr
 const MP_LINK = 'https://mpago.la/1Dufc3b';
 
 const MAX_UPLOAD_FILES = 5;
-const MAX_UPLOAD_BYTES = 10 * 1024 * 1024; // 10 MB
+const MAX_UPLOAD_BYTES = 3 * 1024 * 1024; // 3 MB — Vercel serverless body limit es 4.5 MB; base64 agrega ~33%
 
 const PHASE = {
   GREETING:         'greeting',
@@ -25,6 +25,8 @@ const PHASE = {
 // Máximo de mensajes a enviar por fase para evitar historial largo
 const ONBOARDING_MSG_LIMIT      = 8;
 const BRAND_DEFINITION_MSG_LIMIT = 10;
+
+let _isSending = false; // debounce: evita doble-clic y envíos duplicados
 
 let state = {
   phase: PHASE.GREETING,
@@ -67,16 +69,15 @@ async function loadPrompts() {
   }
 
   // Prompt de definición de marca (inline — puede moverse a un .txt)
-  state.prompts.brand = `Sos el asistente de diseño de Martín Duarte. El usuario ya completó su brief de negocio.
-Ahora tu objetivo es definir la identidad visual de su marca haciéndole preguntas específicas.
-Preguntá sobre:
-- Paleta de colores (¿tiene referencia? ¿qué sensación quiere transmitir?)
-- Tipografía o estilo visual preferido (moderno, clásico, minimalista, colorido, etc.)
+  state.prompts.brand = `Sos el asistente de diseño de Martín Duarte. El cliente ya completó el brief de su negocio.
+Tu objetivo es definir la identidad visual haciéndole preguntas específicas cuando sea necesario.
+Temas a cubrir (solo los que falten — si ya están en el brief, no los repitas):
+- Paleta de colores (referencia o sensación que quiere transmitir)
+- Tipografía o estilo visual (moderno, clásico, minimalista, colorido, etc.)
 - Referencias visuales (marcas, sitios o estilos que le gustan)
 - Público objetivo y tono de comunicación
-- Si subió archivos: analizalos y mencionalos explícitamente
 
-Cuando tengas suficiente información visual (colores, estilo, referencias, público), responde SOLO con este JSON sin texto adicional:
+Cuando tengas colores, estilo y al menos una referencia de público, respondé SOLO con este JSON sin texto adicional:
 \`\`\`json
 {
   "colores_principales": ["#hex1", "#hex2"],
@@ -89,8 +90,28 @@ Cuando tengas suficiente información visual (colores, estilo, referencias, púb
 }
 \`\`\`
 
-Si todavía no tenés suficiente información, seguí haciendo preguntas de forma conversacional.
-Hacé máximo una o dos preguntas por respuesta para no abrumar al usuario.`;
+═══════════════════════════════════════
+REGLAS DE COMUNICACIÓN — OBLIGATORIAS
+═══════════════════════════════════════
+
+CONTEXTO CRÍTICO:
+- Revisá siempre el historial completo antes de responder.
+- Si el cliente ya mencionó colores, estilos o referencias, NO volvás a preguntarlo.
+- Si está en los datos del brief inyectados al inicio del prompt, tomalo como confirmado.
+
+PREGUNTAS:
+- Máximo UNA por mensaje. Si necesitás varias, elegí la más importante primero.
+- No uses listas de preguntas. Preguntá en prosa natural.
+
+TONO:
+- Directo y profesional. Sin frases de chatbot: "¡Me encanta!", "¡Excelente!"
+- Acusá recibo de forma natural: "Bien." / "Lo tomo nota." / "Perfecto."
+
+EMOJIS:
+- Máximo 1 por mensaje, solo si suma algo genuino. Nunca al inicio de una oración.
+
+LONGITUD:
+- Máximo 3-4 líneas. Si el mensaje es más largo, estás poniendo demasiado en uno solo.`;
 }
 
 function setupEventListeners() {
@@ -133,11 +154,19 @@ function handleFileSelection(e) {
     return;
   }
 
+  // Validar tamaño individual
+  const oversized = files.find(f => f.size > MAX_UPLOAD_BYTES);
+  if (oversized) {
+    appendMessage('system', `"${oversized.name}" supera el límite de 3 MB por archivo.`);
+    e.target.value = '';
+    return;
+  }
+
   // Validar tamaño total
   const newTotalBytes = [...state.pendingFiles, ...files].reduce((a, f) => a + f.size, 0)
     + state.uploadedFiles.reduce((a, f) => a + (f.size || 0), 0);
   if (newTotalBytes > MAX_UPLOAD_BYTES) {
-    appendMessage('system', 'El total de archivos no puede superar los 10 MB.');
+    appendMessage('system', 'El total de archivos no puede superar los 3 MB.');
     e.target.value = '';
     return;
   }
@@ -232,7 +261,10 @@ async function uploadPendingFiles() {
     const data = await res.json().catch(() => ({}));
 
     if (!res.ok) {
-      appendMessage('system', `Error al subir archivos: ${data.error || res.status}. Continuamos igual.`);
+      const msg = res.status === 413
+        ? 'El archivo es demasiado grande. El máximo es 3 MB por archivo.'
+        : `No se pudieron subir los archivos (${res.status}). Continuamos sin ellos.`;
+      appendMessage('system', msg);
     } else {
       state.uploadedFiles.push(...(data.uploaded || []));
       state.pendingFiles = [];
@@ -248,6 +280,8 @@ async function uploadPendingFiles() {
 // ─── Manejo de mensajes ────────────────────────────────────────────────────────
 
 async function handleSend() {
+  if (_isSending) return;
+
   const input = document.getElementById('chat-input');
   const text = input?.value.trim();
 
@@ -257,6 +291,8 @@ async function handleSend() {
   ];
   if ((!text && state.pendingFiles.length === 0) || blockedPhases.includes(state.phase)) return;
   if (document.getElementById('chat-section')?.hasAttribute('data-locked')) return;
+
+  _isSending = true;
 
   input.value = '';
   input.style.height = 'auto';
@@ -293,6 +329,7 @@ async function handleSend() {
       : 'Hubo un error de conexión. Intentá de nuevo en un momento.';
     appendMessage('system', msg);
   } finally {
+    _isSending = false;
     hideTyping();
     // Solo re-habilitar el input en fases donde el usuario debe escribir
     const inputPhases = [PHASE.EVALUATING, PHASE.ONBOARDING, PHASE.BRAND_DEFINITION];
@@ -369,8 +406,24 @@ async function handleOnboardingTurn() {
 async function handleBrandDefinitionTurn() {
   const trimmedMessages = state.messages.slice(-BRAND_DEFINITION_MSG_LIMIT);
 
-  // Si hay archivos subidos, agregamos contexto al system prompt
+  // Construir system prompt con contexto del brief + archivos
   let brandSystem = state.prompts.brand;
+
+  // Inyectar datos ya recolectados para que Claude no vuelva a preguntar lo mismo
+  if (state.brief) {
+    const briefLines = [
+      state.brief.nombre_marca  && `- Nombre de marca: ${state.brief.nombre_marca}`,
+      state.brief.rubro         && `- Rubro: ${state.brief.rubro}`,
+      state.brief.slogan        && `- Slogan: "${state.brief.slogan}"`,
+      state.brief.descripcion   && `- Descripción: ${state.brief.descripcion}`,
+      state.brief.servicios?.length && `- Servicios: ${state.brief.servicios.join(', ')}`,
+      state.brief.contacto      && `- Contacto: ${state.brief.contacto}`,
+      state.brief.estilo_visual && `- Estilo/colores mencionados en onboarding: ${state.brief.estilo_visual}`,
+    ].filter(Boolean).join('\n');
+
+    brandSystem = `DATOS YA RECOLECTADOS DEL CLIENTE — NO volver a preguntar ninguno de estos:\n${briefLines}\n\nSi el cliente ya mencionó colores o estilo visual arriba, tomalo como punto de partida confirmado y avanzá. Solo pedí confirmación si el dato es ambiguo.\n\n${brandSystem}`;
+  }
+
   if (state.uploadedFiles.length > 0) {
     const fileList = state.uploadedFiles.map(f => `- ${f.name} (${Math.round(f.size / 1024)} KB)`).join('\n');
     brandSystem += `\n\nEl usuario subió los siguientes archivos como referencia:\n${fileList}`;
@@ -442,7 +495,7 @@ async function startBrandOrCarouselFlow() {
 
 function enterBrandDefinitionPhase() {
   state.phase = PHASE.BRAND_DEFINITION;
-  state.messages = []; // Reset mensajes para la nueva fase
+  state.messages = []; // Reset mensajes — el brief completo se inyecta en el system prompt de cada llamada
 
   // Habilitar botón de adjunto
   const attachBtn = document.getElementById('attach-btn');
@@ -450,10 +503,15 @@ function enterBrandDefinitionPhase() {
 
   setInputEnabled(true);
 
+  // Si el brief ya tiene info de estilo visual, mencionarla en el saludo
+  const estiloExistente = state.brief?.estilo_visual;
+  const introEstilo = estiloExistente
+    ? `Ya mencionaste que preferís: ${estiloExistente}. ¿Querés ajustar algo o seguimos con eso?`
+    : `¿Tenés alguna referencia de colores o estilos que te gusten?`;
+
   appendMessage('ai',
-    `Ahora vamos a definir la identidad visual de tu marca. `
-    + `¿Tenés alguna referencia de colores o estilos que te gusten? `
-    + `También podés adjuntar imágenes, logos o documentos que sirvan de inspiración — usá el 📎 para subir hasta ${MAX_UPLOAD_FILES} archivos (máx. 10 MB).`
+    `Ahora definimos la identidad visual de tu marca. ${introEstilo} `
+    + `Podés adjuntar imágenes o logos de referencia con el 📎 (máx. ${MAX_UPLOAD_FILES} archivos, 3 MB c/u).`
   );
 }
 
@@ -619,7 +677,10 @@ function appendMessage(role, text) {
   msg.className = `message message--${role}`;
 
   if (role === 'ai') {
-    msg.innerHTML = `<div class="message-avatar">M</div><div class="message-bubble">${escapeHtml(text)}</div>`;
+    const html = typeof marked !== 'undefined'
+      ? marked.parse(String(text))
+      : escapeHtml(text).replace(/\n/g, '<br>');
+    msg.innerHTML = `<div class="message-avatar">M</div><div class="message-bubble message-bubble--md">${html}</div>`;
   } else if (role === 'user') {
     msg.innerHTML = `<div class="message-bubble">${escapeHtml(text)}</div>`;
   } else {
