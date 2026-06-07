@@ -117,6 +117,7 @@ async function generatePreview(brief, templateId, promptTemplate) {
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
       messages: [{ role: 'user', content: prompt }],
+      model: 'claude-sonnet-4-6',
       max_tokens: 6000,
       intent: 'generation', // activa rate limit de generación en el backend
     }),

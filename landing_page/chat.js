@@ -3,6 +3,8 @@ import { generateAllPreviews, renderPreviewInIframe, openPreviewModal, addAltCar
 import { sendNotification } from './notifier.js';
 import { initRegistrationForm, getClientData, saveSession } from './validator.js';
 import { initCarousel, buildChatCarouselWidget, buildPreviewsCarouselWidget } from './carousel.js';
+import { initSession, updateField, buildContextBlock } from './session.js';
+import { extractFromMessage } from './extractor.js';
 
 const MP_LINK = 'https://mpago.la/1Dufc3b';
 
@@ -27,6 +29,7 @@ const ONBOARDING_MSG_LIMIT      = 20;
 const BRAND_DEFINITION_MSG_LIMIT = 20;
 
 let _isSending = false; // debounce: evita doble-clic y envíos duplicados
+let currentSession = null;
 
 let state = {
   phase: PHASE.GREETING,
@@ -48,6 +51,8 @@ export async function init() {
   initRegistrationForm((clientData) => {
     window._chatSessionReady = true;
     window.flowModal?.goToStep(3);
+
+    currentSession = initSession(clientData.nombre, clientData.apellido);
 
     const nombre = clientData.nombre;
     appendMessage('ai', `Hola ${nombre}. Contame sobre tu proyecto — ¿de qué se trata tu negocio o idea?`);
@@ -305,6 +310,12 @@ async function handleSend() {
   if (text) {
     appendMessage('user', text);
     state.messages.push({ role: 'user', content: text });
+
+    // Extraer datos estructurados del mensaje y actualizar sesión
+    if (currentSession) {
+      const extracted = extractFromMessage(text);
+      Object.entries(extracted).forEach(([campo, valor]) => updateField(currentSession, campo, valor));
+    }
   }
 
   if (state.phase === PHASE.GREETING) {
@@ -372,7 +383,10 @@ async function handleEvaluationTurn() {
 async function handleOnboardingTurn() {
   const trimmedMessages = state.messages.slice(-ONBOARDING_MSG_LIMIT);
 
-  const data = await callClaude(trimmedMessages, state.prompts.onboarding, {
+  const systemPrompt = state.prompts.onboarding + buildContextBlock(currentSession);
+
+  const data = await callClaude(trimmedMessages, systemPrompt, {
+    model: 'claude-haiku-4-5-20251001',
     max_tokens: 1024,
   });
   const raw = data.content?.[0]?.text || '';
@@ -430,6 +444,7 @@ async function handleBrandDefinitionTurn() {
   }
 
   const data = await callClaude(trimmedMessages, brandSystem, {
+    model: 'claude-haiku-4-5-20251001',
     max_tokens: 1024,
   });
   const raw = data.content?.[0]?.text || '';
