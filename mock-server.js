@@ -8,8 +8,82 @@ const http = require('http');
 const fs   = require('fs');
 const path = require('path');
 
+// ─── Carga de .env (sin dependencias) ─────────────────────────────────────────
+function loadEnv() {
+  const envPath = path.join(__dirname, '.env');
+  if (!fs.existsSync(envPath)) return;
+  for (const line of fs.readFileSync(envPath, 'utf8').split('\n')) {
+    const trimmed = line.trim();
+    if (!trimmed || trimmed.startsWith('#')) continue;
+    const eq = trimmed.indexOf('=');
+    if (eq === -1) continue;
+    const key = trimmed.slice(0, eq).trim();
+    const value = trimmed.slice(eq + 1).trim();
+    if (!(key in process.env)) process.env[key] = value;
+  }
+}
+loadEnv();
+
 const PORT        = 3000;
 const STATIC_ROOT = __dirname;
+
+// ─── Proveedor de LLM para pruebas locales ────────────────────────────────────
+// Por defecto el mock no consume ninguna API real. Si se define
+// LLM_PROVIDER=openrouter (en .env) las llamadas a /api/claude se redirigen a
+// OpenRouter usando un modelo gratuito (DeepSeek o NVIDIA) — útil para probar
+// la interacción real mientras el flujo se termina de afinar, sin tocar el
+// stack de Anthropic que sigue siendo el usado en producción (api/claude.js).
+const LLM_PROVIDER = (process.env.LLM_PROVIDER || 'mock').toLowerCase();
+
+const OPENROUTER_FREE_MODELS = {
+  'nvidia/nemotron-nano-9b-v2:free':           true,
+  'nvidia/nemotron-3-nano-30b-a3b:free':       true,
+  'nvidia/nemotron-3-super-120b-a12b:free':    true,
+  'deepseek/deepseek-chat-v3-0324:free':       true, // dejar por si OpenRouter vuelve a ofrecerlo gratis
+  'deepseek/deepseek-r1:free':                 true,
+};
+const OPENROUTER_DEFAULT_MODEL = 'nvidia/nemotron-nano-9b-v2:free';
+const OPENROUTER_MODEL = OPENROUTER_FREE_MODELS[process.env.OPENROUTER_MODEL]
+  ? process.env.OPENROUTER_MODEL
+  : OPENROUTER_DEFAULT_MODEL;
+
+// Convierte el formato de mensajes estilo Anthropic ({system, messages, max_tokens})
+// que usa el front (callClaude en chat.js / generator.js) al formato OpenAI-compatible
+// de OpenRouter, y devuelve la respuesta ya traducida a {content: [{text}]} para que
+// el front no necesite ningún cambio.
+async function callOpenRouter(body) {
+  if (!process.env.OPENROUTER_API_KEY) {
+    throw new Error('Falta OPENROUTER_API_KEY en .env');
+  }
+
+  const { system, messages = [], max_tokens = 1024 } = body;
+  const orMessages = [];
+  if (system) orMessages.push({ role: 'system', content: system });
+  for (const m of messages) orMessages.push({ role: m.role, content: m.content });
+
+  const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+    method: 'POST',
+    headers: {
+      'Content-Type':  'application/json',
+      'Authorization': `Bearer ${process.env.OPENROUTER_API_KEY}`,
+      'HTTP-Referer':  'http://localhost:3000',
+      'X-Title':       'MarcaPersonal Web - prueba local OpenRouter',
+    },
+    body: JSON.stringify({
+      model:      OPENROUTER_MODEL,
+      max_tokens: Math.min(Number(max_tokens) || 1024, 4096),
+      messages:   orMessages,
+    }),
+  });
+
+  const data = await response.json();
+  if (!response.ok) {
+    console.error('  [openrouter] error:', data?.error || data);
+    throw new Error(data?.error?.message || `OpenRouter respondió ${response.status}`);
+  }
+
+  return { content: [{ text: data.choices?.[0]?.message?.content || '' }] };
+}
 
 // ─── MIME types ───────────────────────────────────────────────────────────────
 const MIME = {
@@ -379,7 +453,11 @@ const server = http.createServer(async (req, res) => {
     try {
       let result;
       switch (route) {
-        case 'claude':         result = mockClaudeResponse(body);   break;
+        case 'claude':
+          result = LLM_PROVIDER === 'openrouter'
+            ? await callOpenRouter(body)
+            : mockClaudeResponse(body);
+          break;
         case 'validate-email': result = mockValidateEmail(body);    break;
         case 'save-client':    result = mockSaveClient(body);       break;
         case 'save-dsn':       result = mockSaveDsn(body);          break;
@@ -414,7 +492,12 @@ server.listen(PORT, () => {
   console.log('  ║         MOCK SERVER — Landing Page Webapp              ║');
   console.log('  ╠══════════════════════════════════════════════════════════╣');
   console.log(`  ║  URL:     http://localhost:${PORT}/landing_page/            ║`);
-  console.log('  ║  Tokens:  ✗ ninguno consumido (Claude mockeado)         ║');
+  if (LLM_PROVIDER === 'openrouter') {
+    console.log('  ║  LLM:     → OpenRouter (real) — modelo gratuito         ║');
+    console.log(`  ║  Modelo:  ${OPENROUTER_MODEL.padEnd(46)}║`);
+  } else {
+    console.log('  ║  Tokens:  ✗ ninguno consumido (Claude mockeado)         ║');
+  }
   console.log('  ║  APIs:    ✗ Abstract API, GitHub API, Resend mockeados  ║');
   console.log('  ╠══════════════════════════════════════════════════════════╣');
   console.log('  ║  Flujo simulado:                                        ║');
