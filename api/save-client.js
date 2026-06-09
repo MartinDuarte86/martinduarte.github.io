@@ -42,7 +42,7 @@ export default async function handler(req, res) {
       if (email) {
         const { data: existing } = await supabase
           .from('clients')
-          .select('id, session_id')
+          .select('id, session_id, estado, nombre_marca')
           .eq('email', email)
           .maybeSingle();
 
@@ -50,6 +50,9 @@ export default async function handler(req, res) {
           return res.status(409).json({
             error: 'email_exists',
             session_id: existing.session_id,
+            id: existing.session_id,
+            estado: existing.estado,
+            nombre: existing.nombre_marca,
           });
         }
       }

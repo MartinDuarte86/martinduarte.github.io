@@ -110,7 +110,12 @@ async function saveClientViaApi(client) {
   const res = await fetch('/api/save-client', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ action: 'create', client }),
+    body: JSON.stringify({
+      action: 'create',
+      session_id: client.id,
+      email: client.email,
+      data: { email: client.email },
+    }),
   });
 
   const data = await res.json().catch(() => ({}));

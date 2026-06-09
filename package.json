@@ -1,8 +1,29 @@
 {
+  "scripts": {
+    "test": "jest --forceExit",
+    "test:watch": "jest --watch"
+  },
+  "jest": {
+    "testEnvironment": "node",
+    "transform": {
+      "^.+\\.js$": "babel-jest"
+    },
+    "testMatch": ["**/__tests__/**/*.test.js"],
+    "coverageDirectory": "coverage",
+    "collectCoverageFrom": ["api/**/*.js", "!api/_lib/*.js"]
+  },
   "dependencies": {
     "@supabase/ssr": "^0.10.3",
     "@supabase/supabase-js": "^2.108.0",
     "@upstash/redis": "^1.38.0",
     "jsonwebtoken": "^9.0.3"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.29.7",
+    "@babel/preset-env": "^7.29.7",
+    "@jest/globals": "^30.4.1",
+    "babel-jest": "^30.4.1",
+    "jest": "^30.4.2",
+    "node-mocks-http": "^1.17.2"
   }
 }
