@@ -115,8 +115,7 @@ export async function waitForDesigns(page) {
 
 export async function selectFirstDesign(page) {
   await waitForDesigns(page);
-  // The select button is inside .ccw-overlay (opacity:0, visible on hover only).
-  // Using force:true skips Playwright's visibility check so we can click it directly.
+  // Button is in .ccw-card-footer — always visible (mobile-first, no overlay trick).
   await page.locator('.chat-carousel-widget--new .ccw-select-btn').first().click({ force: true });
   await page.waitForSelector('#payment-section:not([hidden])', { timeout: 10_000 });
 }

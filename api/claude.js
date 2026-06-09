@@ -1,218 +1,115 @@
-﻿// api/claude.js
 // Proxy LLM con routing inteligente por intent:
 //
-//   intent: 'chat'       → OpenRouter free (nemotron-nano) — evaluación + wizard
-//   intent: 'extraction' → OpenRouter free (nemotron-nano) — extracción semántica
-//   intent: 'generation' → Claude Sonnet (Anthropic)       — genera 3 HTMLs nuevos
-//   intent: 'redesign'   → Claude Sonnet (Anthropic)       — regenera HTML existente
+//   intent: 'chat'       → Claude Haiku (Anthropic) — evaluación + wizard
+//   intent: 'extraction' → Claude Haiku (Anthropic) — extracción semántica
+//   intent: 'generation' → Claude Sonnet (Anthropic) — genera 3 HTMLs nuevos
+//   intent: 'redesign'   → Claude Sonnet (Anthropic) — regenera HTML existente
 //
-// LLM_PROVIDER env var solo afecta a los intents 'chat' y 'extraction'.
-// 'generation' y 'redesign' SIEMPRE usan Anthropic (Claude Sonnet) por calidad.
-//
-// Otros features:
-//   - Rate limiting distribuido via Upstash Redis (seguro en múltiples instancias Vercel)
-//   - Inyección del historial completo de mensajes previos (48h) como contexto del LLM
-//   - CORS whitelist
+// Features:
+//   - Rate limiting distribuido via Upstash Redis por IP + intent
+//   - Validación de input: longitud máxima, sección válida
+//   - Inyección de contexto histórico comprimido por sección
+//   - CORS centralizado via _lib/cors.js
 
 import Anthropic from '@anthropic-ai/sdk';
-import { checkRateLimit, getMessages, getBrief } from './_lib/redis.js';
+import { checkRateLimit, getBrief, getMessages, touchSession, compressBriefForSection } from './_lib/redis.js';
+import { applyCors } from './_lib/cors.js';
 
-// ─── Configuración de modelos por intent ────────────────────────────────────
-
-// Modelos Anthropic — siempre usados para generation y redesign
 const ANTHROPIC_MODELS = {
   generation: 'claude-sonnet-4-6',
   redesign:   'claude-sonnet-4-6',
   chat:       'claude-haiku-4-5-20251001',
+  extraction: 'claude-haiku-4-5-20251001',
 };
 
-// Modelos OpenRouter free — usados para chat y extraction
-const OPENROUTER_MODELS = {
-  chat:       'nvidia/nemotron-nano-9b-v2:free',
-  extraction: 'nvidia/nemotron-nano-9b-v2:free',
-};
+const ALWAYS_ANTHROPIC = new Set(['generation', 'redesign', 'chat', 'extraction']);
 
-// Intents que siempre van a Anthropic (ignorar LLM_PROVIDER)
-const ALWAYS_ANTHROPIC = new Set(['generation', 'redesign']);
-
-// Rate limits por intent
 const RATE_LIMITS = {
-  chat:       { max: 10, ttl: 3600  },   // 10/hora
-  extraction: { max: 999, ttl: 3600 },   // sin límite práctico
-  generation: { max: 2,  ttl: 86400 },   // 2/24h (caro)
-  redesign:   { max: 2,  ttl: 86400 },   // 2/24h (comparte cuota con generation)
+  chat:       { max: 10, ttl: 3600  },
+  extraction: { max: 999, ttl: 3600 },
+  generation: { max: 2,  ttl: 86400 },
+  redesign:   { max: 2,  ttl: 86400 },
 };
 
-/**
- * Convierte una request en formato Anthropic a OpenRouter (OpenAI-compatible).
- * Diferencias clave:
- *   - Anthropic: { system: "...", messages: [...] }
- *   - OpenAI:    { messages: [{ role: "system", content: "..." }, ...] }
- */
-function toOpenRouterRequest(params) {
-  const { model, system, messages, max_tokens } = params;
-  const orMessages = [];
-
-  if (system) {
-    orMessages.push({ role: 'system', content: system });
-  }
-
-  for (const m of messages) {
-    if (typeof m.content === 'string') {
-      orMessages.push({ role: m.role, content: m.content });
-    } else if (Array.isArray(m.content)) {
-      // Anthropic soporta content blocks — extraemos solo el texto
-      const text = m.content
-        .filter(b => b.type === 'text')
-        .map(b => b.text)
-        .join('\n');
-      orMessages.push({ role: m.role, content: text });
-    }
-  }
-
-  return {
-    model:      OPENROUTER_MODELS[params.intent] || OPENROUTER_MODELS.chat,
-    messages:   orMessages,
-    max_tokens: max_tokens ?? 1024,
-  };
-}
-
-/**
- * Convierte la respuesta de OpenRouter al formato de Anthropic.
- * Para que el frontend no necesite distinguir entre providers.
- */
-function fromOpenRouterResponse(orResponse, originalModel) {
-  const choice  = orResponse.choices?.[0];
-  const content = choice?.message?.content || '';
-  return {
-    id:    orResponse.id || 'or-' + Date.now(),
-    type:  'message',
-    role:  'assistant',
-    model: originalModel,
-    content: [{ type: 'text', text: content }],
-    stop_reason: choice?.finish_reason === 'stop' ? 'end_turn' : choice?.finish_reason,
-    usage: {
-      input_tokens:  orResponse.usage?.prompt_tokens     || 0,
-      output_tokens: orResponse.usage?.completion_tokens || 0,
-    },
-  };
-}
-
-/**
- * Llama a OpenRouter con formato OpenAI-compatible.
- */
-async function callOpenRouter(params) {
-  const body = toOpenRouterRequest(params);
-
-  const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
-    method:  'POST',
-    headers: {
-      'Authorization': `Bearer ${process.env.OPENROUTER_API_KEY}`,
-      'Content-Type':  'application/json',
-      'HTTP-Referer':  process.env.BASE_URL || 'https://martinduarte.com',
-      'X-Title':       'Landing Page Service',
-    },
-    body: JSON.stringify(body),
-  });
-
-  if (!response.ok) {
-    const err = await response.text();
-    throw new Error(`OpenRouter error ${response.status}: ${err}`);
-  }
-
-  const orResponse = await response.json();
-  return fromOpenRouterResponse(orResponse, params.model);
-}
+const VALID_SECTIONS  = new Set(['evaluating', 'hero', 'sobre_mi', 'servicios', 'testimonios', 'contacto', 'diseno']);
+const VALID_INTENTS   = new Set(['chat', 'generation', 'redesign', 'extraction']);
+const MAX_MSG_CONTENT = 3000;  // chars por mensaje
+const MAX_MESSAGES    = 20;    // mensajes por request
 
 const anthropicClient = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
-const LLM_PROVIDER    = process.env.LLM_PROVIDER || 'anthropic'; // para intents 'chat' y 'extraction'
 
-const ALLOWED_ORIGINS = (process.env.ALLOWED_ORIGINS || '').split(',').map(o => o.trim());
-const ALLOWED_MODELS  = ['claude-haiku-4-5-20251001', 'claude-sonnet-4-6'];
-
-function corsHeaders(origin) {
-  const allowed = ALLOWED_ORIGINS.includes(origin) ? origin : ALLOWED_ORIGINS[0];
-  return {
-    'Access-Control-Allow-Origin':  allowed,
-    'Access-Control-Allow-Methods': 'POST, OPTIONS',
-    'Access-Control-Allow-Headers': 'Content-Type',
-    'Vary': 'Origin',
-  };
-}
-
-/**
- * Construye el bloque de contexto previo para inyectar al system prompt.
- * Incluye el fullBrief acumulado y fragmentos relevantes del historial de mensajes,
- * para que cada LLM de sección pueda inferir datos ya mencionados sin volver a preguntar.
- *
- * @param {string} sessionId
- * @param {string} currentSection - sección actual (para excluir sus propios mensajes)
- * @returns {string}
- */
 async function buildContextBlock(sessionId, currentSection) {
-  const [brief, allMessages] = await Promise.all([
+  const [rawBrief, allMessages] = await Promise.all([
     getBrief(sessionId),
     getMessages(sessionId, 60),
   ]);
 
   let block = '';
 
-  // ── 1. Datos ya recolectados (fullBrief) ──────────────────────────────────
-  if (brief && Object.keys(brief).length > 0) {
-    block += `\n\n--- DATOS YA RECOLECTADOS DEL CLIENTE (no volver a preguntar) ---\n`;
-    block += JSON.stringify(brief, null, 2);
-    block += `\n--- FIN DATOS RECOLECTADOS ---`;
+  // Inyectar solo los campos del brief relevantes para la sección actual
+  const compressed = rawBrief ? compressBriefForSection(rawBrief, currentSection) : null;
+  if (compressed && Object.keys(compressed).length > 0) {
+    block += `\n\n--- DATOS YA RECOLECTADOS (no volver a preguntar) ---\n`;
+    block += JSON.stringify(compressed);
+    block += `\n--- FIN DATOS ---`;
   }
 
-  // ── 2. Fragmento del historial de conversaciones anteriores ───────────────
-  // Solo incluimos mensajes de secciones ANTERIORES a la actual.
-  // Limitamos a los últimos 20 para no saturar el contexto.
-  const sectionOrder = ['evaluating','hero','sobre_mi','servicios','testimonios','contacto','diseno'];
+  // Solo mensajes de secciones ANTERIORES, máx. 10
+  const sectionOrder = ['evaluating', 'hero', 'sobre_mi', 'servicios', 'testimonios', 'contacto', 'diseno'];
   const currentIdx   = sectionOrder.indexOf(currentSection);
-
   const prevMessages = allMessages
-    .filter(m => {
-      if (!m.section) return false;
-      const idx = sectionOrder.indexOf(m.section);
-      return idx >= 0 && idx < currentIdx;
-    })
-    .slice(-20); // últimos 20 mensajes de secciones anteriores
+    .filter(m => m.section && sectionOrder.indexOf(m.section) >= 0 && sectionOrder.indexOf(m.section) < currentIdx)
+    .slice(-10);
 
   if (prevMessages.length > 0) {
-    block += `\n\n--- CONVERSACIÓN PREVIA (solo referencia, no repetir) ---\n`;
+    block += `\n\n--- CONVERSACIÓN PREVIA (solo referencia) ---\n`;
     for (const m of prevMessages) {
       const role = m.role === 'user' ? 'Cliente' : 'Asistente';
-      block += `[${m.section}] ${role}: ${m.content}\n`;
+      // Truncar mensajes largos en el contexto
+      const content = m.content.length > 200 ? m.content.slice(0, 200) + '…' : m.content;
+      block += `[${m.section}] ${role}: ${content}\n`;
     }
     block += `--- FIN CONVERSACIÓN PREVIA ---`;
   }
 
   if (block) {
-    block = `\n\nCONTEXTO DE SESIÓN ACTIVA:${block}\n\nInstrucción: Usa este contexto para inferir información que el cliente ya mencionó. No hagas preguntas sobre datos que ya están en los datos recolectados.`;
+    block = `\n\nCONTEXTO DE SESIÓN:${block}\n\nUsa este contexto para inferir datos ya mencionados. No hagas preguntas sobre datos que ya están registrados.`;
   }
 
   return block;
 }
 
 export default async function handler(req, res) {
-  const origin = req.headers.origin || '';
-  const headers = corsHeaders(origin);
-
-  if (req.method === 'OPTIONS') return res.status(204).set(headers).end();
-  if (req.method !== 'POST') return res.status(405).set(headers).json({ error: 'Method not allowed' });
-  Object.entries(headers).forEach(([k, v]) => res.setHeader(k, v));
+  if (applyCors(req, res)) return;
+  if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
   const {
-    model    = 'claude-haiku-4-5-20251001',
+    model      = 'claude-haiku-4-5-20251001',
     system,
-    messages = [],
+    messages   = [],
     max_tokens = 1024,
-    intent     = 'chat',  // 'chat' | 'generation' | 'redesign' | 'extraction'
-    session_id,            // para recuperar contexto histórico
-    section,               // sección actual ('hero', 'servicios', etc.)
+    intent     = 'chat',
+    session_id,
+    section,
   } = req.body || {};
 
-  // ── Rate limiting distribuido (Redis) ──────────────────────────────────────
+  // ── Validación de input ────────────────────────────────────────────────────
+  if (!VALID_INTENTS.has(intent)) {
+    return res.status(400).json({ error: `intent inválido: ${intent}` });
+  }
+  if (section && !VALID_SECTIONS.has(section)) {
+    return res.status(400).json({ error: `section inválido: ${section}` });
+  }
+  if (!Array.isArray(messages) || messages.length > MAX_MESSAGES) {
+    return res.status(400).json({ error: `messages debe ser array de máximo ${MAX_MESSAGES} elementos` });
+  }
+  for (const m of messages) {
+    if (typeof m.content === 'string' && m.content.length > MAX_MSG_CONTENT) {
+      return res.status(400).json({ error: `Mensaje demasiado largo (máx. ${MAX_MSG_CONTENT} chars)` });
+    }
+  }
+
+  // ── Rate limiting por IP ───────────────────────────────────────────────────
   const ip = req.headers['x-forwarded-for']?.split(',')[0]?.trim()
            || req.socket?.remoteAddress
            || 'unknown';
@@ -231,52 +128,34 @@ export default async function handler(req, res) {
     }
   }
 
-  // ── Determinar provider y modelo según intent ──────────────────────────────
-  // generation y redesign SIEMPRE usan Anthropic Sonnet (sin importar LLM_PROVIDER)
-  const useAnthropic  = ALWAYS_ANTHROPIC.has(intent) || LLM_PROVIDER === 'anthropic';
-  const resolvedModel = useAnthropic
-    ? (ANTHROPIC_MODELS[intent] || ANTHROPIC_MODELS.chat)
-    : (OPENROUTER_MODELS[intent] || OPENROUTER_MODELS.chat);
+  // ── Actualizar actividad de sesión (para detección de abandonadas) ─────────
+  if (session_id) await touchSession(session_id).catch(() => {});
 
-  // ── Inyectar contexto histórico en el system prompt (solo en chat) ─────────
+  // ── Modelo y contexto ──────────────────────────────────────────────────────
+  const resolvedModel = ANTHROPIC_MODELS[intent] || ANTHROPIC_MODELS.chat;
+
   let systemWithContext = system || '';
   if (session_id && section && intent === 'chat') {
     const contextBlock = await buildContextBlock(session_id, section);
     systemWithContext = systemWithContext + contextBlock;
   }
 
-  // ── Llamada al LLM ─────────────────────────────────────────────────────────
   const llmParams = {
-    model:      resolvedModel,
+    model:     resolvedModel,
     max_tokens,
-    system:     systemWithContext || undefined,
+    system:    systemWithContext || undefined,
     messages,
   };
 
-  const providerLabel = useAnthropic ? 'anthropic' : 'openrouter';
-  console.log(`[claude proxy] intent=${intent} provider=${providerLabel} model=${resolvedModel}`);
+  console.log(`[claude] intent=${intent} model=${resolvedModel} section=${section || '-'}`);
 
   try {
-    let response;
-
-    if (useAnthropic) {
-      response = await anthropicClient.messages.create(llmParams);
-    } else {
-      response = await callOpenRouter(llmParams);
-    }
-
+    const response = await anthropicClient.messages.create(llmParams);
     return res.status(200).json(response);
-
   } catch (err) {
-    console.error(`[claude proxy / ${providerLabel}]`, err);
-
-    if (err.status === 429 || err.message?.includes('429')) {
-      return res.status(429).json({ error: 'Rate limit del LLM alcanzado. Reintentá en un momento.' });
-    }
-    if (err.status === 401 || err.message?.includes('401')) {
-      return res.status(500).json({ error: 'Error de autenticación con el LLM.' });
-    }
-
-    return res.status(500).json({ error: 'Error al contactar el LLM', detail: err.message });
+    console.error(`[claude]`, err.status, err.message?.slice(0, 100));
+    if (err.status === 429) return res.status(429).json({ error: 'Rate limit del LLM. Reintentá en un momento.' });
+    if (err.status === 401) return res.status(500).json({ error: 'Error de autenticación con el LLM.' });
+    return res.status(500).json({ error: 'Error al contactar el LLM' });
   }
 }

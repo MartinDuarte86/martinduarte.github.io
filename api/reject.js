@@ -1,18 +1,17 @@
-﻿// api/reject.js
 // Rechaza el deploy de una landing page.
-// Misma lógica de seguridad JWT que approve.js.
+// Misma lógica de seguridad que approve.js.
 
 import jwt from 'jsonwebtoken';
 import crypto from 'crypto';
-import { isTokenUsed, markTokenUsed } from './_lib/redis.js';
+import { markTokenUsedIfNew } from './_lib/redis.js';
 import supabase from './_lib/supabase.js';
 
 export default async function handler(req, res) {
-  if (req.method !== 'GET') {
+  if (req.method !== 'GET' && req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  const { token } = req.query;
+  const token = req.method === 'POST' ? req.body?.token : req.query?.token;
 
   if (!token) {
     return res.status(400).send(errorPage('Token faltante', 'El link de rechazo no contiene un token válido.'));
@@ -33,35 +32,36 @@ export default async function handler(req, res) {
     return res.status(400).send(errorPage('Acción incorrecta', 'Este es un link de aprobación, no de rechazo.'));
   }
 
-  // ── 2. One-time-use ───────────────────────────────────────────────────────
-  const tokenHash = crypto.createHash('sha256').update(token).digest('hex');
-  const alreadyUsed = await isTokenUsed(tokenHash);
-  if (alreadyUsed) {
+  // ── 2. One-time-use atómico (SET NX — TOCTOU-safe) ────────────────────────
+  const tokenHash  = crypto.createHash('sha256').update(token).digest('hex');
+  const isFirstUse = await markTokenUsedIfNew(tokenHash);
+  if (!isFirstUse) {
     return res.status(410).send(errorPage('Link ya utilizado', 'Este link de rechazo ya fue usado.'));
   }
-  await markTokenUsed(tokenHash);
 
   const { session_id, nombre_marca } = payload;
 
   try {
-    // ── 3. Actualizar estado en Supabase ─────────────────────────────────────
     await supabase
       .from('clients')
       .update({ estado: 'rechazado' })
       .eq('session_id', session_id);
 
-    // Nota: no eliminamos los previews de Redis — expiran solos en 48h.
-    // El diseño ya fue guardado en design_sets (DSN) al momento de notify.
+    console.log('[reject] Pedido rechazado session:', session_id.slice(0, 8) + '…');
 
     return res.status(200).send(successPage(
       '❌ Deploy rechazado',
-      `El pedido de <strong>${nombre_marca}</strong> fue rechazado y no se hará deploy.`
+      `El pedido de <strong>${escapeHtml(nombre_marca)}</strong> fue rechazado.`
     ));
 
   } catch (err) {
-    console.error('[reject]', err);
-    return res.status(500).send(errorPage('Error interno', err.message));
+    console.error('[reject] Error interno:', err.message);
+    return res.status(500).send(errorPage('Error interno', 'Ocurrió un error al procesar el rechazo.'));
   }
+}
+
+function escapeHtml(str) {
+  return String(str || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 }
 
 function successPage(title, msg) {

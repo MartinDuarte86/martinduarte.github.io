@@ -344,8 +344,13 @@ function addAltCard(grid, sessionId) {
 // ─── Utilidades de iframe ─────────────────────────────────────────────────────
 
 function renderPreviewInIframe(iframe, html) {
+  // sandbox="allow-same-origin" permite que el blob URL funcione pero bloquea
+  // scripts en el HTML generado (previene XSS si el LLM inyecta <script> tags)
+  if (!iframe.hasAttribute('sandbox')) {
+    iframe.setAttribute('sandbox', 'allow-same-origin');
+  }
   const blob = new Blob([html], { type: 'text/html' });
-  const url = URL.createObjectURL(blob);
+  const url  = URL.createObjectURL(blob);
   iframe.src = url;
   iframe._blobUrl = url;
 }

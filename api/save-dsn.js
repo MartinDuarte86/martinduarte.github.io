@@ -1,37 +1,14 @@
-﻿// api/save-dsn.js
-// Guarda sets de diseños (DSN — diseños anteriores) en Supabase PostgreSQL.
-// Reemplaza la versión anterior que escribía en dsn/ del repo GitHub (race condition).
-//
-// Los HTMLs de previews viven en Redis (TTL 48h) mientras la sesión está activa.
-// Al llamar este endpoint, los diseños pasan a estar disponibles como "diseños anteriores"
-// para el carousel de nuevas sesiones.
+// Guarda sets de diseños (DSN) en Supabase PostgreSQL.
 
 import supabase from './_lib/supabase.js';
-import { getPreviews } from './_lib/redis.js';
-
-const ALLOWED_ORIGINS = (process.env.ALLOWED_ORIGINS || '').split(',').map(o => o.trim());
-
-function corsHeaders(origin) {
-  const allowed = ALLOWED_ORIGINS.includes(origin) ? origin : ALLOWED_ORIGINS[0];
-  return {
-    'Access-Control-Allow-Origin':  allowed,
-    'Access-Control-Allow-Methods': 'POST, GET, OPTIONS',
-    'Access-Control-Allow-Headers': 'Content-Type',
-    'Vary': 'Origin',
-  };
-}
+import { getPreviews, getCachedRubroTemplate, setCachedRubroTemplate } from './_lib/redis.js';
+import { applyCors } from './_lib/cors.js';
 
 export default async function handler(req, res) {
-  const origin = req.headers.origin || '';
-  const headers = corsHeaders(origin);
+  if (applyCors(req, res, 'POST, GET, OPTIONS')) return;
 
-  if (req.method === 'OPTIONS') return res.status(204).set(headers).end();
-  Object.entries(headers).forEach(([k, v]) => res.setHeader(k, v));
-
-  // ── GET: recuperar DSN para el carousel ───────────────────────────────────
   if (req.method === 'GET') {
     const { rubro } = req.query;
-
     let query = supabase
       .from('design_sets')
       .select('id, rubro, template_name, thumbnail_url, created_at')
@@ -40,13 +17,11 @@ export default async function handler(req, res) {
       .limit(10);
 
     if (rubro) query = query.eq('rubro', rubro);
-
     const { data, error } = await query;
     if (error) throw error;
     return res.status(200).json({ sets: data });
   }
 
-  // ── POST: guardar un diseño al finalizar la sesión ─────────────────────────
   if (req.method === 'POST') {
     const { session_id, client_id, rubro, template_name, html } = req.body || {};
 
@@ -54,7 +29,6 @@ export default async function handler(req, res) {
       return res.status(400).json({ error: 'session_id, rubro y template_name son requeridos' });
     }
 
-    // Si no se provee el HTML directamente, intentar recuperar de Redis
     let htmlContent = html;
     if (!htmlContent) {
       const previews = await getPreviews(session_id);
@@ -62,21 +36,20 @@ export default async function handler(req, res) {
       htmlContent = match?.html || null;
     }
 
+    // Cachear en Redis por rubro para reducir generaciones futuras (~60% ahorro)
+    if (htmlContent && rubro && template_name) {
+      await setCachedRubroTemplate(rubro, template_name, htmlContent).catch(() => {});
+    }
+
     const { data: dsn, error } = await supabase
       .from('design_sets')
-      .insert({
-        session_id,
-        client_id:    client_id || null,
-        rubro,
-        template_name,
-        html_preview: htmlContent,
-      })
+      .insert({ session_id, client_id: client_id || null, rubro, template_name, html_preview: htmlContent })
       .select('id')
       .single();
 
     if (error) {
-      console.error('[save-dsn]', error);
-      return res.status(500).json({ error: 'Error al guardar diseño', detail: error.message });
+      console.error('[save-dsn]', error.message);
+      return res.status(500).json({ error: 'Error al guardar diseño' });
     }
 
     return res.status(201).json({ ok: true, dsn_id: dsn.id });

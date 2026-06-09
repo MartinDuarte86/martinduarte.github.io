@@ -1,32 +1,24 @@
 // Carrusel de diseños — dos modos:
-// 1. initCarousel() → sección HTML existente (legacy, no se usa con el modal nuevo)
-// 2. buildChatCarouselWidget() → burbuja inline dentro del chat
-// 3. buildPreviewsCarouselWidget() → 3 nuevos diseños inline en el chat
+// 1. buildChatCarouselWidget()     → diseños anteriores inline en el chat
+// 2. buildPreviewsCarouselWidget() → 3 nuevos diseños inline en el chat
+//
+// Accesibilidad mobile:
+//   - Botón de selección SIEMPRE visible (no requiere hover)
+//   - Touch swipe para navegar entre cards
+//   - Botón en footer de la card, no en overlay
 
 import { renderPreviewInIframe, openPreviewModal } from './generator.js';
 
-const MAX_SETS = 10;
-let _carouselSets   = [];
-let _currentIndex   = 0;
-let _callbacks      = {};
-
-// ─── Carga desde dsn/index.json ───────────────────────────────────────────────
+let _carouselSets = [];
 
 async function loadDsnIndex() {
-  console.log('[DSN] Cargando dsn/index.json...');
   try {
     const url = `/landing_page/dsn/index.json?t=${Date.now()}`;
     const res = await fetch(url, { cache: 'no-store' });
-    console.log('[DSN] HTTP status:', res.status);
-    if (!res.ok) {
-      console.warn('[DSN] Error HTTP, retornando array vacío');
-      return [];
-    }
+    if (!res.ok) return [];
     const sets = await res.json();
-    console.log('[DSN] Sets encontrados:', sets.length);
     if (!Array.isArray(sets) || sets.length === 0) return [];
 
-    // Resolver file paths → html para cada template que no tenga html inline
     await Promise.all(
       sets.flatMap(set =>
         (set.templates || []).map(async tpl => {
@@ -39,7 +31,6 @@ async function loadDsnIndex() {
         })
       )
     );
-
     return sets;
   } catch (err) {
     console.error('[DSN] Error al cargar index.json:', err.message);
@@ -49,34 +40,44 @@ async function loadDsnIndex() {
 
 function formatDate(dateStr) {
   try {
-    const d = new Date(dateStr);
-    return d.toLocaleDateString('es-AR', { day: '2-digit', month: 'short' });
+    return new Date(dateStr).toLocaleDateString('es-AR', { day: '2-digit', month: 'short' });
   } catch {
     return dateStr || '';
   }
 }
 
-// ─── Widget inline para el chat (diseños anteriores) ─────────────────────────
+// ─── Touch swipe helper ───────────────────────────────────────────────────────
 
-/**
- * Construye un widget de carrusel para insertar como burbuja en el chat.
- * @param {Array} sets - Array de sets del dsn/index.json
- * @param {{ onSelect: (preview) => void, onReject: () => void }} callbacks
- * @returns {HTMLElement}
- */
+function addTouchSwipe(element, onSwipeLeft, onSwipeRight) {
+  let startX = 0;
+  let startY = 0;
+
+  element.addEventListener('touchstart', (e) => {
+    startX = e.touches[0].clientX;
+    startY = e.touches[0].clientY;
+  }, { passive: true });
+
+  element.addEventListener('touchend', (e) => {
+    const dx = e.changedTouches[0].clientX - startX;
+    const dy = e.changedTouches[0].clientY - startY;
+    // Solo swipe horizontal (ignora scroll vertical)
+    if (Math.abs(dx) > 40 && Math.abs(dx) > Math.abs(dy)) {
+      if (dx < 0) onSwipeLeft();
+      else onSwipeRight();
+    }
+  }, { passive: true });
+}
+
+// ─── Widget inline para diseños anteriores ────────────────────────────────────
+
 export function buildChatCarouselWidget(sets, { onSelect, onReject }) {
-  // Aplanar todos los templates en una lista plana
   const items = [];
   sets.forEach(set => {
-    (set.templates || []).forEach(tpl => {
-      items.push({ set, tpl });
-    });
+    (set.templates || []).forEach(tpl => items.push({ set, tpl }));
   });
-
   if (items.length === 0) return null;
 
   let idx = 0;
-
   const widget = document.createElement('div');
   widget.className = 'chat-carousel-widget';
 
@@ -99,37 +100,46 @@ export function buildChatCarouselWidget(sets, { onSelect, onReject }) {
     </div>
   `;
 
-  const track    = widget.querySelector('.ccw-track');
-  const prevBtn  = widget.querySelector('.ccw-arrow--prev');
-  const nextBtn  = widget.querySelector('.ccw-arrow--next');
+  const track     = widget.querySelector('.ccw-track');
+  const prevBtn   = widget.querySelector('.ccw-arrow--prev');
+  const nextBtn   = widget.querySelector('.ccw-arrow--next');
   const indicator = widget.querySelector('.ccw-indicator');
 
-  // Construir cards
   items.forEach(({ set, tpl }, i) => {
     const card = document.createElement('div');
     card.className = 'ccw-card';
+    // Botón siempre visible en el footer — no requiere hover ni overlay
     card.innerHTML = `
       <div class="ccw-label">${set.rubro || 'Diseño'} · ${formatDate(set.fecha)}</div>
-      <div class="ccw-iframe-wrap">
+      <div class="ccw-iframe-wrap" role="button" tabindex="0" aria-label="Ver preview de ${tpl.name}">
         <iframe title="${tpl.name}" scrolling="no" loading="lazy"></iframe>
-        <div class="ccw-overlay">
-          <button class="btn-primary ccw-select-btn" type="button">Elegir este</button>
+        <div class="ccw-overlay" aria-hidden="true">
+          <span class="ccw-zoom-hint">Tap para ver completo</span>
         </div>
       </div>
-      <div class="ccw-card-name">${tpl.name}</div>
+      <div class="ccw-card-footer">
+        <span class="ccw-card-name">${tpl.name}</span>
+        <button class="btn-primary ccw-select-btn" type="button" aria-label="Elegir diseño ${tpl.name}">Elegir este</button>
+      </div>
     `;
 
     const iframe = card.querySelector('iframe');
     if (tpl.html) renderPreviewInIframe(iframe, tpl.html);
 
-    // Click en iframe → abrir preview modal
-    card.querySelector('.ccw-iframe-wrap').addEventListener('click', (e) => {
+    const wrap = card.querySelector('.ccw-iframe-wrap');
+    wrap.addEventListener('click', (e) => {
       if (e.target.closest('.ccw-select-btn')) return;
       openPreviewModal(
         { name: tpl.name, description: '', html: tpl.html || '' },
         i,
         () => onSelect({ id: tpl.id, name: tpl.name, description: '', html: tpl.html || '' })
       );
+    });
+    wrap.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        wrap.click();
+      }
     });
 
     card.querySelector('.ccw-select-btn').addEventListener('click', (e) => {
@@ -150,28 +160,20 @@ export function buildChatCarouselWidget(sets, { onSelect, onReject }) {
 
   prevBtn.addEventListener('click', () => goTo(idx - 1));
   nextBtn.addEventListener('click', () => goTo(idx + 1));
+  addTouchSwipe(widget.querySelector('.ccw-viewport'), () => goTo(idx + 1), () => goTo(idx - 1));
 
-  widget.querySelector('.ccw-reject-btn').addEventListener('click', () => {
-    onReject();
-  });
+  widget.querySelector('.ccw-reject-btn').addEventListener('click', onReject);
 
   goTo(0);
   return widget;
 }
 
-// ─── Widget inline para 3 nuevos diseños generados ────────────────────────────
+// ─── Widget para 3 nuevos diseños generados ───────────────────────────────────
 
-/**
- * Construye el widget de los 3 diseños recién generados, para insertar en el chat.
- * @param {Array} previews - [{ name, description, html }]
- * @param {{ onSelect: (preview, index) => void }} callbacks
- * @returns {HTMLElement}
- */
 export function buildPreviewsCarouselWidget(previews, { onSelect }) {
   if (!previews || previews.length === 0) return null;
 
   let idx = 0;
-
   const widget = document.createElement('div');
   widget.className = 'chat-carousel-widget chat-carousel-widget--new';
 
@@ -191,31 +193,41 @@ export function buildPreviewsCarouselWidget(previews, { onSelect }) {
     <div class="ccw-indicator">1 / ${previews.length}</div>
   `;
 
-  const track    = widget.querySelector('.ccw-track');
-  const prevBtn  = widget.querySelector('.ccw-arrow--prev');
-  const nextBtn  = widget.querySelector('.ccw-arrow--next');
+  const track     = widget.querySelector('.ccw-track');
+  const prevBtn   = widget.querySelector('.ccw-arrow--prev');
+  const nextBtn   = widget.querySelector('.ccw-arrow--next');
   const indicator = widget.querySelector('.ccw-indicator');
 
   previews.forEach((preview, i) => {
     const card = document.createElement('div');
     card.className = 'ccw-card';
     card.innerHTML = `
-      <div class="ccw-iframe-wrap">
+      <div class="ccw-iframe-wrap" role="button" tabindex="0" aria-label="Ver preview de ${preview.name}">
         <iframe title="${preview.name}" scrolling="no" loading="lazy"></iframe>
-        <div class="ccw-overlay">
-          <button class="btn-primary ccw-select-btn" type="button">Elegir este diseño</button>
+        <div class="ccw-overlay" aria-hidden="true">
+          <span class="ccw-zoom-hint">Tap para ver completo</span>
         </div>
       </div>
-      <div class="ccw-card-name">${preview.name}</div>
+      <div class="ccw-card-footer">
+        <span class="ccw-card-name">${preview.name}</span>
+        <button class="btn-primary ccw-select-btn" type="button" aria-label="Elegir diseño ${preview.name}">Elegir este diseño</button>
+      </div>
       ${preview.description ? `<p class="ccw-card-desc">${preview.description}</p>` : ''}
     `;
 
     const iframe = card.querySelector('iframe');
     if (preview.html) renderPreviewInIframe(iframe, preview.html);
 
-    card.querySelector('.ccw-iframe-wrap').addEventListener('click', (e) => {
+    const wrap = card.querySelector('.ccw-iframe-wrap');
+    wrap.addEventListener('click', (e) => {
       if (e.target.closest('.ccw-select-btn')) return;
       openPreviewModal(preview, i, () => onSelect(preview, i));
+    });
+    wrap.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        wrap.click();
+      }
     });
 
     card.querySelector('.ccw-select-btn').addEventListener('click', (e) => {
@@ -236,15 +248,13 @@ export function buildPreviewsCarouselWidget(previews, { onSelect }) {
 
   prevBtn.addEventListener('click', () => goTo(idx - 1));
   nextBtn.addEventListener('click', () => goTo(idx + 1));
+  addTouchSwipe(widget.querySelector('.ccw-viewport'), () => goTo(idx + 1), () => goTo(idx - 1));
 
   goTo(0);
   return widget;
 }
 
-// ─── Export para initCarousel (mantiene compatibilidad) ────────────────────────
-
 export async function initCarousel(callbacks) {
-  _callbacks = callbacks || {};
   const sets = await loadDsnIndex();
   _carouselSets = sets;
   return sets.length > 0 ? sets : null;

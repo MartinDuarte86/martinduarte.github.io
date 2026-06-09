@@ -957,21 +957,48 @@ body {
 .ccw-overlay {
   position: absolute;
   inset: 0;
-  background: rgba(0,0,0,.5);
+  background: rgba(0,0,0,.4);
   opacity: 0;
   display: flex;
   align-items: center;
   justify-content: center;
   transition: opacity .2s;
+  pointer-events: none;
 }
 .ccw-iframe-wrap:hover .ccw-overlay { opacity: 1; }
-.ccw-select-btn { font-size: 12px; padding: 8px 16px; }
+.ccw-zoom-hint {
+  color: #fff;
+  font-size: 12px;
+  font-weight: 600;
+  background: rgba(0,0,0,.6);
+  padding: 6px 12px;
+  border-radius: 20px;
+}
 
+/* Footer siempre visible — el botón nunca queda oculto en ningún dispositivo */
+.ccw-card-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-top: 8px;
+  padding: 0 2px;
+}
 .ccw-card-name {
   font-size: 13px;
   font-weight: 600;
   color: #F8FAFC;
-  margin-top: 8px;
+  flex: 1;
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.ccw-select-btn {
+  font-size: 12px;
+  padding: 8px 14px;
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 .ccw-card-desc {
   font-size: 12px;
@@ -994,6 +1021,84 @@ body {
   font-size: 13px;
   padding: 10px 20px;
   width: 100%;
+}
+
+/* ─── Skip de sección opcional ──────────────────────────── */
+.skip-section-wrapper {
+  display: flex;
+  justify-content: flex-end;
+  padding: 4px 0 8px;
+}
+.skip-section-btn {
+  background: transparent;
+  border: 1px solid var(--border-color, #334155);
+  color: var(--slate-soft, #94A3B8);
+  font-size: 12px;
+  padding: 5px 12px;
+  border-radius: 20px;
+  cursor: pointer;
+  transition: all .15s;
+}
+.skip-section-btn:hover {
+  border-color: #94A3B8;
+  color: #F8FAFC;
+}
+
+/* ─── Error con botón de retry ───────────────────────────── */
+.message--error .message-system { background: #3B1515; color: #FCA5A5; }
+.error-with-retry {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.btn-retry {
+  background: #DC2626;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  padding: 6px 14px;
+  font-size: 12px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background .15s;
+}
+.btn-retry:hover { background: #B91C1C; }
+
+/* ─── Preview en sección de pago ─────────────────────────── */
+.payment-preview-wrap {
+  margin: 20px 0;
+}
+.payment-preview-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: #F8FAFC;
+  margin-bottom: 8px;
+}
+.payment-preview-iframe-wrap {
+  position: relative;
+  width: 100%;
+  padding-bottom: 55%;
+  background: #0F172A;
+  border-radius: 10px;
+  overflow: hidden;
+  border: 1px solid #334155;
+}
+.payment-preview-iframe-wrap iframe {
+  position: absolute;
+  inset: 0;
+  width: 300%;
+  height: 300%;
+  transform: scale(0.333);
+  transform-origin: top left;
+  border: none;
+  pointer-events: none;
+}
+.payment-preview-note {
+  font-size: 12px;
+  color: var(--slate-soft, #94A3B8);
+  margin-top: 8px;
+  font-style: italic;
 }
 
 /* ─── File upload UI ─────────────────────────────────────── */

@@ -4,7 +4,7 @@ import { sendNotification } from './notifier.js';
 import { initRegistrationForm, getClientData, saveSession } from './validator.js';
 import { initCarousel, buildChatCarouselWidget, buildPreviewsCarouselWidget } from './carousel.js';
 
-// ─── Session ID persistente ────────────────────────────────────────────────────
+// ─── Session ID persistente (UUID v4) ─────────────────────────────────────────
 
 function getOrCreateSessionId() {
   const STORAGE_KEY = 'lp_session_id';
@@ -29,7 +29,7 @@ async function persistMessage(role, content, section) {
       body:    JSON.stringify({ session_id: SESSION_ID, type: 'message', payload: { role, content, section } }),
     });
   } catch (e) {
-    console.warn('[session] Error al persistir mensaje:', e);
+    console.warn('[session] Error al persistir mensaje');
   }
 }
 
@@ -41,7 +41,7 @@ async function persistBrief(fullBrief) {
       body:    JSON.stringify({ session_id: SESSION_ID, type: 'brief', payload: fullBrief }),
     });
   } catch (e) {
-    console.warn('[session] Error al persistir brief:', e);
+    console.warn('[session] Error al persistir brief');
   }
 }
 
@@ -53,7 +53,7 @@ async function persistMeta(meta) {
       body:    JSON.stringify({ session_id: SESSION_ID, type: 'meta', payload: meta }),
     });
   } catch (e) {
-    console.warn('[session] Error al persistir meta:', e);
+    console.warn('[session] Error al persistir meta');
   }
 }
 
@@ -86,14 +86,13 @@ async function tryRecoverSession() {
         appendSectionDivider(lastPhase);
         await openSection(lastPhase);
       }
-
       return true;
     } else {
       localStorage.removeItem('lp_session_id');
       return false;
     }
   } catch (e) {
-    console.warn('[session] No se pudo recuperar sesión:', e);
+    console.warn('[session] No se pudo recuperar sesión');
     return false;
   }
 }
@@ -101,7 +100,7 @@ async function tryRecoverSession() {
 const MP_LINK = 'https://mpago.la/1Dufc3b';
 
 const MAX_UPLOAD_FILES = 5;
-const MAX_UPLOAD_BYTES = 3 * 1024 * 1024; // 3 MB — Vercel serverless body limit es 4.5 MB; base64 agrega ~33%
+const MAX_UPLOAD_BYTES = 3 * 1024 * 1024;
 
 const PHASE = {
   GREETING:    'greeting',
@@ -112,7 +111,7 @@ const PHASE = {
   TESTIMONIOS: 'testimonios',
   CONTACTO:    'contacto',
   DISENO:      'diseno',
-  DSN_REVIEW:  'dsn_review', // carrusel de diseños anteriores
+  DSN_REVIEW:  'dsn_review',
   GENERATING:  'generating',
   SELECTING:   'selecting',
   PAYMENT:     'payment',
@@ -120,7 +119,6 @@ const PHASE = {
   DONE:        'done',
 };
 
-// Orden de las secciones del wizard — define las transiciones y el indicador de progreso
 const SECTION_ORDER = [
   PHASE.HERO,
   PHASE.SOBRE_MI,
@@ -130,16 +128,22 @@ const SECTION_ORDER = [
   PHASE.DISENO,
 ];
 
-// Máximo de mensajes a enviar por sección — alineado con el hard limit de api/claude.js (20)
+// Secciones que el usuario puede saltear
+const SKIPPABLE_SECTIONS = new Set([PHASE.TESTIMONIOS]);
+
 const SECTION_MSG_LIMIT = 10;
 
-let _isSending = false; // debounce: evita doble-clic y envíos duplicados
+let _isSending = false;
+
+// Contador de reintentos automáticos por turno
+let _autoRetryCount = 0;
+const MAX_AUTO_RETRY = 1;
 
 let state = {
   phase: PHASE.GREETING,
-  messages: [],          // historial de la sección/fase actual — se resetea entre secciones
+  messages: [],
   prompts: {},
-  fullBrief: {           // se acumula sección por sección
+  fullBrief: {
     hero:        null,
     sobre_mi:    null,
     servicios:   null,
@@ -147,11 +151,11 @@ let state = {
     contacto:    null,
     diseno:      null,
   },
-  brief: null,           // brief plano final, construido al cerrar la sección de diseño
-  previews: [],
+  brief:           null,
+  previews:        [],
   selectedPreview: null,
-  uploadedFiles: [], // { name, path, size, type }
-  pendingFiles: [],  // File objects pendientes de subir
+  uploadedFiles:   [],
+  pendingFiles:    [],
 };
 
 // ─── Inicialización ────────────────────────────────────────────────────────────
@@ -182,10 +186,9 @@ async function loadPrompts() {
     );
     files.forEach((f, i) => { state.prompts[f] = results[i]; });
   } catch {
-    console.warn('No se pudieron cargar los archivos de prompt.');
+    console.warn('No se pudieron cargar los prompts.');
   }
 
-  // evaluacion.txt no sigue la convención prompt_<nombre>.txt — se carga aparte
   try {
     const evalRes = await fetch('/landing_page/prompts/evaluacion.txt');
     state.prompts.eval = evalRes.ok ? await evalRes.text() : '';
@@ -207,16 +210,11 @@ function setupEventListeners() {
       handleSend();
     }
   });
-
-  // Auto-resize textarea
   input?.addEventListener('input', () => {
     input.style.height = 'auto';
     input.style.height = Math.min(input.scrollHeight, 120) + 'px';
   });
-
-  // Paperclip → abre file input
   attachBtn?.addEventListener('click', () => fileInput?.click());
-
   fileInput?.addEventListener('change', handleFileSelection);
 }
 
@@ -226,7 +224,6 @@ function handleFileSelection(e) {
   const files = Array.from(e.target.files || []);
   if (!files.length) return;
 
-  // Validar cantidad
   const currentCount = state.pendingFiles.length + state.uploadedFiles.length;
   if (currentCount + files.length > MAX_UPLOAD_FILES) {
     appendMessage('system', `Podés adjuntar máximo ${MAX_UPLOAD_FILES} archivos en total.`);
@@ -234,19 +231,9 @@ function handleFileSelection(e) {
     return;
   }
 
-  // Validar tamaño individual
   const oversized = files.find(f => f.size > MAX_UPLOAD_BYTES);
   if (oversized) {
-    appendMessage('system', `"${oversized.name}" supera el límite de 3 MB por archivo.`);
-    e.target.value = '';
-    return;
-  }
-
-  // Validar tamaño total
-  const newTotalBytes = [...state.pendingFiles, ...files].reduce((a, f) => a + f.size, 0)
-    + state.uploadedFiles.reduce((a, f) => a + (f.size || 0), 0);
-  if (newTotalBytes > MAX_UPLOAD_BYTES) {
-    appendMessage('system', 'El total de archivos no puede superar los 3 MB.');
+    appendMessage('system', `"${oversized.name}" supera el límite de 3 MB.`);
     e.target.value = '';
     return;
   }
@@ -269,35 +256,23 @@ function renderAttachedFilesList() {
   list.hidden = false;
   list.innerHTML = '';
 
-  // Subidos
   state.uploadedFiles.forEach(f => {
     const chip = document.createElement('div');
     chip.className = 'file-chip file-chip--uploaded';
-    chip.innerHTML = `
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
-           stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-      <span>${f.name}</span>`;
+    chip.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg><span>${f.name}</span>`;
     list.appendChild(chip);
   });
 
-  // Pendientes
   state.pendingFiles.forEach((f, i) => {
     const chip = document.createElement('div');
     chip.className = 'file-chip file-chip--pending';
-    chip.innerHTML = `
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-           stroke-linecap="round" stroke-linejoin="round">
-        <path d="m21.44 11.05-9.19 9.19a6 6 0 0 1-8.49-8.49l8.57-8.57A4 4 0 1 1 18 8.84l-8.59 8.57a2 2 0 0 1-2.83-2.83l8.49-8.48"/>
-      </svg>
-      <span>${f.name}</span>
-      <button class="file-chip-remove" data-idx="${i}" type="button" aria-label="Quitar archivo">×</button>`;
+    chip.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m21.44 11.05-9.19 9.19a6 6 0 0 1-8.49-8.49l8.57-8.57A4 4 0 1 1 18 8.84l-8.59 8.57a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg><span>${f.name}</span><button class="file-chip-remove" data-idx="${i}" type="button" aria-label="Quitar">×</button>`;
     list.appendChild(chip);
   });
 
   list.querySelectorAll('.file-chip-remove').forEach(btn => {
     btn.addEventListener('click', () => {
-      const idx = parseInt(btn.dataset.idx, 10);
-      state.pendingFiles.splice(idx, 1);
+      state.pendingFiles.splice(parseInt(btn.dataset.idx, 10), 1);
       renderAttachedFilesList();
     });
   });
@@ -310,41 +285,30 @@ async function uploadPendingFiles() {
 
   appendMessage('system', `Subiendo ${state.pendingFiles.length} archivo(s)...`);
 
-  // Convertir a base64
   async function fileToBase64(file) {
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
-      reader.onload = () => {
-        // Quitar encabezado "data:...;base64,"
-        const result = reader.result.split(',')[1];
-        resolve(result);
-      };
+      reader.onload  = () => resolve(reader.result.split(',')[1]);
       reader.onerror = reject;
       reader.readAsDataURL(file);
     });
   }
 
   const filesPayload = await Promise.all(state.pendingFiles.map(async f => ({
-    name: f.name,
-    content: await fileToBase64(f),
-    size: f.size,
-    type: f.type,
+    name: f.name, content: await fileToBase64(f), size: f.size, type: f.type,
   })));
 
   try {
     const res = await fetch('/api/upload-file', {
-      method: 'POST',
+      method:  'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ clientId: clientData.id, files: filesPayload }),
+      body:    JSON.stringify({ clientId: clientData.id, files: filesPayload }),
     });
-
     const data = await res.json().catch(() => ({}));
-
     if (!res.ok) {
-      const msg = res.status === 413
-        ? 'El archivo es demasiado grande. El máximo es 3 MB por archivo.'
-        : `No se pudieron subir los archivos (${res.status}). Continuamos sin ellos.`;
-      appendMessage('system', msg);
+      appendMessage('system', res.status === 413
+        ? 'El archivo es demasiado grande (máx. 3 MB).'
+        : `No se pudieron subir los archivos (${res.status}).`);
     } else {
       state.uploadedFiles.push(...(data.uploaded || []));
       state.pendingFiles = [];
@@ -352,7 +316,6 @@ async function uploadPendingFiles() {
       appendMessage('system', `✓ ${data.uploaded?.length || 0} archivo(s) recibido(s).`);
     }
   } catch (err) {
-    console.error('Upload error:', err);
     appendMessage('system', 'No pude subir los archivos. Continuamos sin ellos.');
   }
 }
@@ -363,24 +326,19 @@ async function handleSend() {
   if (_isSending) return;
 
   const input = document.getElementById('chat-input');
-  const text = input?.value.trim();
+  const text  = input?.value.trim();
 
-  const blockedPhases = [
-    PHASE.GENERATING, PHASE.NOTIFYING,
-    PHASE.DSN_REVIEW, PHASE.SELECTING, PHASE.PAYMENT, PHASE.DONE,
-  ];
+  const blockedPhases = [PHASE.GENERATING, PHASE.NOTIFYING, PHASE.DSN_REVIEW, PHASE.SELECTING, PHASE.PAYMENT, PHASE.DONE];
   if ((!text && state.pendingFiles.length === 0) || blockedPhases.includes(state.phase)) return;
   if (document.getElementById('chat-section')?.hasAttribute('data-locked')) return;
 
-  _isSending = true;
+  _isSending     = true;
+  _autoRetryCount = 0;
 
   input.value = '';
   input.style.height = 'auto';
 
-  // Si hay archivos pendientes, subirlos antes de procesar el mensaje
-  if (state.pendingFiles.length > 0) {
-    await uploadPendingFiles();
-  }
+  if (state.pendingFiles.length > 0) await uploadPendingFiles();
 
   if (text) {
     appendMessage('user', text);
@@ -388,9 +346,7 @@ async function handleSend() {
     persistMessage('user', text, state.phase);
   }
 
-  if (state.phase === PHASE.GREETING) {
-    state.phase = PHASE.EVALUATING;
-  }
+  if (state.phase === PHASE.GREETING) state.phase = PHASE.EVALUATING;
 
   showTyping();
   setInputEnabled(false);
@@ -403,14 +359,10 @@ async function handleSend() {
     }
   } catch (err) {
     console.error(err);
-    const msg = err.rateLimitMessage
-      ? err.rateLimitMessage
-      : 'Hubo un error de conexión. Intentá de nuevo en un momento.';
-    appendMessage('system', msg);
+    await handleSendError(err, state.phase, text);
   } finally {
     _isSending = false;
     hideTyping();
-    // Solo re-habilitar el input en fases donde el usuario debe escribir
     const inputPhases = [PHASE.EVALUATING, ...SECTION_ORDER];
     if (inputPhases.includes(state.phase)) {
       setInputEnabled(true);
@@ -419,12 +371,73 @@ async function handleSend() {
   }
 }
 
-async function handleEvaluationTurn() {
-  const data = await callClaude(state.messages, state.prompts.eval, {
-    model: 'claude-haiku-4-5-20251001',
-    max_tokens: 512,
+// ─── Manejo de errores con retry ──────────────────────────────────────────────
+
+async function handleSendError(err, phase, lastText) {
+  const isRateLimit = err.rateLimitMessage || err.message?.includes('429');
+  const msg = isRateLimit
+    ? (err.rateLimitMessage || 'Límite de solicitudes alcanzado. Esperá unos minutos.')
+    : 'Hubo un error de conexión.';
+
+  // Auto-retry una vez si no es rate limit
+  if (!isRateLimit && _autoRetryCount < MAX_AUTO_RETRY) {
+    _autoRetryCount++;
+    appendMessage('system', `${msg} Reintentando automáticamente...`);
+    await new Promise(r => setTimeout(r, 1500));
+    try {
+      if (phase === PHASE.EVALUATING) {
+        await handleEvaluationTurn();
+      } else if (SECTION_ORDER.includes(phase)) {
+        await handleSectionTurn(phase);
+      }
+      return;
+    } catch (retryErr) {
+      console.error('Retry also failed:', retryErr);
+    }
+  }
+
+  // Mostrar mensaje con botón de reintento manual
+  showErrorWithRetry(msg, lastText, phase);
+}
+
+function showErrorWithRetry(msg, lastText, phase) {
+  const container = document.getElementById('chat-messages');
+  if (!container) return;
+
+  const errorDiv = document.createElement('div');
+  errorDiv.className = 'message message--system message--error';
+  errorDiv.innerHTML = `
+    <div class="message-system error-with-retry">
+      <span>${escapeHtml(msg)}</span>
+      <button class="btn-retry" type="button">Intentar nuevamente</button>
+    </div>`;
+
+  container.appendChild(errorDiv);
+  container.scrollTop = container.scrollHeight;
+
+  errorDiv.querySelector('.btn-retry').addEventListener('click', async () => {
+    errorDiv.remove();
+    setInputEnabled(false);
+    showTyping();
+    _autoRetryCount = 0;
+    try {
+      if (phase === PHASE.EVALUATING) {
+        await handleEvaluationTurn();
+      } else if (SECTION_ORDER.includes(phase)) {
+        await handleSectionTurn(phase);
+      }
+    } catch (err2) {
+      appendMessage('system', 'Seguimos teniendo problemas. Intentá en unos minutos o escribinos a hola@martinduarte.com');
+    } finally {
+      hideTyping();
+      setInputEnabled(true);
+    }
   });
-  const raw = data.content?.[0]?.text || '{}';
+}
+
+async function handleEvaluationTurn() {
+  const data   = await callClaude(state.messages, state.prompts.eval, { max_tokens: 512 });
+  const raw    = data.content?.[0]?.text || '{}';
   const result = extractJSON(raw);
 
   if (!result) {
@@ -441,15 +454,14 @@ async function handleEvaluationTurn() {
 
   if (result.siguiente_accion === 'onboarding') {
     const lastUserMsg = state.messages.filter(m => m.role === 'user').slice(-1);
-
-    state.phase = PHASE.HERO;
+    state.phase    = PHASE.HERO;
     state.messages = lastUserMsg;
 
     document.getElementById('progress-bar')?.removeAttribute('hidden');
     updateProgressIndicator(PHASE.HERO);
     appendSectionDivider(PHASE.HERO);
-
     await openSection(PHASE.HERO);
+
   } else if (result.siguiente_accion === 'rechazar') {
     appendMessage('system', 'Si tenés otra consulta o querés explorar otros servicios, escribime cuando quieras.');
     setInputEnabled(false);
@@ -459,42 +471,36 @@ async function handleEvaluationTurn() {
 // ─── Wizard por secciones ──────────────────────────────────────────────────────
 
 async function handleSectionTurn(seccionKey) {
-  const systemPrompt = state.prompts[seccionKey] || '';
+  const systemPrompt   = state.prompts[seccionKey] || '';
   const trimmedMessages = state.messages.slice(-SECTION_MSG_LIMIT);
 
-  const data = await callClaude(trimmedMessages, systemPrompt, {
-    model: 'claude-haiku-4-5-20251001',
-    max_tokens: 1024,
-  });
+  const data = await callClaude(trimmedMessages, systemPrompt, { max_tokens: 1024 });
 
-  const raw = data.content?.[0]?.text || '';
+  const raw         = data.content?.[0]?.text || '';
   const sectionData = extractJSON(raw);
-
-  // Mostrar mensaje al usuario (sin el JSON)
   const displayText = raw.replace(/```json[\s\S]*?```/g, '').trim();
+
   if (displayText) {
     state.messages.push({ role: 'assistant', content: raw });
     appendMessage('ai', displayText);
     persistMessage('assistant', displayText, state.phase);
   }
 
-  // Si el JSON tiene la sección correcta, acumular y avanzar
   if (sectionData?.seccion === seccionKey) {
     state.fullBrief[seccionKey] = sectionData;
     saveSession({ phase: state.phase, fullBrief: state.fullBrief });
     persistBrief(state.fullBrief);
-
     await advanceToNextSection(seccionKey);
   }
 }
 
 async function advanceToNextSection(completedSection) {
-  const idx = SECTION_ORDER.indexOf(completedSection);
+  const idx       = SECTION_ORDER.indexOf(completedSection);
   const nextPhase = SECTION_ORDER[idx + 1] || null;
 
   if (nextPhase) {
-    state.phase = nextPhase;
-    state.messages = []; // resetear historial — cada sección arranca limpia
+    state.phase    = nextPhase;
+    state.messages = [];
     persistMeta({ phase: state.phase });
     updateProgressIndicator(nextPhase);
     appendSectionDivider(nextPhase);
@@ -505,31 +511,48 @@ async function advanceToNextSection(completedSection) {
     }
 
     await openSection(nextPhase);
-
   } else {
-    // Todas las secciones completas → revisar diseños anteriores o generar nuevos
     await startDesignPhase();
   }
 }
 
+// Número de sección visible al usuario (1-6), excluye DSN_REVIEW y fases no numeradas
+const SECTION_NUMBERS = {
+  [PHASE.HERO]:        1,
+  [PHASE.SOBRE_MI]:    2,
+  [PHASE.SERVICIOS]:   3,
+  [PHASE.TESTIMONIOS]: 4,
+  [PHASE.CONTACTO]:    5,
+  [PHASE.DISENO]:      6,
+};
+
+const TOTAL_SECTIONS = 6;
+
+// Intros con indicador de progreso [x/6]
 const SECTION_INTROS = {
-  [PHASE.SOBRE_MI]:    '¿Tu emprendimiento es personal o es una empresa/equipo?',
-  [PHASE.SERVICIOS]:   '¿Qué servicios o productos ofrecés? Listámelos y te ayudo a describirlos.',
-  [PHASE.TESTIMONIOS]: '¿Querés incluir una sección de testimonios de clientes en tu landing?',
-  [PHASE.CONTACTO]:    '¿Cuál es tu WhatsApp o email de contacto para que los clientes te escriban?',
-  [PHASE.DISENO]:      '¿Tenés alguna preferencia de colores para tu landing, o me describís qué sensación querés transmitir?'
-    + ` Podés adjuntar imágenes o referencias con el 📎 (máx. ${MAX_UPLOAD_FILES} archivos, 3 MB c/u).`,
+  [PHASE.SOBRE_MI]:    (n) => `[${n}/${TOTAL_SECTIONS}] ¿Tu emprendimiento es personal o es una empresa/equipo?`,
+  [PHASE.SERVICIOS]:   (n) => `[${n}/${TOTAL_SECTIONS}] ¿Qué servicios o productos ofrecés? Listámelos y te ayudo a describirlos.`,
+  [PHASE.TESTIMONIOS]: (n) => `[${n}/${TOTAL_SECTIONS}] ¿Querés incluir testimonios de clientes en tu landing?`,
+  [PHASE.CONTACTO]:    (n) => `[${n}/${TOTAL_SECTIONS}] ¿Cuál es tu WhatsApp o email de contacto?`,
+  [PHASE.DISENO]:      (n) => `[${n}/${TOTAL_SECTIONS}] ¿Tenés alguna preferencia de colores, o me describís qué sensación querés transmitir?`
+    + ` Podés adjuntar imágenes con el 📎 (máx. ${MAX_UPLOAD_FILES} archivos, 3 MB c/u).`,
 };
 
 async function openSection(phase) {
-  const intro = SECTION_INTROS[phase];
+  const sectionNum = SECTION_NUMBERS[phase];
+  const introFn    = SECTION_INTROS[phase];
 
-  if (intro) {
-    appendMessage('ai', intro);
-    state.messages.push({ role: 'assistant', content: intro });
+  if (introFn) {
+    const introText = introFn(sectionNum);
+    appendMessage('ai', introText);
+    state.messages.push({ role: 'assistant', content: introText });
+
+    // Agregar botón de skip para secciones opcionales
+    if (SKIPPABLE_SECTIONS.has(phase)) {
+      appendSkipButton(phase);
+    }
   } else {
-    // Hero no tiene intro fija — el modelo arranca la sección usando como
-    // contexto lo que el cliente ya contó durante la evaluación.
+    // Hero no tiene intro fija — el modelo arranca usando el contexto de evaluación
     showTyping();
     try {
       await handleSectionTurn(phase);
@@ -542,13 +565,34 @@ async function openSection(phase) {
   document.getElementById('chat-input')?.focus();
 }
 
+function appendSkipButton(phase) {
+  const container = document.getElementById('chat-messages');
+  if (!container) return;
+
+  const wrapper = document.createElement('div');
+  wrapper.className = 'skip-section-wrapper';
+  wrapper.innerHTML = `<button class="skip-section-btn" type="button" data-phase="${phase}">Saltar esta sección →</button>`;
+
+  container.appendChild(wrapper);
+  container.scrollTop = container.scrollHeight;
+
+  wrapper.querySelector('.skip-section-btn').addEventListener('click', async () => {
+    wrapper.remove();
+    // Marcar sección como omitida con valor vacío
+    state.fullBrief[phase] = { seccion: phase, omitida: true };
+    saveSession({ phase: state.phase, fullBrief: state.fullBrief });
+    persistBrief(state.fullBrief);
+    await advanceToNextSection(phase);
+  });
+}
+
 const SECTION_LABELS = {
-  [PHASE.HERO]:        'Sección 1 — Hero',
-  [PHASE.SOBRE_MI]:    'Sección 2 — Sobre mí / Nosotros',
-  [PHASE.SERVICIOS]:   'Sección 3 — Servicios',
-  [PHASE.TESTIMONIOS]: 'Sección 4 — Testimonios',
-  [PHASE.CONTACTO]:    'Sección 5 — Contacto',
-  [PHASE.DISENO]:      'Sección 6 — Estilo visual',
+  [PHASE.HERO]:        'Sección 1/6 — Hero',
+  [PHASE.SOBRE_MI]:    'Sección 2/6 — Sobre mí / Nosotros',
+  [PHASE.SERVICIOS]:   'Sección 3/6 — Servicios',
+  [PHASE.TESTIMONIOS]: 'Sección 4/6 — Testimonios',
+  [PHASE.CONTACTO]:    'Sección 5/6 — Contacto',
+  [PHASE.DISENO]:      'Sección 6/6 — Estilo visual',
   [PHASE.DSN_REVIEW]:  'Diseños anteriores',
   [PHASE.GENERATING]:  'Generando tus diseños',
 };
@@ -579,11 +623,8 @@ const PROGRESS_PHASE_INDEX = {
 };
 
 function updateProgressIndicator(phase) {
-  const steps = document.querySelectorAll('.progress-step');
-  if (!steps.length) return;
-
+  const steps   = document.querySelectorAll('.progress-step');
   const current = PROGRESS_PHASE_INDEX[phase] ?? -1;
-
   steps.forEach((step, i) => {
     step.classList.toggle('progress-step--done',    i < current);
     step.classList.toggle('progress-step--active',  i === current);
@@ -591,8 +632,6 @@ function updateProgressIndicator(phase) {
   });
 }
 
-// Construye el brief plano final a partir de las secciones acumuladas —
-// es lo que consume generacion.txt y lo que se muestra en pago/éxito/notificación
 function buildFullBrief() {
   const { hero, sobre_mi, servicios, testimonios, contacto, diseno } = state.fullBrief;
   const clientData = getClientData();
@@ -611,7 +650,7 @@ function buildFullBrief() {
     servicios:      servicios?.servicios      || [],
     precio_visible: servicios?.precio_visible || false,
 
-    testimonios: testimonios || { incluir: false, testimonios: [] },
+    testimonios: testimonios?.omitida ? { incluir: false, testimonios: [] } : (testimonios || { incluir: false, testimonios: [] }),
 
     contacto:     contacto?.contacto_wsp || contacto?.email || '',
     contacto_wsp: contacto?.contacto_wsp || '',
@@ -633,7 +672,7 @@ function buildFullBrief() {
   };
 }
 
-// ─── Flujo post-secciones: carrusel de diseños anteriores o generación nueva ──
+// ─── Flujo post-secciones ──────────────────────────────────────────────────────
 
 async function startDesignPhase() {
   setInputEnabled(false);
@@ -656,7 +695,7 @@ async function startDesignPhase() {
     const widget = buildChatCarouselWidget(sets, {
       onSelect: (preview) => {
         state.selectedPreview = preview;
-        state.phase = PHASE.PAYMENT;
+        state.phase           = PHASE.PAYMENT;
         appendMessage('ai', `Buena elección — ${preview.name}. Pasemos al pago para confirmar tu pedido.`);
         showPaymentSection();
       },
@@ -667,7 +706,6 @@ async function startDesignPhase() {
     });
 
     if (widget) appendWidget(widget);
-
   } else {
     await generateNewDesigns();
   }
@@ -692,11 +730,8 @@ async function generateNewDesigns() {
       onSelect: (preview, index) => selectPreview(index),
     });
 
-    if (widget) {
-      appendWidget(widget);
-    } else {
-      showPreviewSection(state.previews);
-    }
+    if (widget) appendWidget(widget);
+    else showPreviewSection(state.previews);
 
   } catch (err) {
     console.error('Generation error:', err);
@@ -743,11 +778,8 @@ function showPreviewSection(previews) {
     renderPreviewInIframe(iframe, preview.html);
 
     card.addEventListener('click', (e) => {
-      if (!e.target.closest('.select-preview-btn')) {
-        openPreviewModal(preview, i, () => selectPreview(i));
-      }
+      if (!e.target.closest('.select-preview-btn')) openPreviewModal(preview, i, () => selectPreview(i));
     });
-
     card.querySelector('.select-preview-btn').addEventListener('click', (e) => {
       e.stopPropagation();
       selectPreview(i);
@@ -758,9 +790,7 @@ function showPreviewSection(previews) {
 }
 
 function selectPreview(index) {
-  if (state.previews[index]) {
-    state.selectedPreview = state.previews[index];
-  }
+  if (state.previews[index]) state.selectedPreview = state.previews[index];
   state.phase = PHASE.PAYMENT;
 
   document.querySelectorAll('.preview-card').forEach((c, i) => {
@@ -777,19 +807,61 @@ function showPaymentSection() {
   if (!section) return;
 
   const refCode = SESSION_ID.slice(0, 8).toUpperCase();
-  appendMessage('ai', `Código de referencia de tu pedido: **${refCode}** — guardalo por si necesitás consultar el estado.`);
+  appendMessage('ai',
+    `Código de referencia: **${refCode}** — guardalo por si necesitás consultar.\n\n`
+    + `Un diseñador revisará tu diseño y se contactará con vos en las próximas 24-48 horas para coordinar ajustes finales.`
+  );
   persistMeta({ phase: 'payment', mp_reference: refCode });
 
   section.hidden = false;
   section.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 
-  document.getElementById('payment-brand').textContent  = state.brief?.nombre_marca || '—';
+  document.getElementById('payment-brand').textContent    = state.brief?.nombre_marca || '—';
   document.getElementById('payment-template').textContent = state.selectedPreview?.name || '—';
+
+  // Mostrar preview del diseño seleccionado en la sección de pago
+  renderPaymentPreview();
 
   const mpBtn = document.getElementById('mp-btn');
   if (mpBtn) mpBtn.href = MP_LINK;
 
   document.getElementById('confirm-payment-btn')?.addEventListener('click', handlePaymentConfirm, { once: true });
+}
+
+function renderPaymentPreview() {
+  if (!state.selectedPreview?.html) return;
+
+  // Crear o encontrar el contenedor de preview en la sección de pago
+  let previewWrap = document.getElementById('payment-preview-wrap');
+  if (!previewWrap) {
+    const section = document.getElementById('payment-section');
+    if (!section) return;
+    previewWrap = document.createElement('div');
+    previewWrap.id = 'payment-preview-wrap';
+    previewWrap.className = 'payment-preview-wrap';
+    // Insertar antes del botón de pago
+    const mpBtn = section.querySelector('#mp-btn') || section.querySelector('.payment-actions');
+    if (mpBtn) {
+      mpBtn.parentNode.insertBefore(previewWrap, mpBtn);
+    } else {
+      section.appendChild(previewWrap);
+    }
+  }
+
+  previewWrap.innerHTML = `
+    <p class="payment-preview-label">Vista previa del diseño seleccionado:</p>
+    <div class="payment-preview-iframe-wrap">
+      <iframe
+        title="Vista previa — ${state.selectedPreview.name}"
+        scrolling="no"
+        sandbox="allow-same-origin"
+        loading="lazy">
+      </iframe>
+    </div>
+    <p class="payment-preview-note">Este diseño puede modificarse cuando un diseñador se comunique con vos.</p>`;
+
+  const iframe = previewWrap.querySelector('iframe');
+  renderPreviewInIframe(iframe, state.selectedPreview.html);
 }
 
 async function handlePaymentConfirm() {
@@ -799,7 +871,7 @@ async function handlePaymentConfirm() {
   const btn = document.getElementById('confirm-payment-btn');
   if (btn) { btn.disabled = true; btn.textContent = 'Enviando...'; }
 
-  appendMessage('system', 'Confirmación recibida. Enviando tu pedido a Martín...');
+  appendMessage('system', 'Confirmación recibida. Enviando tu pedido...');
 
   try {
     await sendNotification(state.brief, state.selectedPreview?.html || '', getClientData());
@@ -850,9 +922,6 @@ function appendMessage(role, text) {
   container.scrollTop = container.scrollHeight;
 }
 
-/**
- * Inserta un widget DOM como burbuja del asistente en el chat.
- */
 function appendWidget(el) {
   const container = document.getElementById('chat-messages');
   if (!container || !el) return;
@@ -909,18 +978,26 @@ function updateGeneratingProgress(current, total, name) {
 // ─── Helpers ───────────────────────────────────────────────────────────────────
 
 async function callClaude(messages, system, opts = {}) {
-  const { model, max_tokens = 1024, intent } = opts;
+  const { max_tokens = 1024, intent } = opts;
 
   const res = await fetch('/api/claude', {
-    method: 'POST',
+    method:  'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ messages, system, max_tokens, model, intent, session_id: SESSION_ID, section: state.phase }),
+    body:    JSON.stringify({
+      messages,
+      system,
+      max_tokens,
+      model:      'claude-haiku-4-5-20251001',
+      intent:     intent || 'chat',
+      session_id: SESSION_ID,
+      section:    state.phase,
+    }),
   });
 
   if (res.status === 429) {
     const data = await res.json().catch(() => ({}));
-    const err = new Error(data.message || 'Límite de solicitudes alcanzado.');
-    err.rateLimitMessage = data.message || 'Alcanzaste el límite de solicitudes. Intentá en unos minutos.';
+    const err  = new Error(data.message || 'Límite alcanzado.');
+    err.rateLimitMessage = data.error || 'Alcanzaste el límite de solicitudes. Intentá en unos minutos.';
     throw err;
   }
 
