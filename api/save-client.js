@@ -1,8 +1,8 @@
-// api/save-client.js
+﻿// api/save-client.js
 // Guarda y actualiza clientes en Supabase PostgreSQL.
 // Reemplaza la versión anterior que escribía clientes.json en GitHub (race condition).
 
-import supabase from './lib/supabase.js';
+import supabase from './_lib/supabase.js';
 
 const ALLOWED_ORIGINS = (process.env.ALLOWED_ORIGINS || '').split(',').map(o => o.trim());
 

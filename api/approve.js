@@ -1,4 +1,4 @@
-// api/approve.js
+﻿// api/approve.js
 // Aprueba el deploy de una landing page.
 // Seguridad vs versión anterior (base64 inseguro):
 //   - Verifica firma JWT con APPROVAL_SECRET
@@ -8,8 +8,8 @@
 
 import jwt from 'jsonwebtoken';
 import crypto from 'crypto';
-import { isTokenUsed, markTokenUsed } from './lib/redis.js';
-import supabase from './lib/supabase.js';
+import { isTokenUsed, markTokenUsed } from './_lib/redis.js';
+import supabase from './_lib/supabase.js';
 
 const GH_TOKEN  = process.env.GH_TOKEN;
 const GH_OWNER  = process.env.GH_OWNER;

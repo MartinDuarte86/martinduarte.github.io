@@ -1,11 +1,11 @@
-// api/reject.js
+﻿// api/reject.js
 // Rechaza el deploy de una landing page.
 // Misma lógica de seguridad JWT que approve.js.
 
 import jwt from 'jsonwebtoken';
 import crypto from 'crypto';
-import { isTokenUsed, markTokenUsed } from './lib/redis.js';
-import supabase from './lib/supabase.js';
+import { isTokenUsed, markTokenUsed } from './_lib/redis.js';
+import supabase from './_lib/supabase.js';
 
 export default async function handler(req, res) {
   if (req.method !== 'GET') {

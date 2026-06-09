@@ -1,9 +1,9 @@
-// api/get-session.js
+﻿// api/get-session.js
 // Recupera la sesión completa desde Upstash Redis.
 // Llamado desde chat.js al cargar la página: si existe sesión previa en localStorage,
 // permite al cliente retomar el wizard desde donde lo dejó.
 
-import { getBrief, getSessionMeta, getMessages, getPreviews } from './lib/redis.js';
+import { getBrief, getSessionMeta, getMessages, getPreviews } from './_lib/redis.js';
 
 const ALLOWED_ORIGINS = (process.env.ALLOWED_ORIGINS || '').split(',').map(o => o.trim());
 

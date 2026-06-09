@@ -1,4 +1,4 @@
-// api/save-dsn.js
+﻿// api/save-dsn.js
 // Guarda sets de diseños (DSN — diseños anteriores) en Supabase PostgreSQL.
 // Reemplaza la versión anterior que escribía en dsn/ del repo GitHub (race condition).
 //
@@ -6,8 +6,8 @@
 // Al llamar este endpoint, los diseños pasan a estar disponibles como "diseños anteriores"
 // para el carousel de nuevas sesiones.
 
-import supabase from './lib/supabase.js';
-import { getPreviews } from './lib/redis.js';
+import supabase from './_lib/supabase.js';
+import { getPreviews } from './_lib/redis.js';
 
 const ALLOWED_ORIGINS = (process.env.ALLOWED_ORIGINS || '').split(',').map(o => o.trim());
 

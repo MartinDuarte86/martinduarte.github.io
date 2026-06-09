@@ -1,4 +1,4 @@
-// api/save-session.js
+﻿// api/save-session.js
 // Persiste la sesión del usuario en Upstash Redis (TTL 48h).
 // Llamado desde chat.js del frontend al avanzar entre fases y secciones.
 //
@@ -7,7 +7,7 @@
 //   - messages: historial completo de mensajes (todas las secciones)
 //   - meta: fase actual, email, timestamps
 
-import { saveBrief, saveSessionMeta, appendMessage } from './lib/redis.js';
+import { saveBrief, saveSessionMeta, appendMessage } from './_lib/redis.js';
 
 const ALLOWED_ORIGINS = (process.env.ALLOWED_ORIGINS || '').split(',').map(o => o.trim());
 

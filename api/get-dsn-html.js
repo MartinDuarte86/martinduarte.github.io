@@ -1,4 +1,4 @@
-// api/get-dsn-html.js
+﻿// api/get-dsn-html.js
 // Devuelve el HTML completo de un diseño del DSN (diseños anteriores).
 // Usado por el carousel de rediseño para renderizar los diseños previos en iframes
 // y para pasarle el HTML al LLM de rediseño cuando el cliente elige uno.
@@ -6,7 +6,7 @@
 // GET /api/get-dsn-html?id=<uuid>        → HTML de un diseño específico
 // GET /api/get-dsn-html?rubro=<rubro>    → Últimos 6 diseños del rubro (metadata + HTML)
 
-import supabase from './lib/supabase.js';
+import supabase from './_lib/supabase.js';
 
 const ALLOWED_ORIGINS = (process.env.ALLOWED_ORIGINS || '').split(',').map(o => o.trim());
 

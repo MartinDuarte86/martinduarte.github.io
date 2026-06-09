@@ -1,4 +1,4 @@
-// api/claude.js
+﻿// api/claude.js
 // Proxy LLM con routing inteligente por intent:
 //
 //   intent: 'chat'       → OpenRouter free (nemotron-nano) — evaluación + wizard
@@ -15,7 +15,7 @@
 //   - CORS whitelist
 
 import Anthropic from '@anthropic-ai/sdk';
-import { checkRateLimit, getMessages, getBrief } from './lib/redis.js';
+import { checkRateLimit, getMessages, getBrief } from './_lib/redis.js';
 
 // ─── Configuración de modelos por intent ────────────────────────────────────
 

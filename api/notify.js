@@ -1,4 +1,4 @@
-// api/notify.js
+﻿// api/notify.js
 // Notifica a Martín cuando un cliente completó el flujo y eligió un diseño.
 // Cambios vs versión anterior:
 //   - Token de approve/reject: JWT firmado con APPROVAL_SECRET (antes era base64 inseguro)
@@ -7,8 +7,8 @@
 
 import jwt from 'jsonwebtoken';
 import { Resend } from 'resend';
-import { savePreviews } from './lib/redis.js';
-import supabase from './lib/supabase.js';
+import { savePreviews } from './_lib/redis.js';
+import supabase from './_lib/supabase.js';
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
