@@ -1,83 +1,114 @@
-// Guarda o actualiza un registro en landing_page/data/clientes.json via GitHub REST API
-module.exports = async function handler(req, res) {
-  if (req.method === 'OPTIONS') return res.status(200).end();
-  if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
+// api/save-client.js
+// Guarda y actualiza clientes en Supabase PostgreSQL.
+// Reemplaza la versión anterior que escribía clientes.json en GitHub (race condition).
 
-  const { action, client, sessionId, feedbackText } = req.body;
-  if (!action) return res.status(400).json({ error: 'action requerida' });
+import supabase from './lib/supabase.js';
 
-  const token = process.env.GH_TOKEN;
-  const owner = process.env.GH_OWNER || 'MartinDuarte86';
-  const repo  = process.env.GH_REPO  || 'MarcaPersonal-Web';
-  const path  = 'landing_page/data/clientes.json';
+const ALLOWED_ORIGINS = (process.env.ALLOWED_ORIGINS || '').split(',').map(o => o.trim());
 
-  if (!token) return res.status(500).json({ error: 'GH_TOKEN no configurado' });
-
-  const headers = {
-    'Authorization': `Bearer ${token}`,
-    'Accept': 'application/vnd.github.v3+json',
-    'Content-Type': 'application/json',
-    'User-Agent': 'martinduarte-landing-bot',
+function corsHeaders(origin) {
+  const allowed = ALLOWED_ORIGINS.includes(origin) ? origin : ALLOWED_ORIGINS[0];
+  return {
+    'Access-Control-Allow-Origin':  allowed,
+    'Access-Control-Allow-Methods': 'POST, OPTIONS',
+    'Access-Control-Allow-Headers': 'Content-Type',
+    'Vary': 'Origin',
   };
+}
+
+export default async function handler(req, res) {
+  const origin = req.headers.origin || '';
+  const headers = corsHeaders(origin);
+
+  if (req.method === 'OPTIONS') {
+    return res.status(204).set(headers).end();
+  }
+  if (req.method !== 'POST') {
+    return res.status(405).set(headers).json({ error: 'Method not allowed' });
+  }
+
+  Object.entries(headers).forEach(([k, v]) => res.setHeader(k, v));
+
+  const { action, session_id, email, data } = req.body || {};
+
+  if (!session_id) {
+    return res.status(400).json({ error: 'session_id requerido' });
+  }
 
   try {
-    // Leer archivo actual
-    const getRes = await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/${path}`, { headers });
-    let clientes = [];
-    let sha = null;
-
-    if (getRes.ok) {
-      const fileData = await getRes.json();
-      sha = fileData.sha;
-      clientes = JSON.parse(Buffer.from(fileData.content, 'base64').toString('utf-8'));
-    }
-
+    // ── Crear nuevo cliente ────────────────────────────────────────────────
     if (action === 'create') {
-      if (!client) return res.status(400).json({ error: 'client requerido' });
+      // Verificar email duplicado
+      if (email) {
+        const { data: existing } = await supabase
+          .from('clients')
+          .select('id, session_id')
+          .eq('email', email)
+          .maybeSingle();
 
-      // Verificar si el email ya existe — previene registros duplicados
-      const existing = clientes.find(
-        c => c.email && c.email.toLowerCase() === (client.email || '').toLowerCase()
-      );
-      if (existing) {
-        return res.status(409).json({
-          error: 'email_exists',
-          estado: existing.estado,
-          id: existing.id,
-          nombre: existing.nombre,
-        });
+        if (existing) {
+          return res.status(409).json({
+            error: 'email_exists',
+            session_id: existing.session_id,
+          });
+        }
       }
 
-      clientes.push(client);
-    } else if (action === 'feedback') {
-      if (!sessionId || !feedbackText) return res.status(400).json({ error: 'sessionId y feedbackText requeridos' });
-      const entry = clientes.find(c => c.id === sessionId);
-      if (entry) {
-        entry.feedback_diseño = feedbackText;
-        entry.estado = 'feedback_pendiente';
-      }
-    } else {
-      return res.status(400).json({ error: 'action inválida' });
+      const { data: client, error } = await supabase
+        .from('clients')
+        .insert({
+          session_id,
+          email:        data?.email || email,
+          nombre_marca: data?.nombre_marca,
+          rubro:        data?.rubro,
+          estado:       'iniciado',
+          full_brief:   data?.full_brief || null,
+          mp_external_reference: session_id, // el session_id ES la referencia de pago
+        })
+        .select()
+        .single();
+
+      if (error) throw error;
+      return res.status(201).json({ ok: true, client_id: client.id });
     }
 
-    const content = Buffer.from(JSON.stringify(clientes, null, 2)).toString('base64');
-    const body = { message: `chore: update clientes.json [${action}]`, content };
-    if (sha) body.sha = sha;
+    // ── Actualizar estado o brief ──────────────────────────────────────────
+    if (action === 'update') {
+      const updates = {};
+      if (data?.estado)       updates.estado       = data.estado;
+      if (data?.full_brief)   updates.full_brief   = data.full_brief;
+      if (data?.template_elegido) updates.template_elegido = data.template_elegido;
+      if (data?.nombre_marca) updates.nombre_marca = data.nombre_marca;
+      if (data?.rubro)        updates.rubro        = data.rubro;
+      if (data?.gist_id)      updates.gist_id      = data.gist_id;
 
-    const putRes = await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/${path}`, {
-      method: 'PUT',
-      headers,
-      body: JSON.stringify(body),
-    });
+      const { error } = await supabase
+        .from('clients')
+        .update(updates)
+        .eq('session_id', session_id);
 
-    if (!putRes.ok) {
-      const err = await putRes.text();
-      throw new Error(`GitHub PUT failed: ${err}`);
+      if (error) throw error;
+      return res.status(200).json({ ok: true });
     }
 
-    return res.status(200).json({ success: true });
+    // ── Guardar feedback de diseño ─────────────────────────────────────────
+    if (action === 'feedback') {
+      const { error } = await supabase
+        .from('clients')
+        .update({
+          template_elegido: data?.template_elegido,
+          estado: 'diseños_generados',
+        })
+        .eq('session_id', session_id);
+
+      if (error) throw error;
+      return res.status(200).json({ ok: true });
+    }
+
+    return res.status(400).json({ error: `Acción desconocida: ${action}` });
+
   } catch (err) {
-    console.error('save-client error:', err);
-    return res.status(500).json({ error: err.message });
+    console.error('[save-client]', err);
+    return res.status(500).json({ error: 'Error al guardar cliente', detail: err.message });
   }
-};
+}

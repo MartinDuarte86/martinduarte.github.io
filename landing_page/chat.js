@@ -4,6 +4,100 @@ import { sendNotification } from './notifier.js';
 import { initRegistrationForm, getClientData, saveSession } from './validator.js';
 import { initCarousel, buildChatCarouselWidget, buildPreviewsCarouselWidget } from './carousel.js';
 
+// ─── Session ID persistente ────────────────────────────────────────────────────
+
+function getOrCreateSessionId() {
+  const STORAGE_KEY = 'lp_session_id';
+  let id = localStorage.getItem(STORAGE_KEY);
+  if (!id) {
+    id = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c => {
+      const r = Math.random() * 16 | 0;
+      return (c === 'x' ? r : (r & 0x3 | 0x8)).toString(16);
+    });
+    localStorage.setItem(STORAGE_KEY, id);
+  }
+  return id;
+}
+
+const SESSION_ID = getOrCreateSessionId();
+
+async function persistMessage(role, content, section) {
+  try {
+    await fetch('/api/save-session', {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body:    JSON.stringify({ session_id: SESSION_ID, type: 'message', payload: { role, content, section } }),
+    });
+  } catch (e) {
+    console.warn('[session] Error al persistir mensaje:', e);
+  }
+}
+
+async function persistBrief(fullBrief) {
+  try {
+    await fetch('/api/save-session', {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body:    JSON.stringify({ session_id: SESSION_ID, type: 'brief', payload: fullBrief }),
+    });
+  } catch (e) {
+    console.warn('[session] Error al persistir brief:', e);
+  }
+}
+
+async function persistMeta(meta) {
+  try {
+    await fetch('/api/save-session', {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body:    JSON.stringify({ session_id: SESSION_ID, type: 'meta', payload: meta }),
+    });
+  } catch (e) {
+    console.warn('[session] Error al persistir meta:', e);
+  }
+}
+
+async function tryRecoverSession() {
+  const storedId = localStorage.getItem('lp_session_id');
+  if (!storedId) return false;
+
+  try {
+    const res  = await fetch(`/api/get-session?session_id=${storedId}`);
+    const data = await res.json();
+
+    if (!data.found || !data.brief) return false;
+
+    const completedSections = Object.keys(data.brief).filter(k => data.brief[k]);
+    if (completedSections.length === 0) return false;
+
+    const confirmed = confirm(
+      `Tenés una sesión en progreso (completaste: ${completedSections.join(', ')}).\n¿Querés continuar donde lo dejaste?`
+    );
+
+    if (confirmed) {
+      state.fullBrief = data.brief || {};
+      state.messages  = [];
+
+      const lastPhase = data.meta?.phase;
+      if (lastPhase) {
+        state.phase = lastPhase;
+        document.getElementById('progress-bar')?.removeAttribute('hidden');
+        updateProgressIndicator(lastPhase);
+        appendSectionDivider(lastPhase);
+        await openSection(lastPhase);
+      }
+
+      return true;
+    } else {
+      localStorage.removeItem('lp_session_id');
+      return false;
+    }
+  } catch (e) {
+    console.warn('[session] No se pudo recuperar sesión:', e);
+    return false;
+  }
+}
+
 const MP_LINK = 'https://mpago.la/1Dufc3b';
 
 const MAX_UPLOAD_FILES = 5;
@@ -65,12 +159,15 @@ let state = {
 export async function init() {
   await loadPrompts();
 
-  initRegistrationForm((clientData) => {
+  initRegistrationForm(async (clientData) => {
     window._chatSessionReady = true;
     window.flowModal?.goToStep(3);
 
-    const nombre = clientData.nombre;
-    appendMessage('ai', `Hola ${nombre}. Contame sobre tu proyecto — ¿de qué se trata tu negocio o idea?`);
+    const recovered = await tryRecoverSession();
+    if (!recovered) {
+      const nombre = clientData.nombre;
+      appendMessage('ai', `Hola ${nombre}. Contame sobre tu proyecto — ¿de qué se trata tu negocio o idea?`);
+    }
     setupEventListeners();
   });
 }
@@ -288,6 +385,7 @@ async function handleSend() {
   if (text) {
     appendMessage('user', text);
     state.messages.push({ role: 'user', content: text });
+    persistMessage('user', text, state.phase);
   }
 
   if (state.phase === PHASE.GREETING) {
@@ -339,6 +437,7 @@ async function handleEvaluationTurn() {
   const reply = result.respuesta_cliente || 'Entendido. ¿Podés contarme más?';
   state.messages.push({ role: 'assistant', content: reply });
   appendMessage('ai', reply);
+  persistMessage('assistant', reply, state.phase);
 
   if (result.siguiente_accion === 'onboarding') {
     const lastUserMsg = state.messages.filter(m => m.role === 'user').slice(-1);
@@ -376,12 +475,14 @@ async function handleSectionTurn(seccionKey) {
   if (displayText) {
     state.messages.push({ role: 'assistant', content: raw });
     appendMessage('ai', displayText);
+    persistMessage('assistant', displayText, state.phase);
   }
 
   // Si el JSON tiene la sección correcta, acumular y avanzar
   if (sectionData?.seccion === seccionKey) {
     state.fullBrief[seccionKey] = sectionData;
     saveSession({ phase: state.phase, fullBrief: state.fullBrief });
+    persistBrief(state.fullBrief);
 
     await advanceToNextSection(seccionKey);
   }
@@ -394,6 +495,7 @@ async function advanceToNextSection(completedSection) {
   if (nextPhase) {
     state.phase = nextPhase;
     state.messages = []; // resetear historial — cada sección arranca limpia
+    persistMeta({ phase: state.phase });
     updateProgressIndicator(nextPhase);
     appendSectionDivider(nextPhase);
 
@@ -674,6 +776,10 @@ function showPaymentSection() {
   const section = document.getElementById('payment-section');
   if (!section) return;
 
+  const refCode = SESSION_ID.slice(0, 8).toUpperCase();
+  appendMessage('ai', `Código de referencia de tu pedido: **${refCode}** — guardalo por si necesitás consultar el estado.`);
+  persistMeta({ phase: 'payment', mp_reference: refCode });
+
   section.hidden = false;
   section.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 
@@ -808,7 +914,7 @@ async function callClaude(messages, system, opts = {}) {
   const res = await fetch('/api/claude', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ messages, system, max_tokens, model, intent }),
+    body: JSON.stringify({ messages, system, max_tokens, model, intent, session_id: SESSION_ID, section: state.phase }),
   });
 
   if (res.status === 429) {

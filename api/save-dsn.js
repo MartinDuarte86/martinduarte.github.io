@@ -1,106 +1,86 @@
-// Guarda un nuevo set de diseños en dsn/ y actualiza dsn/index.json via GitHub REST API
-module.exports = async function handler(req, res) {
-  if (req.method === 'OPTIONS') return res.status(200).end();
-  if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
+// api/save-dsn.js
+// Guarda sets de diseños (DSN — diseños anteriores) en Supabase PostgreSQL.
+// Reemplaza la versión anterior que escribía en dsn/ del repo GitHub (race condition).
+//
+// Los HTMLs de previews viven en Redis (TTL 48h) mientras la sesión está activa.
+// Al llamar este endpoint, los diseños pasan a estar disponibles como "diseños anteriores"
+// para el carousel de nuevas sesiones.
 
-  const { rubro, clienteId, templates } = req.body;
-  if (!rubro || !Array.isArray(templates) || templates.length === 0) {
-    return res.status(400).json({ error: 'rubro y templates son requeridos' });
-  }
+import supabase from './lib/supabase.js';
+import { getPreviews } from './lib/redis.js';
 
-  const token = process.env.GH_TOKEN;
-  const owner = process.env.GH_OWNER || 'MartinDuarte86';
-  const repo  = process.env.GH_REPO  || 'MarcaPersonal-Web';
+const ALLOWED_ORIGINS = (process.env.ALLOWED_ORIGINS || '').split(',').map(o => o.trim());
 
-  if (!token) return res.status(500).json({ error: 'GH_TOKEN no configurado' });
-
-  const headers = {
-    'Authorization': `Bearer ${token}`,
-    'Accept': 'application/vnd.github.v3+json',
-    'Content-Type': 'application/json',
-    'User-Agent': 'martinduarte-landing-bot',
+function corsHeaders(origin) {
+  const allowed = ALLOWED_ORIGINS.includes(origin) ? origin : ALLOWED_ORIGINS[0];
+  return {
+    'Access-Control-Allow-Origin':  allowed,
+    'Access-Control-Allow-Methods': 'POST, GET, OPTIONS',
+    'Access-Control-Allow-Headers': 'Content-Type',
+    'Vary': 'Origin',
   };
+}
 
-  async function getFile(path) {
-    const r = await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/${path}`, { headers });
-    if (!r.ok) return null;
-    return r.json();
+export default async function handler(req, res) {
+  const origin = req.headers.origin || '';
+  const headers = corsHeaders(origin);
+
+  if (req.method === 'OPTIONS') return res.status(204).set(headers).end();
+  Object.entries(headers).forEach(([k, v]) => res.setHeader(k, v));
+
+  // ── GET: recuperar DSN para el carousel ───────────────────────────────────
+  if (req.method === 'GET') {
+    const { rubro } = req.query;
+
+    let query = supabase
+      .from('design_sets')
+      .select('id, rubro, template_name, thumbnail_url, created_at')
+      .eq('visible_en_carousel', true)
+      .order('created_at', { ascending: false })
+      .limit(10);
+
+    if (rubro) query = query.eq('rubro', rubro);
+
+    const { data, error } = await query;
+    if (error) throw error;
+    return res.status(200).json({ sets: data });
   }
 
-  async function putFile(path, content, sha, message) {
-    const body = {
-      message,
-      content: Buffer.from(content).toString('base64'),
-    };
-    if (sha) body.sha = sha;
-    const r = await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/${path}`, {
-      method: 'PUT',
-      headers,
-      body: JSON.stringify(body),
-    });
-    if (!r.ok) {
-      const err = await r.text();
-      throw new Error(`GitHub PUT ${path} failed: ${err}`);
+  // ── POST: guardar un diseño al finalizar la sesión ─────────────────────────
+  if (req.method === 'POST') {
+    const { session_id, client_id, rubro, template_name, html } = req.body || {};
+
+    if (!session_id || !rubro || !template_name) {
+      return res.status(400).json({ error: 'session_id, rubro y template_name son requeridos' });
     }
-    return r.json();
+
+    // Si no se provee el HTML directamente, intentar recuperar de Redis
+    let htmlContent = html;
+    if (!htmlContent) {
+      const previews = await getPreviews(session_id);
+      const match = previews?.find(p => p.templateName === template_name);
+      htmlContent = match?.html || null;
+    }
+
+    const { data: dsn, error } = await supabase
+      .from('design_sets')
+      .insert({
+        session_id,
+        client_id:    client_id || null,
+        rubro,
+        template_name,
+        html_preview: htmlContent,
+      })
+      .select('id')
+      .single();
+
+    if (error) {
+      console.error('[save-dsn]', error);
+      return res.status(500).json({ error: 'Error al guardar diseño', detail: error.message });
+    }
+
+    return res.status(201).json({ ok: true, dsn_id: dsn.id });
   }
 
-  try {
-    // Leer índice actual
-    const indexPath = 'landing_page/dsn/index.json';
-    const indexFile = await getFile(indexPath);
-    let index = [];
-    let indexSha = null;
-    if (indexFile) {
-      indexSha = indexFile.sha;
-      index = JSON.parse(Buffer.from(indexFile.content, 'base64').toString('utf-8'));
-    }
-
-    // Generar ID del nuevo set
-    const nextNum = (index.length + 1).toString().padStart(3, '0');
-    const setId   = `dsn-${nextNum}`;
-    const basePath = `landing_page/dsn/${setId}`;
-    const today    = new Date().toISOString().split('T')[0];
-
-    // Subir cada template HTML en dsn/template/
-    const templateMeta = [];
-    for (let i = 0; i < templates.length; i++) {
-      const tpl = templates[i];
-      const tplFile = `landing_page/dsn/template/${setId}-template-${i + 1}.html`;
-      await putFile(tplFile, tpl.html, null, `chore: add template/${setId}-template-${i + 1}`);
-      templateMeta.push({
-        id: tpl.id,
-        name: tpl.name,
-        file: `dsn/template/${setId}-template-${i + 1}.html`,
-      });
-    }
-
-    // Subir meta.json del set
-    const meta = { id: setId, rubro, fecha: today, cliente_id: clienteId || null };
-    await putFile(`${basePath}/meta.json`, JSON.stringify(meta, null, 2), null, `chore: add ${setId}/meta.json`);
-
-    // Actualizar índice (máximo 10 sets; eliminar el más antiguo si se supera)
-    const newEntry = {
-      id: setId,
-      rubro,
-      templates: templateMeta,
-      fecha: today,
-    };
-    index.push(newEntry);
-    if (index.length > 10) index.shift();
-
-    // Volver a leer el sha del índice (puede haber cambiado si ya existía)
-    const freshIndex = await getFile(indexPath);
-    await putFile(
-      indexPath,
-      JSON.stringify(index, null, 2),
-      freshIndex?.sha || indexSha,
-      `chore: update dsn/index.json — add ${setId}`
-    );
-
-    return res.status(200).json({ success: true, id: setId });
-  } catch (err) {
-    console.error('save-dsn error:', err);
-    return res.status(500).json({ error: err.message });
-  }
-};
+  return res.status(405).json({ error: 'Method not allowed' });
+}

@@ -1,49 +1,81 @@
-module.exports = async function handler(req, res) {
+// api/reject.js
+// Rechaza el deploy de una landing page.
+// Misma lógica de seguridad JWT que approve.js.
+
+import jwt from 'jsonwebtoken';
+import crypto from 'crypto';
+import { isTokenUsed, markTokenUsed } from './lib/redis.js';
+import supabase from './lib/supabase.js';
+
+export default async function handler(req, res) {
+  if (req.method !== 'GET') {
+    return res.status(405).json({ error: 'Method not allowed' });
+  }
+
   const { token } = req.query;
 
-  let payload = {};
-  if (token) {
-    try {
-      payload = JSON.parse(Buffer.from(token, 'base64url').toString('utf-8'));
-    } catch {}
+  if (!token) {
+    return res.status(400).send(errorPage('Token faltante', 'El link de rechazo no contiene un token válido.'));
   }
 
-  const { nombre_marca = 'este cliente', gist_id } = payload;
-
-  // Delete Gist if present
-  if (gist_id && process.env.GH_TOKEN) {
-    fetch(`https://api.github.com/gists/${gist_id}`, {
-      method: 'DELETE',
-      headers: {
-        'Authorization': `Bearer ${process.env.GH_TOKEN}`,
-        'User-Agent': 'martinduarte-landing-bot',
-      },
-    }).catch(() => {});
+  // ── 1. Verificar firma y expiración ───────────────────────────────────────
+  let payload;
+  try {
+    payload = jwt.verify(token, process.env.APPROVAL_SECRET);
+  } catch (err) {
+    const msg = err.name === 'TokenExpiredError'
+      ? 'Este link expiró (48 horas).'
+      : 'Token inválido o manipulado.';
+    return res.status(401).send(errorPage('Link inválido', msg));
   }
 
-  return res.status(200).send(`<!DOCTYPE html>
-<html lang="es">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Solicitud rechazada — Martín Duarte</title>
-<style>
-  body { margin:0; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
-         background:#0F172A; color:#F8FAFC; display:flex; align-items:center;
-         justify-content:center; min-height:100vh; text-align:center; padding:24px; }
-  .card { background:#1E293B; border-radius:24px; padding:48px 40px; max-width:480px; width:100%; }
-  .icon { font-size:48px; margin-bottom:16px; }
-  h1 { color:#F59E0B; margin:0 0 16px; font-size:28px; }
-  p { color:#94A3B8; line-height:1.6; margin:0; }
-</style>
-</head>
-<body>
-<div class="card">
-  <div class="icon">✕</div>
-  <h1>Solicitud rechazada</h1>
-  <p>La landing de <strong style="color:#F8FAFC;">${nombre_marca}</strong> fue rechazada.<br><br>
-     Coordiná con el cliente los próximos pasos de forma directa.</p>
-</div>
-</body>
-</html>`);
-};
+  if (payload.action !== 'reject') {
+    return res.status(400).send(errorPage('Acción incorrecta', 'Este es un link de aprobación, no de rechazo.'));
+  }
+
+  // ── 2. One-time-use ───────────────────────────────────────────────────────
+  const tokenHash = crypto.createHash('sha256').update(token).digest('hex');
+  const alreadyUsed = await isTokenUsed(tokenHash);
+  if (alreadyUsed) {
+    return res.status(410).send(errorPage('Link ya utilizado', 'Este link de rechazo ya fue usado.'));
+  }
+  await markTokenUsed(tokenHash);
+
+  const { session_id, nombre_marca } = payload;
+
+  try {
+    // ── 3. Actualizar estado en Supabase ─────────────────────────────────────
+    await supabase
+      .from('clients')
+      .update({ estado: 'rechazado' })
+      .eq('session_id', session_id);
+
+    // Nota: no eliminamos los previews de Redis — expiran solos en 48h.
+    // El diseño ya fue guardado en design_sets (DSN) al momento de notify.
+
+    return res.status(200).send(successPage(
+      '❌ Deploy rechazado',
+      `El pedido de <strong>${nombre_marca}</strong> fue rechazado y no se hará deploy.`
+    ));
+
+  } catch (err) {
+    console.error('[reject]', err);
+    return res.status(500).send(errorPage('Error interno', err.message));
+  }
+}
+
+function successPage(title, msg) {
+  return `<!DOCTYPE html><html><head><meta charset="utf-8"><title>${title}</title>
+  <style>body{font-family:sans-serif;display:flex;align-items:center;justify-content:center;min-height:100vh;margin:0;background:#fff7ed}
+  .card{background:#fff;border-radius:12px;padding:40px;max-width:500px;text-align:center;box-shadow:0 4px 20px rgba(0,0,0,.08)}
+  h1{color:#ea580c}</style></head>
+  <body><div class="card"><h1>${title}</h1><p>${msg}</p></div></body></html>`;
+}
+
+function errorPage(title, msg) {
+  return `<!DOCTYPE html><html><head><meta charset="utf-8"><title>${title}</title>
+  <style>body{font-family:sans-serif;display:flex;align-items:center;justify-content:center;min-height:100vh;margin:0;background:#fef2f2}
+  .card{background:#fff;border-radius:12px;padding:40px;max-width:500px;text-align:center;box-shadow:0 4px 20px rgba(0,0,0,.08)}
+  h1{color:#dc2626}</style></head>
+  <body><div class="card"><h1>❌ ${title}</h1><p>${msg}</p></div></body></html>`;
+}
