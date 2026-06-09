@@ -1,16 +1,29 @@
 {
   "scripts": {
     "test": "jest --forceExit",
-    "test:watch": "jest --watch"
+    "test:watch": "jest --watch",
+    "test:integration": "jest --forceExit --testMatch='**/__tests__/integration/**/*.test.js'",
+    "test:e2e": "playwright test",
+    "test:e2e:ui": "playwright test --ui",
+    "test:all": "npm test && npm run test:integration && npm run test:e2e"
   },
   "jest": {
     "testEnvironment": "node",
     "transform": {
       "^.+\\.js$": "babel-jest"
     },
-    "testMatch": ["**/__tests__/**/*.test.js"],
+    "testMatch": [
+      "**/__tests__/**/*.test.js"
+    ],
+    "setupFiles": [
+      "dotenv/config",
+      "./jest.setup.js"
+    ],
     "coverageDirectory": "coverage",
-    "collectCoverageFrom": ["api/**/*.js", "!api/_lib/*.js"]
+    "collectCoverageFrom": [
+      "api/**/*.js",
+      "!api/_lib/*.js"
+    ]
   },
   "dependencies": {
     "@supabase/ssr": "^0.10.3",
@@ -22,8 +35,11 @@
     "@babel/core": "^7.29.7",
     "@babel/preset-env": "^7.29.7",
     "@jest/globals": "^30.4.1",
+    "@playwright/test": "^1.60.0",
     "babel-jest": "^30.4.1",
+    "dotenv": "^17.4.2",
     "jest": "^30.4.2",
-    "node-mocks-http": "^1.17.2"
+    "node-mocks-http": "^1.17.2",
+    "ws": "^8.21.0"
   }
 }

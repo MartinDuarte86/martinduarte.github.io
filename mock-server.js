@@ -308,6 +308,13 @@ function mockGeneratedHtml() {
 
 // ─── Mocks de las demás APIs ──────────────────────────────────────────────────
 
+// Sesiones en memoria (se pierden al reiniciar el server, suficiente para testing local)
+const _sessions = new Map(); // session_id → { meta, brief, messages }
+// Clientes en memoria (para conflicto de email en tests)
+const _clientsByEmail = new Map(); // email → { session_id, estado, nombre_marca }
+// Contador para IDs de design sets (no se persiste al disco en modo mock)
+let _dsnCounter = 1;
+
 function mockValidateEmail(body) {
   const { email } = body;
   const isDisposable = /@(mailinator|tempmail|guerrilla|yopmail|throwam)/.test(email || '');
@@ -316,59 +323,98 @@ function mockValidateEmail(body) {
 }
 
 function mockSaveClient(body) {
-  const { action, client, sessionId, feedbackText } = body;
+  // Formato nuevo: { action, session_id, email, data }
+  // Formato legacy (feedback): { action, session_id, data }
+  const { action, session_id, email, data } = body;
   const filePath = path.join(__dirname, 'landing_page', 'data', 'clientes.json');
 
   let clientes = [];
   try { clientes = JSON.parse(fs.readFileSync(filePath, 'utf-8')); } catch {}
 
-  if (action === 'create' && client) {
-    clientes.push(client);
-    console.log(`  [mock] save-client CREATE: ${client.nombre} ${client.apellido} <${client.email}>`);
-  } else if (action === 'feedback' && sessionId) {
-    const entry = clientes.find(c => c.id === sessionId);
-    if (entry) {
-      entry.feedback_diseño = feedbackText;
-      entry.estado = 'feedback_pendiente';
-      console.log(`  [mock] save-client FEEDBACK session ${sessionId}: "${feedbackText?.slice(0, 60)}..."`);
+  if (action === 'create') {
+    // Verificar duplicado
+    if (email && _clientsByEmail.has(email)) {
+      const existing = _clientsByEmail.get(email);
+      return {
+        error: 'email_exists',
+        session_id: existing.session_id,
+        id: existing.session_id,
+        estado: existing.estado,
+        nombre: existing.nombre_marca,
+      };
     }
+    const client = { id: session_id, email: data?.email || email, session_id, estado: 'en_chat', nombre_marca: data?.nombre_marca || '' };
+    clientes.push(client);
+    if (email) _clientsByEmail.set(email, { session_id, estado: 'en_chat', nombre_marca: data?.nombre_marca || '' });
+    console.log(`  [mock] save-client CREATE: session=${session_id} email=${email}`);
+    fs.writeFileSync(filePath, JSON.stringify(clientes, null, 2));
+    return { ok: true, client_id: session_id };
   }
 
-  fs.writeFileSync(filePath, JSON.stringify(clientes, null, 2));
-  return { success: true };
+  if (action === 'update') {
+    const idx = clientes.findIndex(c => c.session_id === session_id || c.id === session_id);
+    if (idx >= 0 && data?.estado) { clientes[idx].estado = data.estado; }
+    if (idx >= 0 && data?.nombre_marca) { clientes[idx].nombre_marca = data.nombre_marca; }
+    fs.writeFileSync(filePath, JSON.stringify(clientes, null, 2));
+    console.log(`  [mock] save-client UPDATE: session=${session_id} estado=${data?.estado}`);
+    return { ok: true };
+  }
+
+  if (action === 'feedback') {
+    const idx = clientes.findIndex(c => c.session_id === session_id || c.id === session_id);
+    if (idx >= 0) {
+      clientes[idx].template_elegido = data?.template_elegido;
+      clientes[idx].estado = 'diseños_generados';
+    }
+    fs.writeFileSync(filePath, JSON.stringify(clientes, null, 2));
+    console.log(`  [mock] save-client FEEDBACK: session=${session_id} template=${data?.template_elegido}`);
+    return { ok: true };
+  }
+
+  return { ok: true };
+}
+
+function mockSaveSession(body) {
+  const { session_id, type, payload } = body;
+  if (!session_id || !type) return { error: 'session_id y type requeridos' };
+
+  const sess = _sessions.get(session_id) || { meta: null, brief: null, messages: [] };
+
+  if (type === 'brief')           { sess.brief = payload; }
+  else if (type === 'meta')       { sess.meta = { ...(sess.meta || {}), ...payload }; }
+  else if (type === 'message')    { sess.messages.push(payload); }
+  else if (type === 'messages_batch' && Array.isArray(payload)) { sess.messages.push(...payload); }
+
+  _sessions.set(session_id, sess);
+  console.log(`  [mock] save-session ${session_id} type=${type}`);
+  return { ok: true };
+}
+
+function mockGetSession(sessionId) {
+  const sess = _sessions.get(sessionId);
+  if (!sess || (!sess.meta && !sess.brief)) return { found: false };
+  return { found: true, ...sess };
+}
+
+function mockApproveReject(action, queryParams) {
+  const token = queryParams.get('token');
+  if (!token) return { status: 400, html: '<h1>Token faltante</h1>' };
+  console.log(`  [mock] ${action}: token recibido, aprobando automáticamente`);
+  const html = action === 'approve'
+    ? '<h1 style="color:green">✅ Deploy aprobado (mock)</h1>'
+    : '<h1 style="color:red">❌ Diseño rechazado (mock)</h1>';
+  return { status: 200, html };
 }
 
 function mockSaveDsn(body) {
+  // En modo mock, save-dsn retorna éxito sin escribir al disco.
+  // Esto evita que dsn/index.json acumule entradas entre tests E2E,
+  // lo que causaría que initCarousel() detecte "diseños anteriores"
+  // y muestre el carrusel legacy en lugar de generar nuevos diseños.
   const { rubro, templates } = body;
-  const indexPath = path.join(__dirname, 'landing_page', 'dsn', 'index.json');
-
-  let index = [];
-  try { index = JSON.parse(fs.readFileSync(indexPath, 'utf-8')); } catch {}
-
-  const nextNum = (index.length + 1).toString().padStart(3, '0');
+  const nextNum = (_dsnCounter++).toString().padStart(3, '0');
   const setId   = `dsn-${nextNum}`;
-  const today   = new Date().toISOString().split('T')[0];
-
-  // Guardar HTMLs en dsn/template/
-  const tplDir = path.join(__dirname, 'landing_page', 'dsn', 'template');
-  fs.mkdirSync(tplDir, { recursive: true });
-
-  const templateMeta = (templates || []).map((tpl, i) => {
-    fs.writeFileSync(path.join(tplDir, `${setId}-template-${i + 1}.html`), tpl.html || '');
-    return { id: tpl.id, name: tpl.name, file: `dsn/template/${setId}-template-${i + 1}.html` };
-  });
-
-  // Guardar meta.json del set
-  const setDir = path.join(__dirname, 'landing_page', 'dsn', setId);
-  fs.mkdirSync(setDir, { recursive: true });
-  const meta = { id: setId, rubro, fecha: today };
-  fs.writeFileSync(path.join(setDir, 'meta.json'), JSON.stringify(meta, null, 2));
-
-  index.push({ id: setId, rubro, templates: templateMeta, fecha: today });
-  if (index.length > 10) index.shift();
-  fs.writeFileSync(indexPath, JSON.stringify(index, null, 2));
-
-  console.log(`  [mock] save-dsn: guardado ${setId} (${rubro}) con ${templateMeta.length} templates`);
+  console.log(`  [mock] save-dsn (in-memory): ${setId} (${rubro}) ${(templates || []).length} templates`);
   return { success: true, id: setId };
 }
 
@@ -446,8 +492,29 @@ const server = http.createServer(async (req, res) => {
 
   // ── API routes ──────────────────────────────────────────────────────────────
   if (urlPath.startsWith('/api/')) {
-    const body = await readBody(req);
     const route = urlPath.slice(5); // remove /api/
+
+    // ── GET routes (session recovery, approve, reject) ──────────────────────
+    if (method === 'GET') {
+      console.log(`→ GET /api/${route}`);
+
+      if (route === 'get-session') {
+        const sessionId = url.searchParams.get('session_id');
+        if (!sessionId) return sendJson(res, 400, { error: 'session_id requerido' });
+        return sendJson(res, 200, mockGetSession(sessionId));
+      }
+
+      if (route === 'approve' || route === 'reject') {
+        const result = mockApproveReject(route, url.searchParams);
+        res.writeHead(result.status, { 'Content-Type': 'text/html; charset=utf-8' });
+        return res.end(result.html);
+      }
+
+      return sendJson(res, 404, { error: `GET /api/${route} no tiene mock` });
+    }
+
+    // ── POST routes ─────────────────────────────────────────────────────────
+    const body = await readBody(req);
     console.log(`→ POST /api/${route}`);
 
     try {
@@ -460,8 +527,10 @@ const server = http.createServer(async (req, res) => {
           break;
         case 'validate-email': result = mockValidateEmail(body);    break;
         case 'save-client':    result = mockSaveClient(body);       break;
+        case 'save-session':   result = mockSaveSession(body);      break;
         case 'save-dsn':       result = mockSaveDsn(body);          break;
         case 'notify':         result = mockNotify(body);           break;
+        case 'upload-file':    result = { ok: true, url: '/assets/mock-upload.png' }; break;
         default:
           return sendJson(res, 404, { error: `API route '${route}' no tiene mock definido` });
       }
