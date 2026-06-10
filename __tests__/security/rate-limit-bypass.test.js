@@ -72,7 +72,7 @@ function makeReq(overrideHeaders = {}, body = {}) {
 
 describe('CU-C04-A: extracción de IP para rate limiting', () => {
   test('x-forwarded-for con lista de IPs → usa la primera (no la last/trusted)', async () => {
-    const req = makeReq({ 'x-forwarded-for': '1.2.3.4, 10.0.0.1, 192.168.1.1' });
+    const req = makeReq({ 'x-forwarded-for': '1.2.3.4, 10.0.0.1, 192.168.1.1' }, { intent: 'generation' });
     const res = httpMocks.createResponse();
     await handler(req, res);
     // Verificar que checkRateLimit fue llamado con la primera IP del header
@@ -108,12 +108,14 @@ describe('CU-C04-B: intent hopping para evadir rate limit', () => {
     expect(calledWithIntent).toBe('redesign');
   });
 
-  test('intent "extraction" tiene rate limit = 999 → checkRateLimit NO se llama (optimización)', async () => {
-    const req = makeReq({}, { intent: 'extraction' });
-    const res = httpMocks.createResponse();
-    await handler(req, res);
-    // extraction tiene max=999, la implementación omite el check
-    expect(mockCheckRateLimit).not.toHaveBeenCalled();
+  test('intent "chat" y "extraction" tienen max=999 → checkRateLimit NO se llama', async () => {
+    for (const intent of ['chat', 'extraction']) {
+      jest.clearAllMocks();
+      const req = makeReq({}, { intent });
+      const res = httpMocks.createResponse();
+      await handler(req, res);
+      expect(mockCheckRateLimit).not.toHaveBeenCalled();
+    }
   });
 });
 
@@ -148,7 +150,7 @@ describe('CU-C04-D: request sin IP headers', () => {
     const req = httpMocks.createRequest({
       method: 'POST',
       headers: { 'content-type': 'application/json' },
-      body: { intent: 'chat', messages: [] },
+      body: { intent: 'generation', messages: [] },
     });
     // Sin x-forwarded-for ni socket configurado
     const res = httpMocks.createResponse();

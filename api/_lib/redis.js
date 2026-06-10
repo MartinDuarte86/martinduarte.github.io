@@ -97,7 +97,7 @@ export async function setCachedRubroTemplate(ruboCategory, templateId, html) {
 // ─── Rate limiting distribuido ─────────────────────────────────────────────────
 
 const RATE_LIMITS = {
-  chat:       { max: 10,  ttl: 3600  },
+  chat:       { max: 999, ttl: 3600  },
   generation: { max: 2,   ttl: 86400 },
   extraction: { max: 999, ttl: 3600  },
   redesign:   { max: 2,   ttl: 86400 },

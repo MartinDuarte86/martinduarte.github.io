@@ -25,10 +25,10 @@ const ANTHROPIC_MODELS = {
 const ALWAYS_ANTHROPIC = new Set(['generation', 'redesign', 'chat', 'extraction']);
 
 const RATE_LIMITS = {
-  chat:       { max: 50, ttl: 3600  },
-  extraction: { max: 999, ttl: 3600 },
-  generation: { max: 2,  ttl: 86400 },
-  redesign:   { max: 2,  ttl: 86400 },
+  chat:       { max: 999, ttl: 3600  },
+  extraction: { max: 999, ttl: 3600  },
+  generation: { max: 2,   ttl: 86400 },
+  redesign:   { max: 2,   ttl: 86400 },
 };
 
 const VALID_SECTIONS  = new Set(['evaluating', 'hero', 'sobre_mi', 'servicios', 'testimonios', 'contacto', 'diseno']);
