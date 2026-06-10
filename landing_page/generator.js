@@ -129,7 +129,10 @@ async function generatePreview(brief, templateId, promptTemplate) {
     throw err;
   }
 
-  if (!response.ok) throw new Error(`Claude API error: ${response.status}`);
+  if (!response.ok) {
+    const errData = await response.json().catch(() => ({}));
+    throw new Error(errData.error || `Claude API error: ${response.status}`);
+  }
 
   const data = await response.json();
   const html = data.content?.[0]?.text || '';
@@ -162,20 +165,21 @@ async function generateAllPreviews(brief, onProgress) {
 // ─── Mejora 4: Guardado en dsn/ via GitHub REST API ──────────────────────────
 
 async function saveDsnSet(brief, previews) {
-  const res = await fetch('/api/save-dsn', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      rubro: brief.rubro,
-      clienteId: brief.cliente_id || null,
-      templates: previews.map(p => ({ id: p.id, name: p.name, html: p.html })),
-    }),
-  });
-  if (!res.ok) {
-    const err = await res.json().catch(() => ({}));
-    throw new Error(err.error || `Error ${res.status}`);
-  }
-  return res.json();
+  await Promise.all(previews.map(p =>
+    fetch('/api/save-dsn', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        session_id:    brief.session_id    || null,
+        client_id:     brief.cliente_id    || null,
+        rubro:         brief.rubro,
+        template_name: p.name,
+        html:          p.html,
+      }),
+    }).then(r => {
+      if (!r.ok) console.warn(`[save-dsn] ${p.name}: status ${r.status}`);
+    })
+  ));
 }
 
 // ─── Mejora 2: Modal de preview con zoom ─────────────────────────────────────

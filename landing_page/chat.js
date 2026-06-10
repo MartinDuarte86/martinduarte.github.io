@@ -686,6 +686,7 @@ function buildFullBrief() {
     cliente_nombre: clientData ? `${clientData.nombre} ${clientData.apellido}` : '',
     cliente_email:  clientData?.email || '',
     cliente_id:     clientData?.id    || '',
+    session_id:     SESSION_ID,
   };
 }
 

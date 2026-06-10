@@ -33,8 +33,8 @@ const RATE_LIMITS = {
 
 const VALID_SECTIONS  = new Set(['evaluating', 'hero', 'sobre_mi', 'servicios', 'testimonios', 'contacto', 'diseno']);
 const VALID_INTENTS   = new Set(['chat', 'generation', 'redesign', 'extraction']);
-const MAX_MSG_CONTENT = 3000;  // chars por mensaje
-const MAX_MESSAGES    = 20;    // mensajes por request
+const MAX_MSG_CONTENT_CHAT = 3000;  // chars por mensaje en chat/extraction
+const MAX_MESSAGES         = 20;    // mensajes por request
 
 const anthropicClient = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
@@ -103,9 +103,11 @@ export default async function handler(req, res) {
   if (!Array.isArray(messages) || messages.length > MAX_MESSAGES) {
     return res.status(400).json({ error: `messages debe ser array de máximo ${MAX_MESSAGES} elementos` });
   }
-  for (const m of messages) {
-    if (typeof m.content === 'string' && m.content.length > MAX_MSG_CONTENT) {
-      return res.status(400).json({ error: `Mensaje demasiado largo (máx. ${MAX_MSG_CONTENT} chars)` });
+  if (intent === 'chat' || intent === 'extraction') {
+    for (const m of messages) {
+      if (typeof m.content === 'string' && m.content.length > MAX_MSG_CONTENT_CHAT) {
+        return res.status(400).json({ error: `Mensaje demasiado largo (máx. ${MAX_MSG_CONTENT_CHAT} chars)` });
+      }
     }
   }
 
