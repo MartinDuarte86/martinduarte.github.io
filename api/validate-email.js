@@ -14,15 +14,16 @@ export default async function handler(req, res) {
   }
 
   try {
-    const url = `https://emailvalidation.abstractapi.com/v1/?api_key=${key}&email=${encodeURIComponent(email)}`;
+    const url = `https://emailreputation.abstractapi.com/v1/?api_key=${key}&email=${encodeURIComponent(email)}`;
     const r = await fetch(url);
     if (!r.ok) throw new Error(`Abstract API: ${r.status}`);
     const data = await r.json();
 
+    const status = data.email_deliverability?.status || '';
     return res.status(200).json({
-      deliverable: data.deliverability === 'DELIVERABLE',
-      disposable:  data.is_disposable_email?.value === true,
-      reason:      data.deliverability,
+      deliverable: status === 'deliverable',
+      disposable:  data.email_quality?.is_disposable === true,
+      reason:      status.toUpperCase() || 'UNKNOWN',
     });
   } catch (err) {
     console.error('[validate-email]', err.message);
