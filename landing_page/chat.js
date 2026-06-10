@@ -690,11 +690,37 @@ function buildFullBrief() {
   };
 }
 
+// ─── Handoff visual al Equipo de Diseño ───────────────────────────────────────
+
+function appendHandoffBanner() {
+  const container = document.getElementById('chat-messages');
+  if (!container) return;
+
+  const el = document.createElement('div');
+  el.className = 'handoff-banner';
+  el.innerHTML = `
+    <div class="handoff-banner__divider"></div>
+    <div class="handoff-banner__card">
+      <div class="handoff-banner__header">
+        <span class="handoff-banner__dot"></span>
+        <span class="handoff-banner__team">Equipo de Diseño</span>
+        <span class="handoff-banner__badge">Área Técnica</span>
+      </div>
+      <p class="handoff-banner__msg">
+        Tu información fue procesada. Nuestro equipo de diseño está preparando tus propuestas personalizadas.
+      </p>
+    </div>
+    <div class="handoff-banner__divider"></div>`;
+  container.appendChild(el);
+  container.scrollTop = container.scrollHeight;
+}
+
 // ─── Flujo post-secciones ──────────────────────────────────────────────────────
 
 async function startDesignPhase() {
   setInputEnabled(false);
   appendMessage('system', 'Perfecto, ya tenemos todo. Un momento...');
+  appendHandoffBanner();
 
   state.brief = buildFullBrief();
   saveSession({ phase: 'secciones_completas', brief: state.brief });

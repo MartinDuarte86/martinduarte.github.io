@@ -1272,3 +1272,67 @@ body {
   white-space: nowrap;
   padding: 0 8px;
 }
+
+/* ─── Handoff banner — transición al Equipo de Diseño ────────────────────── */
+.handoff-banner {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin: 16px 0;
+  padding: 0 4px;
+}
+.handoff-banner__divider {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(99,102,241,.35), transparent);
+}
+.handoff-banner__card {
+  background: linear-gradient(135deg, rgba(99,102,241,.12) 0%, rgba(139,92,246,.08) 100%);
+  border: 1px solid rgba(99,102,241,.25);
+  border-radius: 12px;
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.handoff-banner__header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.handoff-banner__dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #6366f1;
+  box-shadow: 0 0 6px rgba(99,102,241,.7);
+  animation: pulse-dot 1.8s ease-in-out infinite;
+  flex-shrink: 0;
+}
+@keyframes pulse-dot {
+  0%, 100% { opacity: 1; box-shadow: 0 0 6px rgba(99,102,241,.7); }
+  50%       { opacity: .5; box-shadow: 0 0 2px rgba(99,102,241,.3); }
+}
+.handoff-banner__team {
+  font-size: 13px;
+  font-weight: 700;
+  color: #a5b4fc;
+  letter-spacing: .02em;
+}
+.handoff-banner__badge {
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  background: rgba(99,102,241,.2);
+  color: #818cf8;
+  border: 1px solid rgba(99,102,241,.3);
+  border-radius: 20px;
+  padding: 2px 8px;
+  margin-left: auto;
+}
+.handoff-banner__msg {
+  font-size: 12px;
+  color: rgba(255,255,255,.55);
+  line-height: 1.5;
+  margin: 0;
+}

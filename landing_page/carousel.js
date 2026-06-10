@@ -13,27 +13,20 @@ let _carouselSets = [];
 
 async function loadDsnIndex() {
   try {
-    const url = `/landing_page/dsn/index.json?t=${Date.now()}`;
-    const res = await fetch(url, { cache: 'no-store' });
+    const res = await fetch(`/api/get-dsn-html?t=${Date.now()}`, { cache: 'no-store' });
     if (!res.ok) return [];
-    const sets = await res.json();
-    if (!Array.isArray(sets) || sets.length === 0) return [];
+    const data = await res.json();
+    const designs = data.designs;
+    if (!Array.isArray(designs) || designs.length === 0) return [];
 
-    await Promise.all(
-      sets.flatMap(set =>
-        (set.templates || []).map(async tpl => {
-          if (!tpl.html && tpl.file) {
-            try {
-              const r = await fetch(`/landing_page/${tpl.file}?t=${Date.now()}`, { cache: 'no-store' });
-              if (r.ok) tpl.html = await r.text();
-            } catch {}
-          }
-        })
-      )
-    );
-    return sets;
+    // Cada fila de Supabase es un template individual; convertimos a formato de set
+    return designs.map(d => ({
+      rubro:     d.rubro,
+      fecha:     d.created_at,
+      templates: [{ id: d.id, name: d.template_name, html: d.html }],
+    }));
   } catch (err) {
-    console.error('[DSN] Error al cargar index.json:', err.message);
+    console.error('[DSN] Error al cargar diseños:', err.message);
     return [];
   }
 }
