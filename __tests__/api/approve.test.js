@@ -6,13 +6,11 @@ const TEST_SECRET = 'test-approval-secret-1234';
 
 // ── Redis mock ───────────────────────────────────────────────────────────────
 
-const mockIsTokenUsed = jest.fn().mockResolvedValue(false);
-const mockMarkTokenUsed = jest.fn().mockResolvedValue(undefined);
+const mockMarkTokenUsedIfNew = jest.fn().mockResolvedValue(true); // true = primer uso
 
 jest.mock('../../api/_lib/redis.js', () => ({
   __esModule: true,
-  isTokenUsed: (...args) => mockIsTokenUsed(...args),
-  markTokenUsed: (...args) => mockMarkTokenUsed(...args),
+  markTokenUsedIfNew: (...args) => mockMarkTokenUsedIfNew(...args),
 }));
 
 // ── Supabase mock ────────────────────────────────────────────────────────────
@@ -44,8 +42,7 @@ beforeAll(async () => {
 });
 
 beforeEach(() => {
-  mockIsTokenUsed.mockResolvedValue(false);
-  mockMarkTokenUsed.mockResolvedValue(undefined);
+  mockMarkTokenUsedIfNew.mockResolvedValue(true); // true = primer uso (no usado aún)
 
   const dsnChain = {
     select: jest.fn().mockReturnThis(),
@@ -70,11 +67,18 @@ function makeToken(overrides = {}) {
 // ── Tests ────────────────────────────────────────────────────────────────────
 
 describe('GET /api/approve', () => {
-  it('POST → 405', async () => {
-    const req = httpMocks.createRequest({ method: 'POST' });
+  it('DELETE → 405', async () => {
+    const req = httpMocks.createRequest({ method: 'DELETE' });
     const res = httpMocks.createResponse();
     await handler(req, res);
     expect(res.statusCode).toBe(405);
+  });
+
+  it('POST sin token en body → 400', async () => {
+    const req = httpMocks.createRequest({ method: 'POST', body: {} });
+    const res = httpMocks.createResponse();
+    await handler(req, res);
+    expect(res.statusCode).toBe(400);
   });
 
   it('sin token → 400', async () => {
@@ -112,7 +116,7 @@ describe('GET /api/approve', () => {
   });
 
   it('token ya usado → 410', async () => {
-    mockIsTokenUsed.mockResolvedValue(true);
+    mockMarkTokenUsedIfNew.mockResolvedValueOnce(false); // false = ya estaba usado
     const token = makeToken();
     const req = httpMocks.createRequest({ method: 'GET', query: { token } });
     const res = httpMocks.createResponse();
@@ -120,7 +124,7 @@ describe('GET /api/approve', () => {
     expect(res.statusCode).toBe(410);
   });
 
-  it('token válido → marca usado y retorna 200', async () => {
+  it('token válido → llama markTokenUsedIfNew y retorna 200', async () => {
     const token = makeToken();
     const tokenHash = crypto.createHash('sha256').update(token).digest('hex');
 
@@ -129,21 +133,21 @@ describe('GET /api/approve', () => {
     await handler(req, res);
 
     expect(res.statusCode).toBe(200);
-    expect(mockMarkTokenUsed).toHaveBeenCalledWith(tokenHash);
+    expect(mockMarkTokenUsedIfNew).toHaveBeenCalledWith(tokenHash);
   });
 
   it('token válido no puede reutilizarse (one-time-use)', async () => {
     const token = makeToken();
 
-    // Primer uso: OK
-    mockIsTokenUsed.mockResolvedValueOnce(false);
+    // Primer uso: markTokenUsedIfNew retorna true (primer uso)
+    mockMarkTokenUsedIfNew.mockResolvedValueOnce(true);
     const req1 = httpMocks.createRequest({ method: 'GET', query: { token } });
     const res1 = httpMocks.createResponse();
     await handler(req1, res1);
     expect(res1.statusCode).toBe(200);
 
-    // Segundo uso: rechazado
-    mockIsTokenUsed.mockResolvedValueOnce(true);
+    // Segundo uso: markTokenUsedIfNew retorna false (ya usado)
+    mockMarkTokenUsedIfNew.mockResolvedValueOnce(false);
     const req2 = httpMocks.createRequest({ method: 'GET', query: { token } });
     const res2 = httpMocks.createResponse();
     await handler(req2, res2);

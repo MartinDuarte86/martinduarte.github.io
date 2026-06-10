@@ -40,6 +40,10 @@ export default async function handler(req, res) {
     return res.status(400).send(errorPage('Acción incorrecta', 'Este es un link de rechazo, no de aprobación.'));
   }
 
+  if (!payload.session_id) {
+    return res.status(400).send(errorPage('Token inválido', 'El token no contiene los datos requeridos.'));
+  }
+
   // ── 2. One-time-use atómico (SET NX — TOCTOU-safe) ────────────────────────
   const tokenHash = crypto.createHash('sha256').update(token).digest('hex');
   const isFirstUse = await markTokenUsedIfNew(tokenHash);

@@ -5,12 +5,14 @@ import httpMocks from 'node-mocks-http';
 const mockSaveBrief = jest.fn().mockResolvedValue(undefined);
 const mockSaveSessionMeta = jest.fn().mockResolvedValue(undefined);
 const mockAppendMessage = jest.fn().mockResolvedValue(undefined);
+const mockTouchSession = jest.fn().mockResolvedValue(undefined);
 
 jest.mock('../../api/_lib/redis.js', () => ({
   __esModule: true,
-  saveBrief: (...args) => mockSaveBrief(...args),
+  saveBrief:       (...args) => mockSaveBrief(...args),
   saveSessionMeta: (...args) => mockSaveSessionMeta(...args),
-  appendMessage: (...args) => mockAppendMessage(...args),
+  appendMessage:   (...args) => mockAppendMessage(...args),
+  touchSession:    (...args) => mockTouchSession(...args),
 }));
 
 let handler;

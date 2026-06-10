@@ -374,6 +374,13 @@ async function handleSend() {
 // ─── Manejo de errores con retry ──────────────────────────────────────────────
 
 async function handleSendError(err, phase, lastText) {
+  // Presupuesto agotado: terminar la conversación de forma controlada
+  if (err.budgetExceeded) {
+    appendMessage('ai', err.budgetMessage);
+    setInputEnabled(false);
+    return;
+  }
+
   const isRateLimit = err.rateLimitMessage || err.message?.includes('429');
   const msg = isRateLimit
     ? (err.rateLimitMessage || 'Límite de solicitudes alcanzado. Esperá unos minutos.')
@@ -998,6 +1005,14 @@ async function callClaude(messages, system, opts = {}) {
     const data = await res.json().catch(() => ({}));
     const err  = new Error(data.message || 'Límite alcanzado.');
     err.rateLimitMessage = data.error || 'Alcanzaste el límite de solicitudes. Intentá en unos minutos.';
+    throw err;
+  }
+
+  if (res.status === 402) {
+    const data = await res.json().catch(() => ({}));
+    const err  = new Error('budget_exceeded');
+    err.budgetExceeded = true;
+    err.budgetMessage  = data.message || 'Se alcanzó el límite de esta sesión. Escribinos a hola@martinduarte.com para continuar.';
     throw err;
   }
 

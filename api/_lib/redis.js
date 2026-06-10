@@ -137,6 +137,33 @@ export async function isTokenUsed(tokenHash) {
   return val !== null;
 }
 
+// ─── Cost tracking por sesión ─────────────────────────────────────────────────
+// Precios en USD por millón de tokens (Anthropic pricing)
+
+const MODEL_PRICING_USD_PER_M = {
+  'claude-haiku-4-5-20251001': { input: 0.80, output: 4.00 },
+  'claude-sonnet-4-6':          { input: 3.00, output: 15.00 },
+};
+
+export function calcUsdCost(model, inputTokens, outputTokens) {
+  const pricing = MODEL_PRICING_USD_PER_M[model]
+    || MODEL_PRICING_USD_PER_M['claude-haiku-4-5-20251001'];
+  return (inputTokens * pricing.input + outputTokens * pricing.output) / 1_000_000;
+}
+
+export async function trackTokenUsage(sessionId, model, inputTokens, outputTokens) {
+  const key = `session:${sessionId}:cost`;
+  const addedUsd = calcUsdCost(model, inputTokens, outputTokens);
+  await redis.incrbyfloat(key, addedUsd);
+  await redis.expire(key, SESSION_TTL);
+  return addedUsd;
+}
+
+export async function getSessionCostUsd(sessionId) {
+  const raw = await redis.get(`session:${sessionId}:cost`);
+  return raw ? parseFloat(raw) : 0;
+}
+
 // ─── Compresión de brief para context injection ────────────────────────────────
 // Extrae solo los campos relevantes para cada sección, evitando saturar el contexto.
 

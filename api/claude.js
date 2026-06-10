@@ -12,7 +12,7 @@
 //   - CORS centralizado via _lib/cors.js
 
 import Anthropic from '@anthropic-ai/sdk';
-import { checkRateLimit, getBrief, getMessages, touchSession, compressBriefForSection } from './_lib/redis.js';
+import { checkRateLimit, getBrief, getMessages, touchSession, compressBriefForSection, getSessionCostUsd, trackTokenUsage } from './_lib/redis.js';
 import { applyCors } from './_lib/cors.js';
 
 const ANTHROPIC_MODELS = {
@@ -128,6 +128,20 @@ export default async function handler(req, res) {
     }
   }
 
+  // ── Budget guard: verificar costo acumulado antes de llamar al LLM ──────────
+  if (session_id) {
+    const ars_rate       = parseFloat(process.env.ARS_USD_RATE   || '1200');
+    const cost_limit_ars = parseFloat(process.env.COST_LIMIT_ARS || '4000');
+    const cost_limit_usd = cost_limit_ars / ars_rate;
+    const currentCostUsd = await getSessionCostUsd(session_id).catch(() => 0);
+    if (currentCostUsd >= cost_limit_usd) {
+      return res.status(402).json({
+        error: 'budget_exceeded',
+        message: 'Se alcanzó el límite de esta sesión. Escribinos a hola@martinduarte.com para continuar.',
+      });
+    }
+  }
+
   // ── Actualizar actividad de sesión (para detección de abandonadas) ─────────
   if (session_id) await touchSession(session_id).catch(() => {});
 
@@ -151,6 +165,11 @@ export default async function handler(req, res) {
 
   try {
     const response = await anthropicClient.messages.create(llmParams);
+    // Acumular costo de tokens en Redis (fire-and-forget, no bloquea la respuesta)
+    if (session_id && response.usage) {
+      trackTokenUsage(session_id, resolvedModel,
+        response.usage.input_tokens, response.usage.output_tokens).catch(() => {});
+    }
     return res.status(200).json(response);
   } catch (err) {
     console.error(`[claude]`, err.status, err.message?.slice(0, 100));
