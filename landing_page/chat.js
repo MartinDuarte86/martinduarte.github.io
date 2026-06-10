@@ -434,7 +434,15 @@ function showErrorWithRetry(msg, lastText, phase) {
         await handleSectionTurn(phase);
       }
     } catch (err2) {
-      appendMessage('system', 'Seguimos teniendo problemas. Intentá en unos minutos o escribinos a hola@martinduarte.com');
+      if (err2.budgetExceeded) {
+        appendMessage('ai', err2.budgetMessage);
+        setInputEnabled(false);
+        return;
+      }
+      const retryMsg = err2.rateLimitMessage
+        || (err2.message?.includes('429') ? 'Límite de solicitudes alcanzado. Esperá unos minutos.' : null)
+        || 'Seguimos teniendo problemas. Intentá en unos minutos o escribinos a hola@martinduarte.com';
+      appendMessage('system', retryMsg);
     } finally {
       hideTyping();
       setInputEnabled(true);

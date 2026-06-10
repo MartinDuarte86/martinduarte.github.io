@@ -25,7 +25,7 @@ const ANTHROPIC_MODELS = {
 const ALWAYS_ANTHROPIC = new Set(['generation', 'redesign', 'chat', 'extraction']);
 
 const RATE_LIMITS = {
-  chat:       { max: 10, ttl: 3600  },
+  chat:       { max: 50, ttl: 3600  },
   extraction: { max: 999, ttl: 3600 },
   generation: { max: 2,  ttl: 86400 },
   redesign:   { max: 2,  ttl: 86400 },
