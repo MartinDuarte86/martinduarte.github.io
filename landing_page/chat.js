@@ -213,6 +213,7 @@ function setupEventListeners() {
   input?.addEventListener('input', () => {
     input.style.height = 'auto';
     input.style.height = Math.min(input.scrollHeight, 120) + 'px';
+    updateCharCounter(input.value.length);
   });
   attachBtn?.addEventListener('click', () => fileInput?.click());
   fileInput?.addEventListener('change', handleFileSelection);
@@ -337,6 +338,7 @@ async function handleSend() {
 
   input.value = '';
   input.style.height = 'auto';
+  updateCharCounter(0);
 
   if (state.pendingFiles.length > 0) await uploadPendingFiles();
 
@@ -973,6 +975,16 @@ function setInputEnabled(enabled) {
   const btn   = document.getElementById('send-btn');
   if (input) input.disabled = !enabled;
   if (btn)   btn.disabled   = !enabled;
+}
+
+function updateCharCounter(len) {
+  const counter = document.getElementById('char-counter');
+  if (!counter) return;
+  counter.textContent = `${len} / 150`;
+  counter.classList.toggle('visible',  len > 0);
+  counter.classList.toggle('warn',     len > 100 && len <= 135);
+  counter.classList.toggle('danger',   len > 135 && len < 150);
+  counter.classList.toggle('at-limit', len === 150);
 }
 
 function showGeneratingState() {

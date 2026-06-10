@@ -251,8 +251,16 @@ body {
   border-top: 1px solid rgba(255,255,255,.06);
   background: rgba(255,255,255,.02);
 }
-#chat-input {
+.chat-input-wrapper {
   flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+#chat-input {
+  width: 100%;
+  box-sizing: border-box;
   background: rgba(255,255,255,.06);
   border: 1px solid rgba(255,255,255,.1);
   border-radius: 14px;
@@ -269,6 +277,22 @@ body {
 #chat-input::placeholder { color: var(--slate-mid); }
 #chat-input:focus { border-color: rgba(37,99,235,.5); }
 #chat-input:disabled { opacity: .5; }
+.char-counter {
+  font-size: 11px;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  text-align: right;
+  padding-right: 6px;
+  color: var(--slate-mid);
+  opacity: 0;
+  transition: opacity .2s, color .2s;
+  pointer-events: none;
+  user-select: none;
+  line-height: 1;
+}
+.char-counter.visible { opacity: 1; }
+.char-counter.warn { color: #f59e0b; }
+.char-counter.danger { color: #ef4444; }
+.char-counter.at-limit { color: #ef4444; font-weight: 600; }
 #send-btn {
   width: 46px; height: 46px;
   border-radius: 50%;
