@@ -102,30 +102,40 @@ async function fetchPromptTemplate() {
   return res.text();
 }
 
-async function generatePreview(brief, templateId, promptTemplate) {
+// El brief viaja compacto: sin pretty-print ni campos vacíos (~40% menos tokens de input)
+function compactBrief(brief) {
+  const clean = Object.fromEntries(
+    Object.entries(brief).filter(([, v]) =>
+      v !== '' && v !== null && v !== undefined && !(Array.isArray(v) && v.length === 0)
+    )
+  );
+  return JSON.stringify(clean);
+}
+
+async function generatePreview(brief, templateId, promptTemplate, onChunk) {
   const spec = TEMPLATE_SPECS[templateId];
 
   const prompt = promptTemplate
     .replace('{{template_name}}', spec.name)
     .replace('{{template_spec}}', spec.spec)
-    .replace('{{full_brief}}', JSON.stringify(brief, null, 2))
+    .replace('{{full_brief}}', compactBrief(brief))
     .replace(/\{\{contacto_wsp\}\}/g, brief.contacto_wsp || '');
 
   const response = await fetch('/api/claude', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
-      messages: [{ role: 'user', content: prompt }],
-      model: 'claude-sonnet-4-6',
-      max_tokens: 6000,
-      intent: 'generation', // activa rate limit de generación en el backend
+      messages:   [{ role: 'user', content: prompt }],
+      max_tokens: 8192,                       // 6000 truncaba HTMLs completos
+      intent:     'generation',               // activa rate limit + streaming SSE
+      session_id: brief.session_id || null,   // budget guard cubre también Sonnet
     }),
   });
 
-  if (response.status === 429) {
+  if (response.status === 429 || response.status === 402) {
     const data = await response.json().catch(() => ({}));
-    const err = new Error(data.message || 'Límite de generaciones alcanzado.');
-    err.rateLimitMessage = data.message || 'Alcanzaste el límite diario de generaciones. Intentá mañana.';
+    const err = new Error(data.message || data.error || 'Límite de generaciones alcanzado.');
+    err.rateLimitMessage = data.message || data.error || 'Alcanzaste el límite diario de generaciones. Intentá mañana.';
     throw err;
   }
 
@@ -134,8 +144,32 @@ async function generatePreview(brief, templateId, promptTemplate) {
     throw new Error(errData.error || `Claude API error: ${response.status}`);
   }
 
-  const data = await response.json();
-  const html = data.content?.[0]?.text || '';
+  // El backend streamea SSE: acumular el HTML a medida que llega
+  const reader  = response.body.getReader();
+  const decoder = new TextDecoder();
+  let html = '', buffer = '', stopReason = null;
+
+  while (true) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    buffer += decoder.decode(value, { stream: true });
+
+    const events = buffer.split('\n\n');
+    buffer = events.pop(); // posible evento incompleto al final
+    for (const evt of events) {
+      const dataLine = evt.split('\n').find(l => l.startsWith('data: '));
+      if (!dataLine) continue;
+      let data;
+      try { data = JSON.parse(dataLine.slice(6)); } catch { continue; }
+      if (evt.includes('event: error')) throw new Error('generation_failed');
+      if (data.t) { html += data.t; onChunk?.(html.length); }
+      if (data.stop_reason) stopReason = data.stop_reason;
+    }
+  }
+
+  if (stopReason === 'max_tokens') {
+    console.warn(`[gen] ${templateId}: HTML truncado por max_tokens`);
+  }
   return html.replace(/^```html?\n?/i, '').replace(/\n?```$/i, '').trim();
 }
 
@@ -143,18 +177,30 @@ async function generateAllPreviews(brief, onProgress) {
   const templateIds = selectTemplates(brief.rubro);
   const promptTemplate = await fetchPromptTemplate();
   const results = [];
+  let lastError = null;
 
   for (let i = 0; i < templateIds.length; i++) {
     const id = templateIds[i];
     onProgress(i + 1, templateIds.length, TEMPLATE_SPECS[id].name);
-    const html = await generatePreview(brief, id, promptTemplate);
-    results.push({
-      id,
-      name: TEMPLATE_SPECS[id].name,
-      description: TEMPLATE_SPECS[id].description,
-      html,
-    });
+    try {
+      const html = await generatePreview(brief, id, promptTemplate,
+        (chars) => onProgress(i + 1, templateIds.length, TEMPLATE_SPECS[id].name, chars));
+      results.push({
+        id,
+        name: TEMPLATE_SPECS[id].name,
+        description: TEMPLATE_SPECS[id].description,
+        html,
+      });
+    } catch (err) {
+      lastError = err;
+      // Si es rate limit y no hay nada generado, no tiene sentido seguir
+      if (err.rateLimitMessage && results.length === 0) throw err;
+      console.warn(`[gen] Falló ${id}, continúo con los demás:`, err.message);
+    }
   }
+
+  // 1, 2 o 3 diseños — lo que haya salido bien vale más que descartar todo
+  if (results.length === 0) throw (lastError || new Error('No se pudo generar ningún diseño'));
 
   // Mejora 4: guardar el set en dsn/
   await saveDsnSet(brief, results).catch(err => console.warn('No se pudo guardar dsn set:', err));

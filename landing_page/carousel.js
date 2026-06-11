@@ -11,23 +11,34 @@ import { renderPreviewInIframe, openPreviewModal } from './generator.js';
 
 let _carouselSets = [];
 
+// Escapa texto que viene de Supabase/LLM antes de inyectarlo en innerHTML
+function safe(s) {
+  return String(s ?? '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+}
+
+// Devuelve { sets, error } para que la UI pueda distinguir "no hay diseños"
+// (estado vacío legítimo) de "falló la carga" (mostrar aviso y seguir).
 async function loadDsnIndex() {
   try {
     const res = await fetch(`/api/get-dsn-html?t=${Date.now()}`, { cache: 'no-store' });
-    if (!res.ok) return [];
+    if (!res.ok) return { sets: [], error: true };
     const data = await res.json();
-    const designs = data.designs;
-    if (!Array.isArray(designs) || designs.length === 0) return [];
+    const designs = Array.isArray(data.designs) ? data.designs : [];
 
     // Cada fila de Supabase es un template individual; convertimos a formato de set
-    return designs.map(d => ({
+    const sets = designs.map(d => ({
       rubro:     d.rubro,
       fecha:     d.created_at,
       templates: [{ id: d.id, name: d.template_name, html: d.html }],
     }));
+    return { sets, error: false };
   } catch (err) {
     console.error('[DSN] Error al cargar diseños:', err.message);
-    return [];
+    return { sets: [], error: true };
   }
 }
 
@@ -103,16 +114,16 @@ export function buildChatCarouselWidget(sets, { onSelect, onReject }) {
     card.className = 'ccw-card';
     // Botón siempre visible en el footer — no requiere hover ni overlay
     card.innerHTML = `
-      <div class="ccw-label">${set.rubro || 'Diseño'} · ${formatDate(set.fecha)}</div>
-      <div class="ccw-iframe-wrap" role="button" tabindex="0" aria-label="Ver preview de ${tpl.name}">
-        <iframe title="${tpl.name}" scrolling="no" loading="lazy"></iframe>
+      <div class="ccw-label">${safe(set.rubro) || 'Diseño'} · ${formatDate(set.fecha)}</div>
+      <div class="ccw-iframe-wrap" role="button" tabindex="0" aria-label="Ver preview de ${safe(tpl.name)}">
+        <iframe title="${safe(tpl.name)}" scrolling="no" loading="lazy"></iframe>
         <div class="ccw-overlay" aria-hidden="true">
           <span class="ccw-zoom-hint">Tap para ver completo</span>
         </div>
       </div>
       <div class="ccw-card-footer">
-        <span class="ccw-card-name">${tpl.name}</span>
-        <button class="btn-primary ccw-select-btn" type="button" aria-label="Elegir diseño ${tpl.name}">Elegir este</button>
+        <span class="ccw-card-name">${safe(tpl.name)}</span>
+        <button class="btn-primary ccw-select-btn" type="button" aria-label="Elegir diseño ${safe(tpl.name)}">Elegir este</button>
       </div>
     `;
 
@@ -195,17 +206,17 @@ export function buildPreviewsCarouselWidget(previews, { onSelect }) {
     const card = document.createElement('div');
     card.className = 'ccw-card';
     card.innerHTML = `
-      <div class="ccw-iframe-wrap" role="button" tabindex="0" aria-label="Ver preview de ${preview.name}">
-        <iframe title="${preview.name}" scrolling="no" loading="lazy"></iframe>
+      <div class="ccw-iframe-wrap" role="button" tabindex="0" aria-label="Ver preview de ${safe(preview.name)}">
+        <iframe title="${safe(preview.name)}" scrolling="no" loading="lazy"></iframe>
         <div class="ccw-overlay" aria-hidden="true">
           <span class="ccw-zoom-hint">Tap para ver completo</span>
         </div>
       </div>
       <div class="ccw-card-footer">
-        <span class="ccw-card-name">${preview.name}</span>
-        <button class="btn-primary ccw-select-btn" type="button" aria-label="Elegir diseño ${preview.name}">Elegir este diseño</button>
+        <span class="ccw-card-name">${safe(preview.name)}</span>
+        <button class="btn-primary ccw-select-btn" type="button" aria-label="Elegir diseño ${safe(preview.name)}">Elegir este diseño</button>
       </div>
-      ${preview.description ? `<p class="ccw-card-desc">${preview.description}</p>` : ''}
+      ${preview.description ? `<p class="ccw-card-desc">${safe(preview.description)}</p>` : ''}
     `;
 
     const iframe = card.querySelector('iframe');
@@ -247,10 +258,10 @@ export function buildPreviewsCarouselWidget(previews, { onSelect }) {
   return widget;
 }
 
-export async function initCarousel(callbacks) {
-  const sets = await loadDsnIndex();
+export async function initCarousel() {
+  const { sets, error } = await loadDsnIndex();
   _carouselSets = sets;
-  return sets.length > 0 ? sets : null;
+  return { sets, error };
 }
 
 export function refreshCarousel(newSets) {

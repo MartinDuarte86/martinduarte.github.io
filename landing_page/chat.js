@@ -21,15 +21,31 @@ function getOrCreateSessionId() {
 
 const SESSION_ID = getOrCreateSessionId();
 
-async function persistMessage(role, content, section) {
+// Mensajes que no se pudieron persistir — se reintentan via sendBeacon al cerrar
+const _unsavedMessages = [];
+window.addEventListener('pagehide', () => {
+  for (const body of _unsavedMessages) {
+    navigator.sendBeacon('/api/save-session', new Blob([body], { type: 'application/json' }));
+  }
+  _unsavedMessages.length = 0;
+});
+
+async function persistMessage(role, content, section, attempt = 0) {
+  const body = JSON.stringify({ session_id: SESSION_ID, type: 'message', payload: { role, content, section } });
   try {
-    await fetch('/api/save-session', {
+    const res = await fetch('/api/save-session', {
       method:  'POST',
       headers: { 'Content-Type': 'application/json' },
-      body:    JSON.stringify({ session_id: SESSION_ID, type: 'message', payload: { role, content, section } }),
+      body,
     });
+    if (!res.ok) throw new Error(`status ${res.status}`);
   } catch (e) {
-    console.warn('[session] Error al persistir mensaje');
+    if (attempt < 2) {
+      await new Promise(r => setTimeout(r, 800 * (attempt + 1)));
+      return persistMessage(role, content, section, attempt + 1);
+    }
+    console.warn('[session] Error al persistir mensaje — en cola para reintento al salir');
+    _unsavedMessages.push(body);
   }
 }
 
@@ -76,15 +92,41 @@ async function tryRecoverSession() {
 
     if (confirmed) {
       state.fullBrief = data.brief || {};
-      state.messages  = [];
+
+      // 1) Repintar TODO el historial visible (los mensajes están en Redis)
+      const history = Array.isArray(data.messages) ? data.messages : [];
+      for (const m of history) {
+        if (m.role === 'user' || m.role === 'assistant') {
+          appendMessage(m.role === 'assistant' ? 'ai' : 'user', m.content);
+        }
+      }
 
       const lastPhase = data.meta?.phase;
-      if (lastPhase) {
+
+      // 2) Reconstruir el contexto conversacional de la sección en curso
+      state.messages = history
+        .filter(m => m.section === lastPhase && (m.role === 'user' || m.role === 'assistant'))
+        .map(m => ({ role: m.role, content: m.content }))
+        .slice(-SECTION_MSG_LIMIT);
+
+      if (lastPhase && (SECTION_ORDER.includes(lastPhase) || lastPhase === PHASE.EVALUATING)) {
         state.phase = lastPhase;
         document.getElementById('progress-bar')?.removeAttribute('hidden');
         updateProgressIndicator(lastPhase);
         appendSectionDivider(lastPhase);
-        await openSection(lastPhase);
+        appendMessage('system', 'Retomamos donde lo dejaste 👇');
+
+        const lastMsg = history[history.length - 1];
+        if (lastMsg?.role === 'user' && SECTION_ORDER.includes(lastPhase)) {
+          // El último turno quedó sin respuesta del asistente: completarlo
+          showTyping();
+          try { await handleSectionTurn(lastPhase); } finally { hideTyping(); }
+        } else if (state.messages.length === 0 && SECTION_ORDER.includes(lastPhase)) {
+          // Sección recién abierta sin mensajes propios: relanzar la intro
+          await openSection(lastPhase);
+        }
+        setInputEnabled(true);
+        document.getElementById('chat-input')?.focus();
       }
       return true;
     } else {
@@ -170,30 +212,34 @@ export async function init() {
     const recovered = await tryRecoverSession();
     if (!recovered) {
       const nombre = clientData.nombre;
-      appendMessage('ai', `Hola ${nombre}. Contame sobre tu proyecto — ¿de qué se trata tu negocio o idea?`);
+      // Encuadre de expectativa: duración + recompensa final, antes de pedir nada
+      showTyping();
+      await new Promise(r => setTimeout(r, 900));
+      hideTyping();
+      appendMessage('ai',
+        `Hola ${nombre} 👋 Soy el asistente de Martín. En ~10 minutos armamos juntos el contenido de tu landing `
+        + `y al final te muestro diseños reales para tu marca.\n\nContame: ¿de qué se trata tu negocio o idea?`);
     }
     setupEventListeners();
   });
 }
 
 async function loadPrompts() {
-  const files = ['evaluacion', 'hero', 'sobre_mi', 'servicios', 'testimonios', 'contacto', 'diseno'];
+  const sections = ['hero', 'sobre_mi', 'servicios', 'testimonios', 'contacto', 'diseno'];
   try {
-    const results = await Promise.all(
-      files.map(f => fetch(`/landing_page/prompts/prompt_${f}.txt`)
+    const results = await Promise.all([
+      ...sections.map(f => fetch(`/landing_page/prompts/prompt_${f}.txt`)
         .then(r => r.ok ? r.text() : '')
-        .catch(() => ''))
-    );
-    files.forEach((f, i) => { state.prompts[f] = results[i]; });
+        .catch(() => '')),
+      // Núcleo compartido del wizard (identidad + reglas + contrato de salida)
+      fetch('/landing_page/prompts/core_wizard.txt').then(r => r.ok ? r.text() : '').catch(() => ''),
+      fetch('/landing_page/prompts/evaluacion.txt').then(r => r.ok ? r.text() : '').catch(() => ''),
+    ]);
+    sections.forEach((f, i) => { state.prompts[f] = results[i]; });
+    state.prompts.core = results[sections.length];
+    state.prompts.eval = results[sections.length + 1];
   } catch {
     console.warn('No se pudieron cargar los prompts.');
-  }
-
-  try {
-    const evalRes = await fetch('/landing_page/prompts/evaluacion.txt');
-    state.prompts.eval = evalRes.ok ? await evalRes.text() : '';
-  } catch {
-    state.prompts.eval = '';
   }
 }
 
@@ -329,7 +375,8 @@ async function handleSend() {
   const input = document.getElementById('chat-input');
   const text  = input?.value.trim();
 
-  const blockedPhases = [PHASE.GENERATING, PHASE.NOTIFYING, PHASE.DSN_REVIEW, PHASE.SELECTING, PHASE.PAYMENT, PHASE.DONE];
+  // DSN_REVIEW no bloquea: texto libre = "ninguno me convence" → generar nuevos
+  const blockedPhases = [PHASE.GENERATING, PHASE.NOTIFYING, PHASE.SELECTING, PHASE.PAYMENT, PHASE.DONE];
   if ((!text && state.pendingFiles.length === 0) || blockedPhases.includes(state.phase)) return;
   if (document.getElementById('chat-section')?.hasAttribute('data-locked')) return;
 
@@ -346,6 +393,13 @@ async function handleSend() {
     appendMessage('user', text);
     state.messages.push({ role: 'user', content: text });
     persistMessage('user', text, state.phase);
+  }
+
+  if (state.phase === PHASE.DSN_REVIEW) {
+    _isSending = false;
+    appendMessage('ai', 'Entendido — genero diseños nuevos para tu marca.');
+    await generateNewDesigns();
+    return;
   }
 
   if (state.phase === PHASE.GREETING) state.phase = PHASE.EVALUATING;
@@ -488,7 +542,11 @@ async function handleEvaluationTurn() {
 // ─── Wizard por secciones ──────────────────────────────────────────────────────
 
 async function handleSectionTurn(seccionKey) {
-  const systemPrompt   = state.prompts[seccionKey] || '';
+  // Núcleo compartido (estable → cacheable en el backend) + tarea de la sección
+  const sectionPrompt  = state.prompts[seccionKey] || '';
+  const systemPrompt   = state.prompts.core
+    ? `${state.prompts.core}\n\n${sectionPrompt}`
+    : sectionPrompt;
   const trimmedMessages = state.messages.slice(-SECTION_MSG_LIMIT);
 
   const data = await callClaude(trimmedMessages, systemPrompt, { max_tokens: 1024 });
@@ -725,7 +783,11 @@ async function startDesignPhase() {
   state.brief = buildFullBrief();
   saveSession({ phase: 'secciones_completas', brief: state.brief });
 
-  const sets = await initCarousel();
+  const { sets, error } = await initCarousel();
+
+  if (error) {
+    appendMessage('system', 'No pude cargar diseños anteriores — genero diseños nuevos directamente.');
+  }
 
   if (sets && sets.length > 0) {
     state.phase = PHASE.DSN_REVIEW;
@@ -749,8 +811,17 @@ async function startDesignPhase() {
       },
     });
 
-    if (widget) appendWidget(widget);
+    if (widget) {
+      appendWidget(widget);
+      // Nunca dejar al usuario encerrado: el texto libre cuenta como rechazo
+      setInputEnabled(true);
+      const input = document.getElementById('chat-input');
+      if (input) input.placeholder = 'Elegí un diseño arriba, o contame qué buscás y genero nuevos…';
+    } else {
+      await generateNewDesigns();
+    }
   } else {
+    if (!error) appendMessage('system', 'Vas a estrenar diseños hechos 100% a medida 🎨');
     await generateNewDesigns();
   }
 }
@@ -758,12 +829,15 @@ async function startDesignPhase() {
 async function generateNewDesigns() {
   state.phase = PHASE.GENERATING;
   updateProgressIndicator(PHASE.GENERATING);
+  setInputEnabled(false);
+  const chatInput = document.getElementById('chat-input');
+  if (chatInput) chatInput.placeholder = 'Contá sobre tu proyecto...';
   appendMessage('system', 'Generando tus 3 diseños personalizados...');
   showGeneratingState();
 
   try {
-    state.previews = await generateAllPreviews(state.brief, (current, total, name) => {
-      updateGeneratingProgress(current, total, name);
+    state.previews = await generateAllPreviews(state.brief, (current, total, name, chars) => {
+      updateGeneratingProgress(current, total, name, chars);
     });
 
     state.phase = PHASE.SELECTING;
@@ -1004,14 +1078,16 @@ function setInputEnabled(enabled) {
   if (btn)   btn.disabled   = !enabled;
 }
 
+const CHAR_LIMIT = 600;
+
 function updateCharCounter(len) {
   const counter = document.getElementById('char-counter');
   if (!counter) return;
-  counter.textContent = `${len} / 150`;
+  counter.textContent = `${len} / ${CHAR_LIMIT}`;
   counter.classList.toggle('visible',  len > 0);
-  counter.classList.toggle('warn',     len > 100 && len <= 135);
-  counter.classList.toggle('danger',   len > 135 && len < 150);
-  counter.classList.toggle('at-limit', len === 150);
+  counter.classList.toggle('warn',     len > CHAR_LIMIT * 0.67 && len <= CHAR_LIMIT * 0.9);
+  counter.classList.toggle('danger',   len > CHAR_LIMIT * 0.9 && len < CHAR_LIMIT);
+  counter.classList.toggle('at-limit', len === CHAR_LIMIT);
 }
 
 function showGeneratingState() {
@@ -1024,9 +1100,32 @@ function hideGeneratingState() {
   if (el) el.hidden = true;
 }
 
-function updateGeneratingProgress(current, total, name) {
+const GEN_HINTS = [
+  'Eligiendo paleta para tu rubro…',
+  'Escribiendo tu hero…',
+  'Armando las cards de servicios…',
+  'Ajustando la versión mobile…',
+  'Puliendo detalles…',
+];
+const GEN_EXPECTED_CHARS = 14000; // tamaño típico de un HTML completo
+
+function updateGeneratingProgress(current, total, name, chars = 0) {
+  // Skeletons: activo el actual, completados los anteriores
+  document.querySelectorAll('.gen-skeleton').forEach((el, i) => {
+    el.classList.toggle('gen-skeleton--active', i === current - 1);
+    el.classList.toggle('gen-skeleton--done',   i < current - 1);
+  });
+
   const label = document.getElementById('generating-label');
-  if (label) label.textContent = `Generando diseño ${current} de ${total}: ${name}...`;
+  if (!label) return;
+
+  if (chars > 0) {
+    const pct  = Math.min(99, Math.round((chars / GEN_EXPECTED_CHARS) * 100));
+    const hint = GEN_HINTS[Math.min(GEN_HINTS.length - 1, Math.floor((pct / 100) * GEN_HINTS.length))];
+    label.textContent = `Diseño ${current} de ${total} — ${name} · ${pct}% · ${hint}`;
+  } else {
+    label.textContent = `Generando diseño ${current} de ${total}: ${name}...`;
+  }
 }
 
 // ─── Helpers ───────────────────────────────────────────────────────────────────

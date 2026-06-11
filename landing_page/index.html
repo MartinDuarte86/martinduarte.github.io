@@ -335,8 +335,8 @@
 
               <div class="chat-input-wrapper">
                 <textarea id="chat-input" rows="1" placeholder="Contá sobre tu proyecto..."
-                          aria-label="Escribí tu mensaje" maxlength="150"></textarea>
-                <span id="char-counter" class="char-counter" aria-live="polite" aria-atomic="true">0 / 150</span>
+                          aria-label="Escribí tu mensaje" maxlength="600"></textarea>
+                <span id="char-counter" class="char-counter" aria-live="polite" aria-atomic="true">0 / 600</span>
               </div>
 
               <button id="send-btn" type="button" aria-label="Enviar mensaje">
@@ -351,6 +351,23 @@
           <div id="generating-state" hidden role="status" aria-live="polite">
             <div class="generating-spinner" aria-hidden="true"></div>
             <p id="generating-label">Generando tus diseños...</p>
+            <div class="gen-skeleton-row" aria-hidden="true">
+              <div class="gen-skeleton" data-slot="1">
+                <div class="gsk-bar"></div>
+                <div class="gsk-hero"></div>
+                <div class="gsk-cards"><span></span><span></span><span></span></div>
+              </div>
+              <div class="gen-skeleton" data-slot="2">
+                <div class="gsk-bar"></div>
+                <div class="gsk-hero"></div>
+                <div class="gsk-cards"><span></span><span></span><span></span></div>
+              </div>
+              <div class="gen-skeleton" data-slot="3">
+                <div class="gsk-bar"></div>
+                <div class="gsk-hero"></div>
+                <div class="gsk-cards"><span></span><span></span><span></span></div>
+              </div>
+            </div>
           </div>
         </section>
 

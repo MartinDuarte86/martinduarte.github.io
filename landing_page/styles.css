@@ -327,6 +327,41 @@ body {
 @keyframes spin { to { transform: rotate(360deg); } }
 #generating-label { color: var(--slate-soft); font-size: 14px; }
 
+/* Skeletons de generación: 3 landings "armándose" con shimmer */
+.gen-skeleton-row {
+  display: flex;
+  gap: 12px;
+  margin-top: 20px;
+}
+.gen-skeleton {
+  flex: 1;
+  border: 1px solid rgba(255,255,255,.1);
+  border-radius: 12px;
+  padding: 10px;
+  opacity: .3;
+  transition: opacity .4s, border-color .4s;
+}
+.gen-skeleton--active { opacity: 1; }
+.gen-skeleton--done   { opacity: 1; border-color: #16a34a; }
+.gen-skeleton--done .gsk-bar,
+.gen-skeleton--done .gsk-hero,
+.gen-skeleton--done .gsk-cards span { animation: none; }
+.gsk-bar, .gsk-hero, .gsk-cards span {
+  background: linear-gradient(90deg, rgba(255,255,255,.06) 25%, rgba(255,255,255,.14) 50%, rgba(255,255,255,.06) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.4s infinite;
+  border-radius: 6px;
+}
+.gsk-bar  { height: 8px; width: 60%; margin-bottom: 8px; }
+.gsk-hero { height: 52px; margin-bottom: 8px; }
+.gsk-cards { display: flex; gap: 6px; }
+.gsk-cards span { flex: 1; height: 26px; }
+@keyframes shimmer { to { background-position: -200% 0; } }
+@media (max-width: 540px) {
+  .gen-skeleton-row { gap: 8px; }
+  .gsk-hero { height: 36px; }
+}
+
 /* ─── Preview section ───────────────────────────────────────── */
 .previews-section { padding: 60px 24px; }
 .section-heading { font-family: 'Space Grotesk', sans-serif; font-size: clamp(28px, 4vw, 44px); font-weight: 800; letter-spacing: -.03em; text-align: center; margin-bottom: 8px; }
