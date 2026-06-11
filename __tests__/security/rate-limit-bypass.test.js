@@ -17,6 +17,12 @@ const mockCompressBriefForSection = jest.fn().mockReturnValue(null);
 
 jest.mock('../../api/_lib/redis.js', () => ({
   __esModule: true,
+  RATE_LIMITS: {
+    chat:       { max: 999, ttl: 3600  },
+    extraction: { max: 999, ttl: 3600  },
+    generation: { max: 8,   ttl: 86400 },
+    redesign:   { max: 8,   ttl: 86400 },
+  },
   checkRateLimit:          (...a) => mockCheckRateLimit(...a),
   getSessionCostUsd:       (...a) => mockGetSessionCostUsd(...a),
   trackTokenUsage:         (...a) => mockTrackTokenUsage(...a),
@@ -36,10 +42,19 @@ const mockCreate = jest.fn().mockResolvedValue({
   usage: { input_tokens: 5, output_tokens: 5 },
 });
 
+// generation/redesign usan messages.stream (SSE)
+const mockStream = jest.fn().mockImplementation(() => ({
+  on: jest.fn(),
+  finalMessage: jest.fn().mockResolvedValue({
+    stop_reason: 'end_turn',
+    usage: { input_tokens: 5, output_tokens: 5 },
+  }),
+}));
+
 jest.mock('@anthropic-ai/sdk', () => ({
   __esModule: true,
   default: jest.fn().mockImplementation(() => ({
-    messages: { create: mockCreate },
+    messages: { create: mockCreate, stream: mockStream },
   })),
 }), { virtual: true });
 
@@ -129,7 +144,7 @@ describe('CU-C04-C: agotamiento de límite de generation', () => {
     await handler(req, res);
     expect(res.statusCode).toBe(429);
     const body = res._getJSONData();
-    expect(body.error).toMatch(/Límite de generación|Demasiadas/i);
+    expect(body.error).toMatch(/Límite (diario )?de generación|Demasiadas/i);
   });
 
   test('redesign bloqueada → 429 con mensaje específico', async () => {
@@ -139,7 +154,7 @@ describe('CU-C04-C: agotamiento de límite de generation', () => {
     await handler(req, res);
     expect(res.statusCode).toBe(429);
     const body = res._getJSONData();
-    expect(body.error).toMatch(/Límite de rediseño|Demasiadas/i);
+    expect(body.error).toMatch(/Límite (diario )?de rediseño|Demasiadas/i);
   });
 });
 

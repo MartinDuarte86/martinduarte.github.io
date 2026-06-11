@@ -12,23 +12,17 @@
 //   - CORS centralizado via _lib/cors.js
 
 import Anthropic from '@anthropic-ai/sdk';
-import { checkRateLimit, getBrief, getMessages, touchSession, compressBriefForSection, getSessionCostUsd, trackTokenUsage } from './_lib/redis.js';
+import { RATE_LIMITS, checkRateLimit, getBrief, getMessages, touchSession, compressBriefForSection, getSessionCostUsd, trackTokenUsage } from './_lib/redis.js';
 import { applyCors } from './_lib/cors.js';
+
+// Habilita respuestas streaming (SSE) en Vercel Node functions
+export const config = { supportsResponseStreaming: true };
 
 const ANTHROPIC_MODELS = {
   generation: 'claude-sonnet-4-6',
   redesign:   'claude-sonnet-4-6',
   chat:       'claude-haiku-4-5-20251001',
   extraction: 'claude-haiku-4-5-20251001',
-};
-
-const ALWAYS_ANTHROPIC = new Set(['generation', 'redesign', 'chat', 'extraction']);
-
-const RATE_LIMITS = {
-  chat:       { max: 999, ttl: 3600  },
-  extraction: { max: 999, ttl: 3600  },
-  generation: { max: 2,   ttl: 86400 },
-  redesign:   { max: 2,   ttl: 86400 },
 };
 
 const VALID_SECTIONS  = new Set(['evaluating', 'hero', 'sobre_mi', 'servicios', 'testimonios', 'contacto', 'diseno']);
@@ -122,8 +116,8 @@ export default async function handler(req, res) {
     if (!allowed) {
       res.setHeader('Retry-After', limitConfig.ttl);
       const msgs = {
-        generation: 'Límite de generación alcanzado (2/24h). Intentá mañana.',
-        redesign:   'Límite de rediseño alcanzado (2/24h). Intentá mañana.',
+        generation: 'Límite diario de generación alcanzado. Intentá mañana.',
+        redesign:   'Límite diario de rediseño alcanzado. Intentá mañana.',
         chat:       'Demasiadas consultas. Esperá un momento.',
       };
       return res.status(429).json({ error: msgs[intent] || msgs.chat, remaining });
@@ -150,22 +144,56 @@ export default async function handler(req, res) {
   // ── Modelo y contexto ──────────────────────────────────────────────────────
   const resolvedModel = ANTHROPIC_MODELS[intent] || ANTHROPIC_MODELS.chat;
 
-  let systemWithContext = system || '';
+  // System en bloques: el prompt base (estable por sección) lleva cache_control
+  // para aprovechar prompt caching; el contexto de sesión (dinámico, cambia por
+  // turno) va en un bloque aparte sin cache para no invalidar el prefijo.
+  const systemBlocks = [];
+  if (system) {
+    systemBlocks.push({ type: 'text', text: system, cache_control: { type: 'ephemeral' } });
+  }
   if (session_id && section && intent === 'chat') {
     const contextBlock = await buildContextBlock(session_id, section);
-    systemWithContext = systemWithContext + contextBlock;
+    if (contextBlock) systemBlocks.push({ type: 'text', text: contextBlock });
   }
 
   const llmParams = {
     model:     resolvedModel,
     max_tokens,
-    system:    systemWithContext || undefined,
+    system:    systemBlocks.length > 0 ? systemBlocks : undefined,
     messages,
   };
 
   console.log(`[claude] intent=${intent} model=${resolvedModel} section=${section || '-'}`);
 
+  const isStreamingIntent = intent === 'generation' || intent === 'redesign';
+
   try {
+    if (isStreamingIntent) {
+      // SSE: al emitir bytes apenas empieza la generación, la función no muere
+      // por timeout de inicio de respuesta y el cliente ve progreso real.
+      res.writeHead(200, {
+        'Content-Type':  'text/event-stream',
+        'Cache-Control': 'no-cache, no-transform',
+        'Connection':    'keep-alive',
+      });
+
+      const stream = anthropicClient.messages.stream(llmParams);
+
+      stream.on('text', (delta) => {
+        res.write(`event: delta\ndata: ${JSON.stringify({ t: delta })}\n\n`);
+      });
+
+      const final = await stream.finalMessage();
+
+      if (session_id && final.usage) {
+        trackTokenUsage(session_id, resolvedModel,
+          final.usage.input_tokens, final.usage.output_tokens).catch(() => {});
+      }
+
+      res.write(`event: done\ndata: ${JSON.stringify({ stop_reason: final.stop_reason })}\n\n`);
+      return res.end();
+    }
+
     const response = await anthropicClient.messages.create(llmParams);
     // Acumular costo de tokens en Redis (fire-and-forget, no bloquea la respuesta)
     if (session_id && response.usage) {
@@ -175,6 +203,10 @@ export default async function handler(req, res) {
     return res.status(200).json(response);
   } catch (err) {
     console.error(`[claude]`, err.status, err.message?.slice(0, 100));
+    if (isStreamingIntent && res.headersSent) {
+      res.write(`event: error\ndata: ${JSON.stringify({ error: 'generation_failed' })}\n\n`);
+      return res.end();
+    }
     if (err.status === 429) return res.status(429).json({ error: 'Rate limit del LLM. Reintentá en un momento.' });
     if (err.status === 401) return res.status(500).json({ error: 'Error de autenticación con el LLM.' });
     return res.status(500).json({ error: 'Error al contactar el LLM' });

@@ -16,6 +16,12 @@ const mockCompressBriefForSection = jest.fn().mockReturnValue(null);
 
 jest.mock('../../api/_lib/redis.js', () => ({
   __esModule: true,
+  RATE_LIMITS: {
+    chat:       { max: 999, ttl: 3600  },
+    extraction: { max: 999, ttl: 3600  },
+    generation: { max: 8,   ttl: 86400 },
+    redesign:   { max: 8,   ttl: 86400 },
+  },
   checkRateLimit:          (...a) => mockCheckRateLimit(...a),
   getSessionCostUsd:       (...a) => mockGetSessionCostUsd(...a),
   trackTokenUsage:         (...a) => mockTrackTokenUsage(...a),

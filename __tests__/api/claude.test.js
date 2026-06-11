@@ -12,6 +12,12 @@ const mockCompressBriefForSection = jest.fn().mockReturnValue(null);
 
 jest.mock('../../api/_lib/redis.js', () => ({
   __esModule: true,
+  RATE_LIMITS: {
+    chat:       { max: 999, ttl: 3600  },
+    extraction: { max: 999, ttl: 3600  },
+    generation: { max: 8,   ttl: 86400 },
+    redesign:   { max: 8,   ttl: 86400 },
+  },
   checkRateLimit:           (...a) => mockCheckRateLimit(...a),
   touchSession:             (...a) => mockTouchSession(...a),
   getSessionCostUsd:        (...a) => mockGetSessionCostUsd(...a),
@@ -29,12 +35,20 @@ jest.mock('../../api/_lib/cors.js', () => ({
 // ── Anthropic SDK mock ────────────────────────────────────────────────────────
 
 const mockCreate = jest.fn();
+// generation/redesign usan messages.stream (SSE)
+const mockStream = jest.fn().mockImplementation(() => ({
+  on: jest.fn(),
+  finalMessage: jest.fn().mockResolvedValue({
+    stop_reason: 'end_turn',
+    usage: { input_tokens: 10, output_tokens: 20 },
+  }),
+}));
 
 jest.mock('@anthropic-ai/sdk', () => {
   return {
     __esModule: true,
     default: jest.fn().mockImplementation(() => ({
-      messages: { create: mockCreate },
+      messages: { create: mockCreate, stream: mockStream },
     })),
   };
 }, { virtual: true });
@@ -198,18 +212,31 @@ describe('budget guard', () => {
 // ─── Tests: routing de modelos ────────────────────────────────────────────────
 
 describe('routing de modelos', () => {
+  // chat/extraction → respuesta JSON via messages.create
   test.each([
     ['chat',       'claude-haiku-4-5-20251001'],
     ['extraction', 'claude-haiku-4-5-20251001'],
-    ['generation', 'claude-sonnet-4-6'],
-    ['redesign',   'claude-sonnet-4-6'],
-  ])('intent=%s → model=%s', async (intent, expectedModel) => {
+  ])('intent=%s → model=%s (create)', async (intent, expectedModel) => {
     const req = makeReq({ intent });
     const res = httpMocks.createResponse();
     await handler(req, res);
     expect(mockCreate).toHaveBeenCalledWith(
       expect.objectContaining({ model: expectedModel })
     );
+  });
+
+  // generation/redesign → streaming SSE via messages.stream
+  test.each([
+    ['generation', 'claude-sonnet-4-6'],
+    ['redesign',   'claude-sonnet-4-6'],
+  ])('intent=%s → model=%s (stream)', async (intent, expectedModel) => {
+    const req = makeReq({ intent });
+    const res = httpMocks.createResponse();
+    await handler(req, res);
+    expect(mockStream).toHaveBeenCalledWith(
+      expect.objectContaining({ model: expectedModel })
+    );
+    expect(mockCreate).not.toHaveBeenCalled();
   });
 });
 

@@ -95,12 +95,15 @@ export async function setCachedRubroTemplate(ruboCategory, templateId, html) {
 }
 
 // ─── Rate limiting distribuido ─────────────────────────────────────────────────
+// Única fuente de verdad (claude.js la importa — no duplicar la tabla).
+// generation/redesign: un set de diseños = 3 llamadas. 8 = 2 sets diarios
+// + margen de reintentos. El límite de costo real lo impone el budget guard.
 
-const RATE_LIMITS = {
+export const RATE_LIMITS = {
   chat:       { max: 999, ttl: 3600  },
-  generation: { max: 2,   ttl: 86400 },
+  generation: { max: 8,   ttl: 86400 },
   extraction: { max: 999, ttl: 3600  },
-  redesign:   { max: 2,   ttl: 86400 },
+  redesign:   { max: 8,   ttl: 86400 },
 };
 
 export async function checkRateLimit(ip, intent) {
