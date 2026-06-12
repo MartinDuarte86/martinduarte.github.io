@@ -585,7 +585,7 @@ const server = http.createServer(async (req, res) => {
             : mockClaudeResponse(body);
           break;
         }
-        case 'track':          result = { ok: true };               break;
+        case 'analytics':      result = { ok: true };               break;
         case 'validate-email': result = mockValidateEmail(body);    break;
         case 'save-client':    result = mockSaveClient(body);       break;
         case 'save-session':   result = mockSaveSession(body);      break;

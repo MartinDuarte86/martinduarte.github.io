@@ -144,7 +144,7 @@ const MP_LINK = 'https://mpago.la/1Dufc3b';
 // Tracking de funnel — fire-and-forget, nunca bloquea la UX
 function track(step, rubro) {
   try {
-    fetch('/api/track', {
+    fetch('/api/analytics', {
       method:  'POST',
       headers: { 'Content-Type': 'application/json' },
       body:    JSON.stringify(rubro ? { step, rubro } : { step }),

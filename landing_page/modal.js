@@ -10,7 +10,7 @@ const flowModal = (() => {
   function open() {
     // Tracking de funnel (fire-and-forget)
     try {
-      fetch('/api/track', {
+      fetch('/api/analytics', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ step: 'modal_open' }),

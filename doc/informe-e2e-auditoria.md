@@ -144,8 +144,8 @@ Script: [e2e/security-checks.mjs](../e2e/security-checks.mjs). Complementa los 1
 ## 8. Dashboard de monitoreo (técnico + financiero)
 
 Entregado y listo para deploy:
-- **[api/track.js](../api/track.js)** — registra eventos de funnel en Redis (`INCR funnel:{paso}:{fecha}`) + rubros (`biz:rubro:*`). Fire-and-forget, costo $0. Cableado en [chat.js](../landing_page/chat.js) y [modal.js](../landing_page/modal.js).
-- **[api/metrics.js](../api/metrics.js)** — agrega funnel (7 días), KPIs, rubros y templates top, costo API acumulado, sesiones activas y diseños guardados. Protegido con `ADMIN_TOKEN`.
+- **[api/analytics.js](../api/analytics.js)** — registra eventos de funnel en Redis (`INCR funnel:{paso}:{fecha}`) + rubros (`biz:rubro:*`). Fire-and-forget, costo $0. Cableado en [chat.js](../landing_page/chat.js) y [modal.js](../landing_page/modal.js).
+- **[api/analytics.js](../api/analytics.js)** — agrega funnel (7 días), KPIs, rubros y templates top, costo API acumulado, sesiones activas y diseños guardados. Protegido con `ADMIN_TOKEN`.
 - **[admin/dashboard.html](../admin/dashboard.html)** — panel con login por token, refresco cada 60s.
 
 **KPIs financieros incluidos:** ventas (7d), costo API total, **costo por venta**, completitud del wizard, conversión preview→pago, cierre de ventas. **KPIs de uso:** sesiones activas, rubros más solicitados, templates más usados, embudo completo `modal_open → … → pago_confirmado`.
@@ -195,4 +195,4 @@ El enfoque híbrido (mock para volumen, API real solo para validar IA/persistenc
 - [e2e/10-casos-de-uso-auditoria.spec.js](../e2e/10-casos-de-uso-auditoria.spec.js) — los 10 UC
 - [e2e/security-checks.mjs](../e2e/security-checks.mjs) — seguridad acotada
 - [e2e/smoke-generation-prod.mjs](../e2e/smoke-generation-prod.mjs) — smoke del fix de generación
-- [api/track.js](../api/track.js) · [api/metrics.js](../api/metrics.js) · [admin/dashboard.html](../admin/dashboard.html) — monitoreo
+- [api/analytics.js](../api/analytics.js) · [api/analytics.js](../api/analytics.js) · [admin/dashboard.html](../admin/dashboard.html) — monitoreo

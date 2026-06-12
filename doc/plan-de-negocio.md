@@ -108,7 +108,7 @@ esquema híbrido (§6) antes que pagar infraestructura.
 ## 5. Medición — KPIs y tracking
 
 Sin métricas, cada decisión es a ciegas. Implementación mínima sobre el Redis
-existente (endpoint `/api/track`, `INCR funnel:{paso}:{fecha}`, ~20 líneas).
+existente (endpoint `/api/analytics`, `INCR funnel:{paso}:{fecha}`, ~20 líneas).
 
 **Eventos del funnel:** `modal_open` → `registro` → `wizard_inicio` → `seccion_3`
 → `wizard_fin` → `preview_visto` → `pago_click` → `pago_confirmado`.
@@ -129,7 +129,7 @@ existente (endpoint `/api/track`, `INCR funnel:{paso}:{fecha}`, ~20 líneas).
 | Fase | Disparador | Cambio |
 |---|---|---|
 | **v1 (actual)** | — | Streaming SSE, budget guard completo, caching, carrusel con inventario |
-| **v1.5** | primeras ventas | Preview gratuito con watermark + pago pre-generación + `/api/track` |
+| **v1.5** | primeras ventas | Preview gratuito con watermark + pago pre-generación + `/api/analytics` |
 | **v2** | ~1.000 ses./mes o costo API > US$100/mes | Generación híbrida: el LLM genera solo el copy (JSON ~800 tokens) y el HTML se ensambla determinísticamente con los templates CSS existentes (`landing_page/templates/`). Costo ÷3.5, cero truncamiento, cero timeout |
 | **v2.5** | demanda de recurrencia | Panel de cliente para pedir cambios (alimenta el tier Mantenimiento) |
 

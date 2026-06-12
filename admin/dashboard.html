@@ -86,7 +86,7 @@ const FUNNEL_LABELS = {
 function getToken() { return sessionStorage.getItem('admin_token') || ''; }
 
 async function fetchMetrics() {
-  const res = await fetch('/api/metrics', { headers: { Authorization: 'Bearer ' + getToken() } });
+  const res = await fetch('/api/analytics', { headers: { Authorization: 'Bearer ' + getToken() } });
   if (res.status === 401) throw new Error('unauthorized');
   if (!res.ok) throw new Error('error ' + res.status);
   return res.json();
