@@ -11,3 +11,11 @@ node_modules/
 
 # HTMLs generados localmente por el mock (no versionar, pueden ser grandes)
 landing_page/dsn/dsn-*/
+
+# Artefactos de testing (Playwright, logs, screenshots de fallo)
+test-results/
+e2e-report/
+playwright-report/
+*.log
+tests/screenshots/
+e2e/_debug.mjs

@@ -103,30 +103,39 @@ const MIME = {
 // Simula el flujo completo: evaluación → onboarding (2 turnos) → brief completo
 
 function mockClaudeResponse(body) {
-  const { system, messages, max_tokens } = body;
-
-  // — Llamada de generación de HTML (generator.js, sin system, max_tokens 6000)
-  if (!system && max_tokens === 6000) {
-    return { content: [{ text: mockGeneratedHtml() }] };
-  }
-
-  // — Llamada de evaluación (evaluacion.txt — identifiable por "CRITERIOS DE ACEPTACIÓN")
-  if (system && system.includes('CRITERIOS DE ACEPTACIÓN')) {
-    return {
-      content: [{
-        text: '```json\n' + JSON.stringify({
-          respuesta_cliente: '¡Perfecto! Tu proyecto aplica muy bien para una landing page. Vamos a armar todo paso a paso — arranquemos.',
-          siguiente_accion: 'onboarding',
-        }) + '\n```',
-      }],
-    };
-  }
-
+  // Routing por body.section (lo envía chat.js en cada llamada) en lugar de
+  // sniffear strings del system prompt — sobrevive a reescrituras de prompts.
+  const { section, messages } = body;
   const userMessages = (messages || []).filter(m => m.role === 'user');
   const turn = userMessages.length;
+  const lastUser = String(userMessages[userMessages.length - 1]?.content || '').toLowerCase();
 
-  // — Sección Hero (prompt_hero.txt)
-  if (system && system.includes('sección Hero')) {
+  // — Evaluación: contrato nuevo = JSON crudo, sin fences ni texto extra
+  if (section === 'evaluating') {
+    // Casos determinísticos para testear los 3 caminos de la máquina de decisión
+    if (/ilegal|sin receta|falsificad/.test(lastUser)) {
+      return { content: [{ text: JSON.stringify({
+        aplica: false, motivo: 'contenido ilegal',
+        respuesta_cliente: 'Gracias por escribir, pero no trabajamos con ese tipo de contenido. ¡Éxitos con tu proyecto!',
+        siguiente_accion: 'rechazar',
+      }) }] };
+    }
+    if (/tienda online|e-?commerce|pago online|carrito/.test(lastUser)) {
+      return { content: [{ text: JSON.stringify({
+        aplica: false, motivo: 'necesita e-commerce, redirigir',
+        respuesta_cliente: 'Eso es más que una landing — es una tienda online, y también la hacemos. ¿Cuántos productos venderías?',
+        siguiente_accion: 'seguir_conversando',
+      }) }] };
+    }
+    return { content: [{ text: JSON.stringify({
+      aplica: true, motivo: 'producto claro, solo mostrar y recibir contactos',
+      respuesta_cliente: 'Tu proyecto aplica muy bien para una landing page. Vamos a armar todo paso a paso — arranquemos.',
+      siguiente_accion: 'onboarding',
+    }) }] };
+  }
+
+  // — Sección Hero
+  if (section === 'hero') {
     if (turn < 2) {
       return { content: [{ text: '¿Cómo se llama tu marca y a qué rubro pertenece?' }] };
     }
@@ -143,8 +152,8 @@ function mockClaudeResponse(body) {
     };
   }
 
-  // — Sección Sobre mí / Nosotros (prompt_sobre_mi.txt)
-  if (system && system.includes('"Sobre mí" o "Nosotros"')) {
+  // — Sección Sobre mí / Nosotros
+  if (section === 'sobre_mi') {
     if (turn < 2) {
       return { content: [{ text: '¿Tu emprendimiento es personal o es una empresa/equipo?' }] };
     }
@@ -161,8 +170,8 @@ function mockClaudeResponse(body) {
     };
   }
 
-  // — Sección Servicios (prompt_servicios.txt)
-  if (system && system.includes('sección Servicios')) {
+  // — Sección Servicios
+  if (section === 'servicios') {
     if (turn < 2) {
       return { content: [{ text: '¿Qué servicios ofrecés? Contame también una breve descripción de cada uno.' }] };
     }
@@ -182,8 +191,8 @@ function mockClaudeResponse(body) {
     };
   }
 
-  // — Sección Testimonios (prompt_testimonios.txt)
-  if (system && system.includes('sección Testimonios')) {
+  // — Sección Testimonios
+  if (section === 'testimonios') {
     if (turn < 2) {
       return { content: [{ text: '¿Querés incluir una sección de testimonios de clientes en tu landing?' }] };
     }
@@ -203,8 +212,8 @@ function mockClaudeResponse(body) {
     };
   }
 
-  // — Sección Contacto (prompt_contacto.txt)
-  if (system && system.includes('sección Contacto')) {
+  // — Sección Contacto
+  if (section === 'contacto') {
     if (turn < 2) {
       return { content: [{ text: '¿Cuál es tu WhatsApp y tus redes sociales?' }] };
     }
@@ -222,8 +231,8 @@ function mockClaudeResponse(body) {
     };
   }
 
-  // — Sección Diseño / identidad visual (prompt_diseno.txt)
-  if (system && system.includes('identidad visual')) {
+  // — Sección Diseño / identidad visual
+  if (section === 'diseno') {
     if (turn < 2) {
       return { content: [{ text: '¿Tenés alguna preferencia de colores o estilo para tu landing?' }] };
     }
@@ -314,6 +323,10 @@ const _sessions = new Map(); // session_id → { meta, brief, messages }
 const _clientsByEmail = new Map(); // email → { session_id, estado, nombre_marca }
 // Contador para IDs de design sets (no se persiste al disco en modo mock)
 let _dsnCounter = 1;
+// Diseños "anteriores" para el carrusel DSN. Vacío por defecto (los tests del
+// flujo de generación esperan no encontrar carrusel previo); se puebla solo
+// vía POST /api/_test/seed-dsn para el caso de uso del carrusel.
+let _dsnStore = [];
 
 function mockValidateEmail(body) {
   const { email } = body;
@@ -460,6 +473,27 @@ function sendJson(res, status, body) {
   res.end(json);
 }
 
+// Replica el contrato SSE de api/claude.js para generation/redesign:
+// eventos `delta` con fragmentos del HTML y un `done` final con stop_reason.
+function sendSse(res, fullText) {
+  res.writeHead(200, {
+    'Content-Type':  'text/event-stream',
+    'Cache-Control': 'no-cache, no-transform',
+    'Access-Control-Allow-Origin': '*',
+  });
+  const CHUNK = 800;
+  let i = 0;
+  const timer = setInterval(() => {
+    if (i >= fullText.length) {
+      clearInterval(timer);
+      res.write(`event: done\ndata: ${JSON.stringify({ stop_reason: 'end_turn' })}\n\n`);
+      return res.end();
+    }
+    res.write(`event: delta\ndata: ${JSON.stringify({ t: fullText.slice(i, i + CHUNK) })}\n\n`);
+    i += CHUNK;
+  }, 25);
+}
+
 function serveStatic(res, filePath) {
   const ext  = path.extname(filePath).toLowerCase();
   const mime = MIME[ext] || 'application/octet-stream';
@@ -504,6 +538,11 @@ const server = http.createServer(async (req, res) => {
         return sendJson(res, 200, mockGetSession(sessionId));
       }
 
+      // Carrusel de diseños anteriores (replica /api/get-dsn-html de prod)
+      if (route === 'get-dsn-html') {
+        return sendJson(res, 200, { designs: _dsnStore });
+      }
+
       if (route === 'approve' || route === 'reject') {
         const result = mockApproveReject(route, url.searchParams);
         res.writeHead(result.status, { 'Content-Type': 'text/html; charset=utf-8' });
@@ -518,13 +557,35 @@ const server = http.createServer(async (req, res) => {
     console.log(`→ POST /api/${route}`);
 
     try {
+      // Rutas solo-test: sembrar/limpiar estado para casos de uso específicos
+      if (route === '_test/seed-dsn') {
+        _dsnStore = Array.isArray(body.designs) ? body.designs : [];
+        console.log(`  [mock] _test/seed-dsn: ${_dsnStore.length} diseños sembrados`);
+        return sendJson(res, 200, { ok: true, count: _dsnStore.length });
+      }
+      if (route === '_test/reset') {
+        _sessions.clear(); _clientsByEmail.clear(); _dsnStore = [];
+        console.log('  [mock] _test/reset: estado limpio');
+        return sendJson(res, 200, { ok: true });
+      }
+
       let result;
       switch (route) {
-        case 'claude':
+        case 'claude': {
+          const intent = body.intent || 'chat';
+          // generation/redesign responden SSE como api/claude.js en producción
+          if (intent === 'generation' || intent === 'redesign') {
+            const html = LLM_PROVIDER === 'openrouter'
+              ? (await callOpenRouter(body)).content[0].text
+              : mockGeneratedHtml();
+            return sendSse(res, html);
+          }
           result = LLM_PROVIDER === 'openrouter'
             ? await callOpenRouter(body)
             : mockClaudeResponse(body);
           break;
+        }
+        case 'track':          result = { ok: true };               break;
         case 'validate-email': result = mockValidateEmail(body);    break;
         case 'save-client':    result = mockSaveClient(body);       break;
         case 'save-session':   result = mockSaveSession(body);      break;

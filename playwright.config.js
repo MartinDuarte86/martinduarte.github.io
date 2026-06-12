@@ -11,7 +11,8 @@ export default defineConfig({
 
   use: {
     baseURL: 'http://localhost:3000',
-    headless: false,   // visible para que el usuario vea el flujo
+    // Visible por defecto (el usuario quiere ver el flujo); PWHEADLESS=1 acelera la iteración
+    headless: process.env.PWHEADLESS === '1',
     viewport: { width: 1280, height: 800 },
     screenshot: 'only-on-failure',
     video: 'retain-on-failure',

@@ -44,14 +44,9 @@ test.describe('Flujo 1 — Conversación iniciada', () => {
     await completePrequalification(page);
     await completeRegistration(page, { nombre: 'María', apellido: 'Pérez', email: `saludo.test.${Date.now()}@example.com` });
 
-    // Esperar saludo
-    await page.waitForFunction(
-      () => document.querySelectorAll('#chat-messages .message--ai').length >= 1,
-      { timeout: 10_000 }
-    );
-
-    const messages = await page.locator('#chat-messages').textContent();
-    expect(messages.length).toBeGreaterThan(10);
+    // Esperar la burbuja real del saludo (no el indicador de typing, que también es .message--ai)
+    const greeting = page.locator('#chat-messages .message--ai .message-bubble').first();
+    await expect(greeting).toContainText(/negocio|idea|landing/i, { timeout: 15_000 });
   });
 
   test('usuario envía primer mensaje y obtiene respuesta (evaluación)', async ({ page }) => {

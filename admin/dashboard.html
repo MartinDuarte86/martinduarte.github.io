@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title>Dashboard — Landing Page Service</title>
+<style>
+  :root {
+    --bg: #0F172A; --card: #1E293B; --border: #334155;
+    --text: #F8FAFC; --soft: #94A3B8; --blue: #2563EB;
+    --green: #16A34A; --amber: #F59E0B; --red: #DC2626;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: system-ui, -apple-system, sans-serif; background: var(--bg); color: var(--text); padding: 24px; }
+  h1 { font-size: 20px; margin-bottom: 4px; }
+  .sub { color: var(--soft); font-size: 13px; margin-bottom: 24px; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; margin-bottom: 24px; }
+  .card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 18px; }
+  .card .label { font-size: 11px; text-transform: uppercase; letter-spacing: .08em; color: var(--soft); margin-bottom: 8px; }
+  .card .value { font-size: 30px; font-weight: 800; }
+  .card .value small { font-size: 14px; color: var(--soft); font-weight: 400; }
+  .card.money .value { color: var(--green); }
+  .card.cost .value  { color: var(--amber); }
+  h2 { font-size: 14px; text-transform: uppercase; letter-spacing: .08em; color: var(--soft); margin: 28px 0 12px; }
+  .funnel-step { display: flex; align-items: center; gap: 12px; margin-bottom: 8px; }
+  .funnel-step .name { width: 150px; font-size: 13px; color: var(--soft); }
+  .funnel-step .bar-wrap { flex: 1; background: #0B1220; border-radius: 6px; height: 26px; position: relative; overflow: hidden; }
+  .funnel-step .bar { height: 100%; background: linear-gradient(90deg, var(--blue), #60A5FA); border-radius: 6px; min-width: 2px; transition: width .6s ease; }
+  .funnel-step .num { width: 90px; text-align: right; font-size: 13px; font-weight: 700; }
+  .funnel-step .num small { color: var(--soft); font-weight: 400; }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  td, th { padding: 8px 10px; border-bottom: 1px solid var(--border); text-align: left; }
+  th { color: var(--soft); font-size: 11px; text-transform: uppercase; letter-spacing: .06em; }
+  td:last-child, th:last-child { text-align: right; }
+  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+  @media (max-width: 760px) { .two-col { grid-template-columns: 1fr; } }
+  /* Login */
+  #login { max-width: 360px; margin: 15vh auto; text-align: center; }
+  #login input { width: 100%; padding: 12px 14px; border-radius: 8px; border: 1px solid var(--border); background: var(--card); color: var(--text); font-size: 14px; margin: 14px 0; }
+  #login button { width: 100%; padding: 12px; border: none; border-radius: 8px; background: var(--blue); color: #fff; font-weight: 700; font-size: 14px; cursor: pointer; }
+  #login .err { color: var(--red); font-size: 13px; margin-top: 10px; min-height: 18px; }
+  #refresh-note { color: var(--soft); font-size: 12px; margin-top: 28px; }
+  .hidden { display: none; }
+</style>
+</head>
+<body>
+
+<div id="login">
+  <h1>📊 Dashboard</h1>
+  <p class="sub">Landing Page Service — acceso admin</p>
+  <input id="token-input" type="password" placeholder="Token de administrador" autocomplete="off">
+  <button id="login-btn" type="button">Entrar</button>
+  <div class="err" id="login-err"></div>
+</div>
+
+<div id="dash" class="hidden">
+  <h1>📊 Landing Page Service — Monitoreo</h1>
+  <p class="sub">Actualizado: <span id="updated">—</span> · refresco automático cada 60s</p>
+
+  <div class="grid" id="kpi-cards"></div>
+
+  <div class="two-col">
+    <div>
+      <h2>Funnel — últimos 7 días (hoy entre paréntesis)</h2>
+      <div id="funnel"></div>
+    </div>
+    <div>
+      <h2>Rubros más solicitados</h2>
+      <table><thead><tr><th>Rubro</th><th>Pedidos</th></tr></thead><tbody id="rubros"></tbody></table>
+      <h2>Templates más usados</h2>
+      <table><thead><tr><th>Template</th><th>Diseños</th></tr></thead><tbody id="templates"></tbody></table>
+    </div>
+  </div>
+
+  <p id="refresh-note">Fuente: Upstash Redis (funnel, costos, sesiones) + Supabase (diseños). Tope de lectura acotado al free tier.</p>
+</div>
+
+<script>
+const FUNNEL_LABELS = {
+  modal_open: 'Modal abierto', registro: 'Registro', wizard_inicio: 'Wizard inicio',
+  seccion_3: 'Mitad del wizard', wizard_fin: 'Wizard completo', preview_visto: 'Preview visto',
+  pago_click: 'Click en pago', pago_confirmado: '💰 Venta confirmada',
+};
+
+function getToken() { return sessionStorage.getItem('admin_token') || ''; }
+
+async function fetchMetrics() {
+  const res = await fetch('/api/metrics', { headers: { Authorization: 'Bearer ' + getToken() } });
+  if (res.status === 401) throw new Error('unauthorized');
+  if (!res.ok) throw new Error('error ' + res.status);
+  return res.json();
+}
+
+function kpiCard(label, value, suffix, cls) {
+  return `<div class="card ${cls || ''}"><div class="label">${label}</div>
+    <div class="value">${value ?? '—'}<small>${value != null ? (suffix || '') : ' sin datos'}</small></div></div>`;
+}
+
+function render(data) {
+  document.getElementById('updated').textContent = new Date(data.generado).toLocaleString('es-AR');
+
+  const k = data.kpis;
+  document.getElementById('kpi-cards').innerHTML = [
+    kpiCard('Ventas 7d', data.funnel.pago_confirmado?.total_7d ?? 0, '', 'money'),
+    kpiCard('Costo API total', '$' + (k.costo_api_usd_total ?? 0), ' USD', 'cost'),
+    kpiCard('Costo por venta', k.costo_por_venta_usd != null ? '$' + k.costo_por_venta_usd : null, ' USD', 'cost'),
+    kpiCard('Completitud wizard', k.completitud_wizard, '%'),
+    kpiCard('Preview → Pago', k.preview_a_pago_click, '%'),
+    kpiCard('Cierre de ventas', k.cierre_ventas, '%'),
+    kpiCard('Sesiones activas', data.sesiones_activas, ''),
+    kpiCard('Diseños guardados', data.disenos_guardados, ''),
+  ].join('');
+
+  const steps = Object.keys(FUNNEL_LABELS);
+  const max = Math.max(1, ...steps.map(s => data.funnel[s]?.total_7d || 0));
+  document.getElementById('funnel').innerHTML = steps.map(s => {
+    const f = data.funnel[s] || { hoy: 0, total_7d: 0 };
+    return `<div class="funnel-step">
+      <div class="name">${FUNNEL_LABELS[s]}</div>
+      <div class="bar-wrap"><div class="bar" style="width:${(f.total_7d / max) * 100}%"></div></div>
+      <div class="num">${f.total_7d} <small>(${f.hoy})</small></div></div>`;
+  }).join('');
+
+  document.getElementById('rubros').innerHTML = (data.rubros_top.length
+    ? data.rubros_top.map(r => `<tr><td>${r.rubro}</td><td>${r.pedidos}</td></tr>`)
+    : ['<tr><td colspan="2" style="color:#64748B">Sin datos todavía</td></tr>']).join('');
+
+  document.getElementById('templates').innerHTML = (data.templates_top.length
+    ? data.templates_top.map(t => `<tr><td>${t.template}</td><td>${t.ventas}</td></tr>`)
+    : ['<tr><td colspan="2" style="color:#64748B">Sin datos todavía</td></tr>']).join('');
+}
+
+async function refresh() {
+  try {
+    render(await fetchMetrics());
+  } catch (e) {
+    if (e.message === 'unauthorized') {
+      sessionStorage.removeItem('admin_token');
+      document.getElementById('dash').classList.add('hidden');
+      document.getElementById('login').classList.remove('hidden');
+      document.getElementById('login-err').textContent = 'Token inválido o expirado.';
+    }
+  }
+}
+
+async function tryLogin() {
+  const token = document.getElementById('token-input').value.trim();
+  if (!token) return;
+  sessionStorage.setItem('admin_token', token);
+  try {
+    const data = await fetchMetrics();
+    document.getElementById('login').classList.add('hidden');
+    document.getElementById('dash').classList.remove('hidden');
+    render(data);
+  } catch {
+    sessionStorage.removeItem('admin_token');
+    document.getElementById('login-err').textContent = 'Token inválido.';
+  }
+}
+
+document.getElementById('login-btn').addEventListener('click', tryLogin);
+document.getElementById('token-input').addEventListener('keydown', e => { if (e.key === 'Enter') tryLogin(); });
+
+if (getToken()) tryLogin();
+setInterval(() => { if (!document.getElementById('dash').classList.contains('hidden')) refresh(); }, 60_000);
+</script>
+</body>
+</html>
