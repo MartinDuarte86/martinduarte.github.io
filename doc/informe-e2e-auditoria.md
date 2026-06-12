@@ -18,8 +18,9 @@
 | **Unit/integration (Jest)** | ✅ 162/162 PASS |
 | **Seguridad (acotada)** | ✅ 4/4 PASS |
 | **Smoke generación producción** | ✅ PASS (tras fix de timeout) |
-| **Bugs detectados y resueltos** | 🐞 4 (1 crítico de producción) |
+| **Bugs detectados y resueltos** | 🐞 5 (1 crítico de generación + 1 de deploy) |
 | **Costo API de todo el ciclo** | ~US$0.10 |
+| **Deploy a producción** | ✅ Ready y validado (generación real 32.2s, HTML completo) |
 | **Estado de la aplicación** | 🟢 Estable — flujo onboarding→venta completo y verde |
 
 La regla de gating se respetó: **no se avanzó de caso de uso sin cumplir su objetivo**, y ante cada bug se aplicó el fix y se re-corrió la suite completa antes de continuar. La progresión de métricas fue **13/40 → 37/40 → 40/40**.
@@ -80,6 +81,11 @@ Cada UC ejercita un ángulo distinto del producto. Spec: [e2e/10-casos-de-uso-au
 ### 🟡 BUG-4 (lógica) — El rechazo re-habilitaba el input
 - **Causa raíz:** el `finally` de `handleSend` rehabilitaba el input incluso tras un `rechazar`.
 - **Fix:** setear `state.phase = DONE` en la rama de rechazo para que el `finally` no lo reactive.
+
+### 🟠 BUG-5 (deploy) — El deploy fallaba por el límite de 12 funciones de Vercel Hobby
+- **Detección:** tras el push, el deploy quedaba en estado **Error** (build OK, fallo en "Deploying outputs"); producción seguía sirviendo la versión anterior.
+- **Causa raíz:** el plan Hobby permite **máximo 12 Serverless Functions**. Las 2 nuevas (`track.js` + `metrics.js`) llevaban el total de 11 a 13.
+- **Fix:** fusionar ambas en **`api/analytics.js`** (POST = registrar evento, GET = métricas con `ADMIN_TOKEN`) → total 12, dentro del límite. Deploy posterior: ✅ Ready, `/api/analytics` validado en prod (POST→200, GET sin token→401).
 
 *(Adicional: se actualizaron las fixtures de los specs 01 y 04, que asumían el contrato viejo de prompts y el sembrado de diseños en disco; ahora siembran vía el mismo data path que producción.)*
 
