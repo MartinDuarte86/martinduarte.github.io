@@ -126,7 +126,11 @@ async function generatePreview(brief, templateId, promptTemplate, onChunk) {
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
       messages:   [{ role: 'user', content: prompt }],
-      max_tokens: 8192,                       // 6000 truncaba HTMLs completos
+      // Techo de seguridad: a ~59 tok/s, 3200 tokens ≈ 54s < maxDuration 60s de
+      // Vercel Hobby. Garantiza que la generación CIERRE antes del timeout de
+      // pared (con 8192 el HTML se cortaba a los 60s sin </html>). El prompt
+      // mantiene el output compacto; este valor es solo el límite duro.
+      max_tokens: 3200,
       intent:     'generation',               // activa rate limit + streaming SSE
       session_id: brief.session_id || null,   // budget guard cubre también Sonnet
     }),

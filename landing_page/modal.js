@@ -8,6 +8,15 @@ const flowModal = (() => {
   function getEl(id) { return document.getElementById(id); }
 
   function open() {
+    // Tracking de funnel (fire-and-forget)
+    try {
+      fetch('/api/track', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ step: 'modal_open' }),
+      }).catch(() => {});
+    } catch {}
+
     // Si ya hay sesión activa el chat está listo → ir directo al paso 3
     if (window._chatSessionReady) {
       _show();

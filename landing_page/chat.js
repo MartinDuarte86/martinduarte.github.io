@@ -141,6 +141,17 @@ async function tryRecoverSession() {
 
 const MP_LINK = 'https://mpago.la/1Dufc3b';
 
+// Tracking de funnel — fire-and-forget, nunca bloquea la UX
+function track(step, rubro) {
+  try {
+    fetch('/api/track', {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body:    JSON.stringify(rubro ? { step, rubro } : { step }),
+    }).catch(() => {});
+  } catch {}
+}
+
 const MAX_UPLOAD_FILES = 5;
 const MAX_UPLOAD_BYTES = 3 * 1024 * 1024;
 
@@ -209,18 +220,27 @@ export async function init() {
     window._chatSessionReady = true;
     window.flowModal?.goToStep(3);
 
+    // Registrar listeners ANTES del saludo: si se hiciera después del delay del
+    // typing, habría una ventana en la que el input no responde a clicks/Enter.
+    setupEventListeners();
+
     const recovered = await tryRecoverSession();
     if (!recovered) {
+      track('registro');
       const nombre = clientData.nombre;
-      // Encuadre de expectativa: duración + recompensa final, antes de pedir nada
+      // Encuadre de expectativa con typing. El input queda bloqueado mientras el
+      // asistente "escribe" su saludo: evita que un mensaje del usuario se procese
+      // antes del saludo y deje los mensajes fuera de orden.
+      setInputEnabled(false);
       showTyping();
       await new Promise(r => setTimeout(r, 900));
       hideTyping();
       appendMessage('ai',
         `Hola ${nombre} 👋 Soy el asistente de Martín. En ~10 minutos armamos juntos el contenido de tu landing `
         + `y al final te muestro diseños reales para tu marca.\n\nContame: ¿de qué se trata tu negocio o idea?`);
+      setInputEnabled(true);
+      document.getElementById('chat-input')?.focus();
     }
-    setupEventListeners();
   });
 }
 
@@ -524,6 +544,7 @@ async function handleEvaluationTurn() {
   persistMessage('assistant', reply, state.phase);
 
   if (result.siguiente_accion === 'onboarding') {
+    track('wizard_inicio');
     const lastUserMsg = state.messages.filter(m => m.role === 'user').slice(-1);
     state.phase    = PHASE.HERO;
     state.messages = lastUserMsg;
@@ -535,6 +556,8 @@ async function handleEvaluationTurn() {
 
   } else if (result.siguiente_accion === 'rechazar') {
     appendMessage('system', 'Si tenés otra consulta o querés explorar otros servicios, escribime cuando quieras.');
+    // DONE evita que el finally de handleSend re-habilite el input
+    state.phase = PHASE.DONE;
     setInputEnabled(false);
   }
 }
@@ -570,6 +593,7 @@ async function handleSectionTurn(seccionKey) {
 }
 
 async function advanceToNextSection(completedSection) {
+  if (completedSection === PHASE.SERVICIOS) track('seccion_3');
   const idx       = SECTION_ORDER.indexOf(completedSection);
   const nextPhase = SECTION_ORDER[idx + 1] || null;
 
@@ -782,6 +806,7 @@ async function startDesignPhase() {
 
   state.brief = buildFullBrief();
   saveSession({ phase: 'secciones_completas', brief: state.brief });
+  track('wizard_fin', state.brief.rubro);
 
   const { sets, error } = await initCarousel();
 
@@ -813,6 +838,7 @@ async function startDesignPhase() {
 
     if (widget) {
       appendWidget(widget);
+      track('preview_visto');
       // Nunca dejar al usuario encerrado: el texto libre cuenta como rechazo
       setInputEnabled(true);
       const input = document.getElementById('chat-input');
@@ -850,6 +876,7 @@ async function generateNewDesigns() {
 
     if (widget) appendWidget(widget);
     else showPreviewSection(state.previews);
+    track('preview_visto');
 
   } catch (err) {
     console.error('Generation error:', err);
@@ -941,7 +968,10 @@ function showPaymentSection() {
   renderPaymentPreview();
 
   const mpBtn = document.getElementById('mp-btn');
-  if (mpBtn) mpBtn.href = MP_LINK;
+  if (mpBtn) {
+    mpBtn.href = MP_LINK;
+    mpBtn.addEventListener('click', () => track('pago_click'), { once: true });
+  }
 
   document.getElementById('confirm-payment-btn')?.addEventListener('click', handlePaymentConfirm, { once: true });
 }
@@ -995,6 +1025,7 @@ async function handlePaymentConfirm() {
     await sendNotification(state.brief, state.selectedPreview?.html || '', getClientData());
     state.phase = PHASE.DONE;
     saveSession({ phase: PHASE.DONE });
+    track('pago_confirmado', state.brief?.rubro);
     showSuccessSection();
   } catch (err) {
     console.error('Notify error:', err);

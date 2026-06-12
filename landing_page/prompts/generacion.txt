@@ -14,8 +14,10 @@ Sos un diseñador-desarrollador senior. Generá UNA landing page como archivo HT
 - Sin imágenes externas: placeholders con div + gradiente de la paleta del tema.
 - Contacto: botón principal a https://wa.me/549{{contacto_wsp}} (solo dígitos) y mailto:.
 - CSS compacto: selectores cortos, sin comentarios, sin propiedades redundantes.
-- PRESUPUESTO DE TAMAÑO: el archivo completo debe quedar entre 350 y 450 líneas.
-  No lo excedas — preferí menos variantes decorativas antes que un archivo cortado.
+- PRESUPUESTO DE TAMAÑO (CRÍTICO): el archivo completo debe quedar entre 130 y 170
+  líneas / ~9000 caracteres. Es PREFERIBLE un diseño simple y COMPLETO antes que uno
+  elaborado y cortado a la mitad. Priorizá SIEMPRE cerrar el documento con </html>:
+  si tenés que recortar, recortá variantes decorativas, nunca dejes el HTML abierto.
 
 === SECCIONES (en este orden) ===
 1. HERO — el más importante. Debe tener:
