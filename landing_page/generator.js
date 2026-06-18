@@ -258,6 +258,16 @@ function openPreviewModal(preview, index, onSelect) {
   inner.appendChild(iframe);
   renderPreviewInIframe(iframe, preview.html);
 
+  // El iframe no tiene auto-altura: sin esto, todo el contenido debajo del
+  // primer viewport del diseño generado queda inaccesible (ni el iframe ni
+  // el wrap externo tienen scroll real sobre él).
+  iframe.addEventListener('load', () => {
+    try {
+      const fullHeight = iframe.contentDocument?.documentElement?.scrollHeight;
+      if (fullHeight) iframe.style.height = fullHeight + 'px';
+    } catch { /* cross-origin: se mantiene el fallback de 100vh */ }
+  });
+
   modal.hidden = false;
   document.body.style.overflow = 'hidden';
 

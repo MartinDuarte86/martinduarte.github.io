@@ -69,3 +69,44 @@ de diseños más elaborados (lo que llegue primero).
 *(Nota: Fluid Compute ya está activo y `maxDuration` en 120s, así que el timeout
 dejó de ser un riesgo inmediato; este ítem es para riqueza visual + costo, no
 urgencia.)*
+
+---
+
+### B-03 · Chat mobile no se sentía "app de mensajería" + preview de diseño tapado/incompleto
+**Origen:** Martín probó el flujo desde un celular y reportó que el chat se veía
+chico y mal relacionado con el tamaño de pantalla, no abría a pantalla completa
+al tocar, y pidió que la mensajería tomara el formato de una app de chat real
+(WhatsApp/Telegram/Discord) en vez de "chat personal".
+
+**Causas raíz encontradas (reproducidas con Playwright a 390×844, iPhone 13):**
+- `chat-section--modal .chat-card` tenía una altura hardcodeada
+  (`calc(100vh - 220px)`) en vez de flex real, y faltaba `min-height: 0` en la
+  cadena flex (`flow-panel--chat` → `chat-section--modal` → `.chat-card` →
+  `.chat-messages`). Resultado: el modal entero scrolleaba como una página larga
+  en vez de quedar header fijo + mensajes con scroll propio + input fijo.
+- Header duplicado (`.chat-heading` de la página + `.chat-card-header` del
+  widget) y el "look" de card flotante (borde, sombra, radio, padding) en vez de
+  edge-to-edge.
+- El modal de preview del diseño generado (`openPreviewModal` en
+  `generator.js`) fijaba el iframe a `height: 100vh`, así que solo se podía ver
+  la primera pantalla del diseño — el resto era inalcanzable.
+- Bug aparte: `.preview-modal` tenía `z-index: 200` contra `z-index: 1000` del
+  `.flow-modal` del chat. Como el preview se abre *desde dentro* del chat (único
+  punto de uso real, vía el carrusel `ccw-*` de `carousel.js`), quedaba
+  renderizado pero **invisible detrás del chat**.
+
+**Fix aplicado:** `landing_page/styles.css` (flex chain + edge-to-edge +
+z-index) y `landing_page/generator.js` (altura del iframe se mide on-load contra
+`scrollHeight` real). Verificado con Playwright en mobile y desktop, y con la
+suite existente (40/40 e2e, 162/162 unit) sin regresiones.
+
+**Estado:** implementado en el working tree, sin commitear ni deployar todavía.
+
+**Pendiente / no resuelto en esta pasada:**
+- Martín dijo que iba a mandar imágenes de referencia (tamaño/tipografía) para
+  contrastar el resultado — falta esa validación visual suya en un dispositivo
+  real (no solo Playwright).
+- Los thumbnails de diseño en el carrusel viejo (`#previews-grid`, fallback poco
+  usado) siguen renderizando el layout a escala desktop (`transform: scale(0.333)`
+  de un iframe al 300%) en vez de una vista mobile-accurate. No es el problema
+  reportado por Martín pero quedó identificado como deuda visual menor.

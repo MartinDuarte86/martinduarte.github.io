@@ -388,6 +388,10 @@ body {
 }
 .preview-card:hover .preview-overlay { opacity: 1; }
 .preview-card.selected .preview-overlay { opacity: 1; }
+/* Sin hover en touch: la pista de "ver" tiene que ser visible sin gesto previo */
+@media (hover: none) {
+  .preview-overlay { opacity: 1; background: rgba(15,23,42,.35); }
+}
 .preview-info { padding: 20px; }
 .preview-info h3 { font-family: 'Space Grotesk', sans-serif; font-size: 16px; font-weight: 700; margin-bottom: 6px; }
 .preview-info p { font-size: 13px; color: var(--slate-soft); line-height: 1.5; }
@@ -498,7 +502,9 @@ body {
 /* ─── Mejora 2: Modal de preview con zoom ──────────────────────── */
 .preview-modal {
   position: fixed; inset: 0;
-  z-index: 200;
+  /* Por encima del .flow-modal (z-index 1000): se abre desde dentro del chat
+     y antes quedaba tapado por él, invisible aunque sí se renderizaba. */
+  z-index: 1100;
   display: flex; align-items: center; justify-content: center;
   padding: 20px;
 }
@@ -874,6 +880,8 @@ body {
   padding: 0;
   display: flex;
   flex-direction: column;
+  overflow: hidden;
+  min-height: 0;
 }
 .flow-panel--entering {
   animation: flow-panel-in 0.3s ease;
@@ -884,17 +892,35 @@ body {
 }
 
 .chat-section--modal {
-  padding: 24px 24px 0;
+  padding: 0;
   flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+.chat-section--modal .chat-heading {
+  display: none;
 }
 .chat-section--modal .chat-card {
   display: flex;
   flex-direction: column;
-  height: calc(100vh - 220px);
-  min-height: 320px;
+  flex: 1;
+  min-height: 0;
+  height: auto;
+  background: transparent;
+  border: none;
+  border-radius: 0;
+  box-shadow: none;
+}
+.chat-section--modal .chat-card-header,
+.chat-section--modal .progress-bar,
+.chat-section--modal .attached-files-list,
+.chat-section--modal .chat-input-area {
+  flex-shrink: 0;
 }
 .chat-section--modal .chat-messages {
   flex: 1;
+  min-height: 0;
   height: auto;
   max-height: none;
 }
@@ -914,6 +940,7 @@ body {
   .flow-modal { align-items: flex-end; }
   .flow-container--full { border-radius: 0; max-height: 100vh; height: 100vh; }
   .flow-panel { padding: 20px 20px 24px; }
+  .flow-panel--chat { padding: 0; }
 }
 
 /* ─── Chat carousel widget (diseños anteriores + nuevos) ─── */
