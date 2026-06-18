@@ -829,8 +829,8 @@ body {
 .flow-container--full {
   max-width: 100vw;
   width: 100vw;
-  max-height: 100vh;
-  height: 100vh;
+  max-height: var(--app-height, 100vh);
+  height: var(--app-height, 100vh);
   border-radius: 0;
 }
 
@@ -938,7 +938,7 @@ body {
     margin: 0;
   }
   .flow-modal { align-items: flex-end; }
-  .flow-container--full { border-radius: 0; max-height: 100vh; height: 100vh; }
+  .flow-container--full { border-radius: 0; max-height: var(--app-height, 100vh); height: var(--app-height, 100vh); }
   .flow-panel { padding: 20px 20px 24px; }
   .flow-panel--chat { padding: 0; }
 }

@@ -119,6 +119,33 @@ const flowModal = (() => {
     document.addEventListener('keydown', e => {
       if (e.key === 'Escape' && currentStep > 0 && currentStep < 3) close();
     });
+
+    _initViewportTracking();
+  }
+
+  // En iOS Safari el teclado no reduce el viewport (100vh) sino que lo tapa,
+  // así que el contenedor full-screen del paso 3 quedaba con el mismo alto
+  // de siempre y el teclado cubría parte del chat sin que nada se reacomode.
+  // --app-height sigue al visualViewport real para que el contenedor (y el
+  // flex de los mensajes dentro) se achiquen con el teclado, como en una app nativa.
+  function _initViewportTracking() {
+    const vv = window.visualViewport;
+    const setAppHeight = () => {
+      const h = vv ? vv.height : window.innerHeight;
+      document.documentElement.style.setProperty('--app-height', `${h}px`);
+      // Si el teclado se abrió con el chat en foco, el último mensaje queda
+      // arriba del área visible: lo volvemos a pegar abajo, estilo WhatsApp.
+      if (currentStep === 3 && document.activeElement?.id === 'chat-input') {
+        const messages = getEl('chat-messages');
+        if (messages) messages.scrollTop = messages.scrollHeight;
+      }
+    };
+    setAppHeight();
+    if (vv) {
+      vv.addEventListener('resize', setAppHeight);
+    } else {
+      window.addEventListener('resize', setAppHeight);
+    }
   }
 
   if (document.readyState === 'loading') {

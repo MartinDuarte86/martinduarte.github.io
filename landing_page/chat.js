@@ -281,6 +281,16 @@ function setupEventListeners() {
     input.style.height = Math.min(input.scrollHeight, 120) + 'px';
     updateCharCounter(input.value.length);
   });
+  // Al abrirse el teclado en mobile, el último mensaje queda tapado hasta que
+  // algo vuelva a pegar el scroll abajo. El listener de visualViewport en
+  // modal.js cubre la mayoría de los casos, pero el delay tapa la animación
+  // del teclado en navegadores donde el resize llega antes de tiempo.
+  input?.addEventListener('focus', () => {
+    setTimeout(() => {
+      const container = document.getElementById('chat-messages');
+      if (container) container.scrollTop = container.scrollHeight;
+    }, 350);
+  });
   attachBtn?.addEventListener('click', () => fileInput?.click());
   fileInput?.addEventListener('change', handleFileSelection);
 }
