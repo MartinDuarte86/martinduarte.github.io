@@ -432,21 +432,26 @@ function mockSaveDsn(body) {
 }
 
 function mockNotify(body) {
-  const { brief, cliente } = body;
-  console.log('\n  ┌─ [mock] notify — Brief recibido ─────────────────────────────');
-  if (cliente) {
-    console.log(`  │  Cliente:  ${cliente.nombre} <${cliente.email}>`);
-    console.log(`  │  Sesión:   ${cliente.id}`);
-    if (cliente.feedback_diseño) {
-      console.log(`  │  Feedback: "${cliente.feedback_diseño}"`);
-    }
+  const { session_id, client_id, nombre_marca, rubro, email_cliente, template_elegido, full_brief, action, trigger } = body;
+
+  if (action === 'session_summary') {
+    console.log('\n  ┌─ [mock] notify — resumen interno (session_summary) ──────────');
+    console.log(`  │  Sesión:   ${session_id}`);
+    console.log(`  │  Trigger:  ${trigger}`);
+    console.log('  │  (en prod esto llama a Haiku + manda email a Martín)');
+    console.log('  └──────────────────────────────────────────────────────────────\n');
+    return { ok: true };
   }
-  console.log(`  │  Marca:    ${brief?.nombre_marca}`);
-  console.log(`  │  Rubro:    ${brief?.rubro}`);
-  console.log(`  │  Template: ${brief?.template_nombre || brief?.template_elegido || '—'}`);
-  console.log(`  │  Contacto: ${brief?.contacto}`);
+
+  console.log('\n  ┌─ [mock] notify — Brief recibido ─────────────────────────────');
+  console.log(`  │  Cliente:  ${full_brief?.cliente_nombre || '—'} <${email_cliente || '—'}>`);
+  console.log(`  │  Sesión:   ${session_id} (cliente ${client_id})`);
+  console.log(`  │  Marca:    ${nombre_marca}`);
+  console.log(`  │  Rubro:    ${rubro}`);
+  console.log(`  │  Template: ${template_elegido || '—'}`);
+  console.log(`  │  Contacto: ${full_brief?.contacto_wsp || full_brief?.email || '—'}`);
   console.log('  └──────────────────────────────────────────────────────────────\n');
-  return { success: true };
+  return { success: true, preview_url: `http://localhost:3000/landing_page/preview.html?session_id=${session_id}` };
 }
 
 // ─── Servidor HTTP ────────────────────────────────────────────────────────────
@@ -547,6 +552,12 @@ const server = http.createServer(async (req, res) => {
         const result = mockApproveReject(route, url.searchParams);
         res.writeHead(result.status, { 'Content-Type': 'text/html; charset=utf-8' });
         return res.end(result.html);
+      }
+
+      // Simula el barrido diario de sesiones abandonadas (Vercel Cron → GET /api/notify)
+      if (route === 'notify') {
+        console.log('  [mock] notify — cron sweep (sin sesiones abandonadas en el mock)');
+        return sendJson(res, 200, { ok: true, processed: 0, total: 0 });
       }
 
       return sendJson(res, 404, { error: `GET /api/${route} no tiene mock` });

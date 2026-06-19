@@ -1,21 +1,17 @@
 // Envía la notificación a Martín por email via /api/notify
 // Incluye datos del cliente registrado (Mejora 1) y feedback de diseño (Mejora 3)
 
-async function sendNotification(brief, htmlElegido, clientData) {
+async function sendNotification(brief, htmlElegido, clientData, templateElegido) {
   const payload = {
-    brief,
-    html_elegido: htmlElegido,
+    session_id:       brief?.session_id,
+    client_id:        clientData?.id || null,
+    nombre_marca:     brief?.nombre_marca,
+    rubro:            brief?.rubro,
+    email_cliente:    clientData?.email || brief?.email || '',
+    template_elegido: templateElegido,
+    full_brief:       brief,
+    html_preview:     htmlElegido,
   };
-
-  if (clientData) {
-    payload.cliente = {
-      nombre:           `${clientData.nombre} ${clientData.apellido}`,
-      email:            clientData.email,
-      id:               clientData.id,
-      timestamp_inicio: clientData.timestamp_inicio,
-      feedback_diseño:  clientData.feedback_diseño || null,
-    };
-  }
 
   const response = await fetch('/api/notify', {
     method: 'POST',

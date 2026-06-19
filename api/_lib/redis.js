@@ -70,11 +70,23 @@ export async function getPreviews(sessionId) {
 
 export async function touchSession(sessionId) {
   await redis.set(`session:${sessionId}:last_activity`, Date.now(), { ex: ABANDONED_TTL });
+  await redis.sadd('sessions:open', sessionId);
 }
 
 export async function isSessionAbandoned(sessionId) {
   const ts = await redis.get(`session:${sessionId}:last_activity`);
   return ts === null;
+}
+
+// Sesiones que todavía no terminaron el flujo (compra confirmada) ni mandaron
+// su resumen interno. Se usan para el barrido diario de sesiones abandonadas.
+
+export async function getOpenSessions() {
+  return redis.smembers('sessions:open');
+}
+
+export async function removeOpenSession(sessionId) {
+  await redis.srem('sessions:open', sessionId);
 }
 
 // ─── Cache de templates por rubro (TTL 24h) ───────────────────────────────────
@@ -100,10 +112,11 @@ export async function setCachedRubroTemplate(ruboCategory, templateId, html) {
 // + margen de reintentos. El límite de costo real lo impone el budget guard.
 
 export const RATE_LIMITS = {
-  chat:       { max: 999, ttl: 3600  },
-  generation: { max: 8,   ttl: 86400 },
-  extraction: { max: 999, ttl: 3600  },
-  redesign:   { max: 8,   ttl: 86400 },
+  chat:            { max: 999, ttl: 3600  },
+  generation:      { max: 8,   ttl: 86400 },
+  extraction:      { max: 999, ttl: 3600  },
+  redesign:        { max: 8,   ttl: 86400 },
+  session_summary: { max: 20,  ttl: 3600  },
 };
 
 export async function checkRateLimit(ip, intent) {

@@ -141,6 +141,61 @@ async function tryRecoverSession() {
 
 const MP_LINK = 'https://mpago.la/1Dufc3b';
 
+// ─── Derivación a WhatsApp ──────────────────────────────────────────────────
+
+const WHATSAPP_NUMBER = '5491124847981';
+
+const HUMAN_HANDOFF_PATTERNS = [
+  /habl(ar|a)\s+con\s+(mart[ií]n|alguien|una\s+persona|un\s+humano|un\s+asesor)/i,
+  /derivar?(me)?\s+(a|con)\s+mart[ií]n/i,
+  /atenci[oó]n\s+humana/i,
+  /quiero\s+hablar\s+con\s+(alguien|una\s+persona)/i,
+  /no\s+quiero\s+(seguir\s+)?(hablando\s+)?con\s+(el\s+|un\s+)?bot/i,
+  /pasame\s+con\s+mart[ií]n/i,
+];
+
+function detectsHumanHandoffRequest(text) {
+  return HUMAN_HANDOFF_PATTERNS.some(re => re.test(text));
+}
+
+function getWhatsAppUrl() {
+  const clientData = getClientData();
+  const nombre     = clientData?.nombre ? `${clientData.nombre} ` : '';
+  const refCode    = SESSION_ID.slice(0, 8).toUpperCase();
+  const text = `Hola Martín! Soy ${nombre}(ref ${refCode}), vengo del chat de la landing page y quiero hablar directamente.`;
+  return `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(text)}`;
+}
+
+function buildWhatsAppHandoffWidget() {
+  const wrap = document.createElement('div');
+  wrap.className = 'whatsapp-handoff-widget';
+  wrap.innerHTML = `
+    <p class="whatsapp-handoff-text">¿Querés hablar directo con Martín? Escribile por WhatsApp.</p>
+    <a class="btn-primary whatsapp-handoff-link" href="${getWhatsAppUrl()}" target="_blank" rel="noopener">Hablar por WhatsApp</a>`;
+  return wrap;
+}
+
+// Fire-and-forget: arma (vía LLM, server-side) y manda a Martín un resumen
+// interno de la sesión cuando el cliente pide derivación o abandona sin terminar.
+function sendSessionSummary(trigger) {
+  if (state.summarySent) return;
+  state.summarySent = true;
+  fetch('/api/notify', {
+    method:  'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body:    JSON.stringify({ action: 'session_summary', session_id: SESSION_ID, trigger }),
+  }).catch(() => {});
+}
+
+// El cliente puede cerrar la pestaña a mitad del wizard sin avisar — mismo
+// patrón que el listener de pagehide de arriba (mensajes sin persistir).
+window.addEventListener('pagehide', () => {
+  if (state.phase === PHASE.DONE || state.summarySent || !getClientData()) return;
+  state.summarySent = true;
+  const body = JSON.stringify({ action: 'session_summary', session_id: SESSION_ID, trigger: 'abandono_tab' });
+  navigator.sendBeacon('/api/notify', new Blob([body], { type: 'application/json' }));
+});
+
 // Tracking de funnel — fire-and-forget, nunca bloquea la UX
 function track(step, rubro) {
   try {
@@ -209,6 +264,8 @@ let state = {
   selectedPreview: null,
   uploadedFiles:   [],
   pendingFiles:    [],
+  summarySent:        false,
+  handoffWidgetShown: false,
 };
 
 // ─── Inicialización ────────────────────────────────────────────────────────────
@@ -219,6 +276,9 @@ export async function init() {
   initRegistrationForm(async (clientData) => {
     window._chatSessionReady = true;
     window.flowModal?.goToStep(3);
+
+    const waBtn = document.getElementById('whatsapp-handoff-btn');
+    if (waBtn) waBtn.href = getWhatsAppUrl();
 
     // Registrar listeners ANTES del saludo: si se hiciera después del delay del
     // typing, habría una ventana en la que el input no responde a clicks/Enter.
@@ -293,6 +353,11 @@ function setupEventListeners() {
   });
   attachBtn?.addEventListener('click', () => fileInput?.click());
   fileInput?.addEventListener('change', handleFileSelection);
+
+  document.getElementById('whatsapp-handoff-btn')?.addEventListener('click', () => {
+    track('derivacion_whatsapp');
+    sendSessionSummary('derivacion_explicita');
+  });
 }
 
 // ─── Manejo de archivos ────────────────────────────────────────────────────────
@@ -423,6 +488,12 @@ async function handleSend() {
     appendMessage('user', text);
     state.messages.push({ role: 'user', content: text });
     persistMessage('user', text, state.phase);
+
+    if (!state.handoffWidgetShown && detectsHumanHandoffRequest(text)) {
+      state.handoffWidgetShown = true;
+      appendWidget(buildWhatsAppHandoffWidget());
+      sendSessionSummary('derivacion_explicita_chat');
+    }
   }
 
   if (state.phase === PHASE.DSN_REVIEW) {
@@ -1032,7 +1103,7 @@ async function handlePaymentConfirm() {
   appendMessage('system', 'Confirmación recibida. Enviando tu pedido...');
 
   try {
-    await sendNotification(state.brief, state.selectedPreview?.html || '', getClientData());
+    await sendNotification(state.brief, state.selectedPreview?.html || '', getClientData(), state.selectedPreview?.name || '');
     state.phase = PHASE.DONE;
     saveSession({ phase: PHASE.DONE });
     track('pago_confirmado', state.brief?.rubro);

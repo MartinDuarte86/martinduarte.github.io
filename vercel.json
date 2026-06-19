@@ -2,5 +2,8 @@
   "version": 2,
   "functions": {
     "api/claude.js": { "maxDuration": 120 }
-  }
+  },
+  "crons": [
+    { "path": "/api/notify", "schedule": "0 12 * * *" }
+  ]
 }
