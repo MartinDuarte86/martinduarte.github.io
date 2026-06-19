@@ -5,7 +5,7 @@
  * Cada UC valida un ángulo distinto del flujo onboarding → venta:
  *
  *  UC-01 Onboarding completo (pre-cal + registro + encuadre del chat)
- *  UC-02 Evaluación: redirección comercial (e-commerce → seguir conversando)
+ *  UC-02 Evaluación: fuera de alcance (e-commerce → derivación a WhatsApp)
  *  UC-03 Evaluación: rechazo definitivo (contenido ilegal → cierre cordial)
  *  UC-04 Wizard completo: 6 secciones + handoff al Equipo de Diseño
  *  UC-05 Skip de sección opcional (testimonios)
@@ -67,16 +67,17 @@ test.describe('Auditoría — 10 Casos de Uso', () => {
   });
 
   // ── UC-02 ───────────────────────────────────────────────────────────────────
-  test('UC-02: pedido de e-commerce redirige comercialmente sin cerrar la conversación', async ({ page }) => {
+  test('UC-02: pedido de e-commerce se informa como fuera de alcance y deriva a WhatsApp', async ({ page }) => {
     await startChat(page);
     await passEvaluation(page, 'Quiero una tienda online con carrito y pago online');
 
-    const lastAi = page.locator('#chat-messages .message--ai').last();
-    await expect(lastAi).toContainText(/tienda online|más que una landing/i);
+    // El reply de texto queda antes del widget de WhatsApp — se busca en todo el contenedor
+    await expect(page.locator('#chat-messages')).toContainText(/tienda online|martín por whatsapp/i);
 
-    // No avanzó al wizard y el usuario puede seguir conversando
+    // No avanzó al wizard, el bot no sigue intentando calificarlo y deriva a un humano
     await expect(page.locator('#progress-bar')).toBeHidden();
-    await expect(page.locator('#chat-input')).toBeEnabled();
+    await expect(page.locator('.whatsapp-handoff-widget a.whatsapp-handoff-link')).toBeVisible();
+    await expect(page.locator('#chat-input')).toBeDisabled();
   });
 
   // ── UC-03 ───────────────────────────────────────────────────────────────────

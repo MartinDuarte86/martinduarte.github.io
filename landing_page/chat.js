@@ -635,6 +635,16 @@ async function handleEvaluationTurn() {
     appendSectionDivider(PHASE.HERO);
     await openSection(PHASE.HERO);
 
+  } else if (result.siguiente_accion === 'derivar_whatsapp') {
+    if (!state.handoffWidgetShown) {
+      state.handoffWidgetShown = true;
+      appendWidget(buildWhatsAppHandoffWidget());
+    }
+    sendSessionSummary('fuera_de_alcance_landing');
+    // DONE evita que el finally de handleSend re-habilite el input
+    state.phase = PHASE.DONE;
+    setInputEnabled(false);
+
   } else if (result.siguiente_accion === 'rechazar') {
     appendMessage('system', 'Si tenés otra consulta o querés explorar otros servicios, escribime cuando quieras.');
     // DONE evita que el finally de handleSend re-habilite el input
@@ -966,9 +976,11 @@ async function reviewPreviousDesigns() {
 
     const widget = buildChatCarouselWidget(sets, {
       onSelect: (preview) => {
+        if (DESIGN_ALREADY_CHOSEN_PHASES.has(state.phase)) return;
         state.selectedPreview = { ...preview, dsnId: preview.id };
         state.phase           = PHASE.PAYMENT;
         appendMessage('ai', `Buena elección — ${preview.name}. Pasemos al pago para confirmar tu pedido.`);
+        lockDesignSelection();
         showPaymentSection();
       },
       onReject: async () => {
@@ -1075,7 +1087,20 @@ function showPreviewSection(previews) {
   addAltCard(grid, getClientData()?.id || null);
 }
 
+// Una vez que se eligió un diseño no se puede volver a elegir otro — evita que
+// el cliente reabra el pago o pise la notificación ya enviada con otro template.
+const DESIGN_ALREADY_CHOSEN_PHASES = new Set([
+  PHASE.PAYMENT, PHASE.NOTIFYING, PHASE.DONE,
+]);
+
+function lockDesignSelection() {
+  document.querySelectorAll('.ccw-select-btn, .select-preview-btn').forEach(btn => {
+    btn.disabled = true;
+  });
+}
+
 function selectPreview(index) {
+  if (DESIGN_ALREADY_CHOSEN_PHASES.has(state.phase)) return;
   if (state.previews[index]) state.selectedPreview = state.previews[index];
   state.phase = PHASE.PAYMENT;
 
@@ -1083,6 +1108,7 @@ function selectPreview(index) {
     c.classList.toggle('selected', i === index);
   });
 
+  lockDesignSelection();
   showPaymentSection();
 }
 
@@ -1196,11 +1222,19 @@ function showOrderReceivedSlide() {
     <p class="ors-text">
       Martín recibió el brief de <strong>${escapeHtml(state.brief?.nombre_marca || 'tu marca')}</strong> y va a revisar el diseño.<br>
       Te contactamos al <strong>${escapeHtml(state.brief?.contacto || getClientData()?.telefono || 'tu contacto')}</strong> en las próximas 24–48hs.
-    </p>`;
+    </p>
+    <button class="btn-primary ors-close-btn" type="button">Listo, ya terminé</button>`;
 
   container.appendChild(slide);
   container.scrollTop = container.scrollHeight;
   setInputEnabled(false);
+
+  const attachBtn = document.getElementById('attach-btn');
+  if (attachBtn) attachBtn.hidden = true;
+
+  slide.querySelector('.ors-close-btn').addEventListener('click', () => {
+    window.flowModal?.close();
+  });
 }
 
 // ─── Utilidades de UI ──────────────────────────────────────────────────────────

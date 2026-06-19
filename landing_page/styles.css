@@ -469,6 +469,7 @@ body {
 .ors-title { font-family: 'Space Grotesk', sans-serif; font-size: 22px; font-weight: 800; letter-spacing: -.02em; margin-bottom: 10px; color: #22C55E; }
 .ors-text { color: var(--slate-soft); line-height: 1.6; font-size: 14px; }
 .ors-text strong { color: var(--off-white); }
+.ors-close-btn { margin-top: 20px; width: 100%; justify-content: center; }
 
 /* ─── Footer ────────────────────────────────────────────────── */
 .site-footer { padding: 40px 24px; border-top: 1px solid rgba(255,255,255,.06); text-align: center; }

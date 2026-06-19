@@ -129,7 +129,11 @@ async function saveClientViaApi(client) {
     throw new Error(data.error || `Error ${res.status}`);
   }
 
-  return { conflict: false };
+  // client.id es un UUID generado en el navegador (no existe todavía en la
+  // tabla clients) — el id real es el que devuelve Supabase al insertar.
+  // Sin esto, cliente_id/client_id viaja "huérfano" y rompe la foreign key
+  // de design_sets en cada guardado de diseño.
+  return { conflict: false, clientId: data.client_id };
 }
 
 export async function saveFeedback(sessionId, feedbackText) {
@@ -234,12 +238,12 @@ export function initRegistrationForm(onSuccess) {
       const saveResult = await saveClientViaApi(_clientData);
 
       if (saveResult.conflict) {
-        const { estado, nombre: existingNombre, id: existingId } = saveResult;
+        const { estado, nombre: existingNombre, client_id: existingClientId, id: existingId } = saveResult;
 
         // Si el proceso está incompleto (en_chat) → restaurar sesión y avanzar
         if (!estado || estado === 'en_chat') {
           _clientData = {
-            id: existingId || generateId(),
+            id: existingClientId || existingId || generateId(),
             nombre: existingNombre || nombre,
             apellido,
             email,
@@ -263,7 +267,9 @@ export function initRegistrationForm(onSuccess) {
         return;
       }
 
-      // 3. Guardar sesión en localStorage y habilitar chat
+      // 3. Reemplazar el id generado en el navegador por el real de Supabase
+      // (ver comentario en saveClientViaApi) y guardar sesión en localStorage.
+      if (saveResult.clientId) _clientData.id = saveResult.clientId;
       saveSession({ phase: 'en_chat' });
 
       form.classList.add('reg-form--done');

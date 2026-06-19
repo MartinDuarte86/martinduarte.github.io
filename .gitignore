@@ -19,3 +19,5 @@ playwright-report/
 *.log
 tests/screenshots/
 e2e/_debug.mjs
+
+.vercel

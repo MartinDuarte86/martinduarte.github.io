@@ -26,6 +26,7 @@ export default async function handler(req, res) {
             error:      'email_exists',
             session_id: existing.session_id,
             id:         existing.session_id,
+            client_id:  existing.id,
             estado:     existing.estado,
             nombre:     existing.nombre_marca,
           });

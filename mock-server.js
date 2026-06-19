@@ -4,9 +4,10 @@
  * Uso: node mock-server.js  →  abre http://localhost:3000/landing_page/
  */
 
-const http = require('http');
-const fs   = require('fs');
-const path = require('path');
+const http   = require('http');
+const fs     = require('fs');
+const path   = require('path');
+const crypto = require('crypto');
 
 // ─── Carga de .env (sin dependencias) ─────────────────────────────────────────
 function loadEnv() {
@@ -122,9 +123,9 @@ function mockClaudeResponse(body) {
     }
     if (/tienda online|e-?commerce|pago online|carrito/.test(lastUser)) {
       return { content: [{ text: JSON.stringify({
-        aplica: false, motivo: 'necesita e-commerce, redirigir',
-        respuesta_cliente: 'Eso es más que una landing — es una tienda online, y también la hacemos. ¿Cuántos productos venderías?',
-        siguiente_accion: 'seguir_conversando',
+        aplica: false, motivo: 'necesita e-commerce con pago online, excede landing con certeza',
+        respuesta_cliente: 'Eso es una tienda online con pagos, no una landing — lo conversamos directo con Martín por WhatsApp para ver alcance y presupuesto.',
+        siguiente_accion: 'derivar_whatsapp',
       }) }] };
     }
     return { content: [{ text: JSON.stringify({
@@ -352,16 +353,21 @@ function mockSaveClient(body) {
         error: 'email_exists',
         session_id: existing.session_id,
         id: existing.session_id,
+        client_id: existing.clientId,
         estado: existing.estado,
         nombre: existing.nombre_marca,
       };
     }
-    const client = { id: session_id, email: data?.email || email, session_id, estado: 'en_chat', nombre_marca: data?.nombre_marca || '' };
+    // El id real (PK) lo asigna el server, igual que gen_random_uuid() en
+    // Supabase — distinto del session_id que manda el navegador. Replica el
+    // contrato real para no esconder bugs de mismatch client_id/clients.id.
+    const clientId = crypto.randomUUID();
+    const client = { id: clientId, email: data?.email || email, session_id, estado: 'en_chat', nombre_marca: data?.nombre_marca || '' };
     clientes.push(client);
-    if (email) _clientsByEmail.set(email, { session_id, estado: 'en_chat', nombre_marca: data?.nombre_marca || '' });
-    console.log(`  [mock] save-client CREATE: session=${session_id} email=${email}`);
+    if (email) _clientsByEmail.set(email, { session_id, clientId, estado: 'en_chat', nombre_marca: data?.nombre_marca || '' });
+    console.log(`  [mock] save-client CREATE: session=${session_id} client_id=${clientId} email=${email}`);
     fs.writeFileSync(filePath, JSON.stringify(clientes, null, 2));
-    return { ok: true, client_id: session_id };
+    return { ok: true, client_id: clientId };
   }
 
   if (action === 'update') {
