@@ -215,21 +215,26 @@ async function generateAllPreviews(brief, onProgress) {
 // ─── Mejora 4: Guardado en dsn/ via GitHub REST API ──────────────────────────
 
 async function saveDsnSet(brief, previews) {
-  await Promise.all(previews.map(p =>
-    fetch('/api/save-dsn', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        session_id:    brief.session_id    || null,
-        client_id:     brief.cliente_id    || null,
-        rubro:         brief.rubro,
-        template_name: p.name,
-        html:          p.html,
-      }),
-    }).then(r => {
-      if (!r.ok) console.warn(`[save-dsn] ${p.name}: status ${r.status}`);
-    })
-  ));
+  await Promise.all(previews.map(async (p) => {
+    try {
+      const r = await fetch('/api/save-dsn', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          session_id:    brief.session_id    || null,
+          client_id:     brief.cliente_id    || null,
+          rubro:         brief.rubro,
+          template_name: p.name,
+          html:          p.html,
+        }),
+      });
+      if (!r.ok) { console.warn(`[save-dsn] ${p.name}: status ${r.status}`); return; }
+      const data = await r.json();
+      p.dsnId = data.dsn_id || null;
+    } catch (err) {
+      console.warn(`[save-dsn] ${p.name}: error`, err.message);
+    }
+  }));
 }
 
 // ─── Mejora 2: Modal de preview con zoom ─────────────────────────────────────

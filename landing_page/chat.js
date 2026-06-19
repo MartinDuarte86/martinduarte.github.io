@@ -139,8 +139,6 @@ async function tryRecoverSession() {
   }
 }
 
-const MP_LINK = 'https://mpago.la/1Dufc3b';
-
 // ─── Derivación a WhatsApp ──────────────────────────────────────────────────
 
 const WHATSAPP_NUMBER = '5491124847981';
@@ -497,10 +495,10 @@ async function handleSend() {
   }
 
   if (state.phase === PHASE.DSN_REVIEW) {
-    _isSending = false;
-    appendMessage('ai', 'Entendido — genero diseños nuevos para tu marca.');
-    await generateNewDesigns();
-    return;
+    // Texto libre en vez de un click cuenta como rechazo — y como ya describió
+    // lo que busca, lo usamos directamente como respuesta a la sección Diseño.
+    state.phase = PHASE.DISENO;
+    updateProgressIndicator(PHASE.DISENO);
   }
 
   if (state.phase === PHASE.GREETING) state.phase = PHASE.EVALUATING;
@@ -626,6 +624,8 @@ async function handleEvaluationTurn() {
 
   if (result.siguiente_accion === 'onboarding') {
     track('wizard_inicio');
+    await runSectionTransition(PHASE.HERO);
+
     const lastUserMsg = state.messages.filter(m => m.role === 'user').slice(-1);
     state.phase    = PHASE.HERO;
     state.messages = lastUserMsg;
@@ -678,22 +678,44 @@ async function advanceToNextSection(completedSection) {
   const idx       = SECTION_ORDER.indexOf(completedSection);
   const nextPhase = SECTION_ORDER[idx + 1] || null;
 
-  if (nextPhase) {
+  if (nextPhase === PHASE.DISENO) {
+    // Antes de preguntar preferencias de color, repasamos diseños anteriores.
+    await runSectionTransition(PHASE.DSN_REVIEW);
+
+    state.phase    = PHASE.DSN_REVIEW;
+    state.messages = [];
+    persistMeta({ phase: state.phase });
+    updateProgressIndicator(PHASE.DSN_REVIEW);
+    appendSectionDivider(PHASE.DSN_REVIEW);
+
+    const attachBtn = document.getElementById('attach-btn');
+    if (attachBtn) attachBtn.hidden = false;
+
+    await reviewPreviousDesigns();
+  } else if (nextPhase) {
+    await runSectionTransition(nextPhase);
+
     state.phase    = nextPhase;
     state.messages = [];
     persistMeta({ phase: state.phase });
     updateProgressIndicator(nextPhase);
     appendSectionDivider(nextPhase);
-
-    if (nextPhase === PHASE.DISENO) {
-      const attachBtn = document.getElementById('attach-btn');
-      if (attachBtn) attachBtn.hidden = false;
-    }
-
     await openSection(nextPhase);
   } else {
-    await startDesignPhase();
+    // El brief ya se construyó al entrar a DSN_REVIEW (reviewPreviousDesigns);
+    // lo reconstruimos para incorporar las preferencias de color recién dadas.
+    state.brief = buildFullBrief();
+    saveSession({ phase: 'diseno_completo', brief: state.brief });
+    await generateNewDesigns();
   }
+}
+
+async function askDesignPreferences() {
+  state.phase    = PHASE.DISENO;
+  state.messages = [];
+  updateProgressIndicator(PHASE.DISENO);
+  appendSectionDivider(PHASE.DISENO);
+  await openSection(PHASE.DISENO);
 }
 
 // Número de sección visible al usuario (1-6), excluye DSN_REVIEW y fases no numeradas
@@ -776,6 +798,44 @@ const SECTION_LABELS = {
   [PHASE.DSN_REVIEW]:  'Diseños anteriores',
   [PHASE.GENERATING]:  'Generando tus diseños',
 };
+
+// ─── Slide de transición entre secciones ──────────────────────────────────────
+const TRANSITION_TEXTS = {
+  [PHASE.HERO]:        'Comencemos con la landing page',
+  [PHASE.SOBRE_MI]:    'Ahora, contanos más sobre vos',
+  [PHASE.SERVICIOS]:   'Vamos con tus servicios',
+  [PHASE.TESTIMONIOS]: 'Sumemos algunos testimonios',
+  [PHASE.CONTACTO]:    'Ya casi — tus datos de contacto',
+  [PHASE.DSN_REVIEW]:  'Pasemos a la parte visual',
+};
+
+const TRANSITION_DELAY_MS    = 1000;
+const TRANSITION_DURATION_MS = 2000;
+
+function showTransitionSlide(text) {
+  return new Promise((resolve) => {
+    const container = document.getElementById('chat-messages');
+    if (!container) { resolve(); return; }
+
+    const slide = document.createElement('div');
+    slide.className = 'section-transition-slide';
+    slide.innerHTML = `<span class="section-transition-slide__text">${escapeHtml(text)}</span>`;
+    container.appendChild(slide);
+    container.scrollTop = container.scrollHeight;
+
+    requestAnimationFrame(() => slide.classList.add('section-transition-slide--visible'));
+
+    setTimeout(() => {
+      slide.classList.remove('section-transition-slide--visible');
+      setTimeout(() => { slide.remove(); resolve(); }, 300);
+    }, TRANSITION_DURATION_MS);
+  });
+}
+
+async function runSectionTransition(nextPhase) {
+  await new Promise(r => setTimeout(r, TRANSITION_DELAY_MS));
+  await showTransitionSlide(TRANSITION_TEXTS[nextPhase] || 'Un momento...');
+}
 
 function appendSectionDivider(phase) {
   const container = document.getElementById('chat-messages');
@@ -880,40 +940,40 @@ function appendHandoffBanner() {
 
 // ─── Flujo post-secciones ──────────────────────────────────────────────────────
 
-async function startDesignPhase() {
+async function reviewPreviousDesigns() {
   setInputEnabled(false);
   appendMessage('system', 'Perfecto, ya tenemos todo. Un momento...');
   appendHandoffBanner();
 
+  // Se construye ya (sin colores todavía) porque elegir un diseño anterior
+  // salta directo a pago sin pasar por la pregunta de estilo visual.
   state.brief = buildFullBrief();
   saveSession({ phase: 'secciones_completas', brief: state.brief });
   track('wizard_fin', state.brief.rubro);
 
-  const { sets, error } = await initCarousel();
+  const rubro = state.fullBrief.hero?.rubro || '';
+  const { sets, error } = await initCarousel(rubro);
 
   if (error) {
-    appendMessage('system', 'No pude cargar diseños anteriores — genero diseños nuevos directamente.');
+    appendMessage('system', 'No pude cargar diseños anteriores — seguimos con tu diseño a medida.');
   }
 
   if (sets && sets.length > 0) {
-    state.phase = PHASE.DSN_REVIEW;
-    updateProgressIndicator(PHASE.DSN_REVIEW);
-
     appendMessage('ai',
-      'Antes de generar nuevos diseños, revisemos los que ya existen. '
+      'Antes de armar algo nuevo, revisemos diseños que ya existen. '
       + 'Si alguno te convence podés elegirlo directamente.'
     );
 
     const widget = buildChatCarouselWidget(sets, {
       onSelect: (preview) => {
-        state.selectedPreview = preview;
+        state.selectedPreview = { ...preview, dsnId: preview.id };
         state.phase           = PHASE.PAYMENT;
         appendMessage('ai', `Buena elección — ${preview.name}. Pasemos al pago para confirmar tu pedido.`);
         showPaymentSection();
       },
-      onReject: () => {
-        appendMessage('ai', 'Entendido. Generamos algo nuevo para tu marca.');
-        generateNewDesigns();
+      onReject: async () => {
+        appendMessage('ai', 'Entendido. Armemos algo nuevo para tu marca.');
+        await askDesignPreferences();
       },
     });
 
@@ -923,13 +983,13 @@ async function startDesignPhase() {
       // Nunca dejar al usuario encerrado: el texto libre cuenta como rechazo
       setInputEnabled(true);
       const input = document.getElementById('chat-input');
-      if (input) input.placeholder = 'Elegí un diseño arriba, o contame qué buscás y genero nuevos…';
+      if (input) input.placeholder = 'Elegí un diseño arriba, o contame qué buscás para tu diseño…';
     } else {
-      await generateNewDesigns();
+      await askDesignPreferences();
     }
   } else {
     if (!error) appendMessage('system', 'Vas a estrenar diseños hechos 100% a medida 🎨');
-    await generateNewDesigns();
+    await askDesignPreferences();
   }
 }
 
@@ -1028,104 +1088,119 @@ function selectPreview(index) {
 
 // ─── Pago ──────────────────────────────────────────────────────────────────────
 
-function showPaymentSection() {
-  const section = document.getElementById('payment-section');
-  if (!section) return;
+const TRANSFER_INFO = {
+  alias:   'Martin.duarte.CA',
+  cbu:     '0070241830004012104542',
+  titular: 'Martin Duarte',
+};
 
+const PAYMENT_METHOD_LABELS = {
+  credito:       'tarjeta de crédito',
+  debito:        'tarjeta de débito',
+  transferencia: 'transferencia',
+};
+
+function showPaymentSection() {
   const refCode = SESSION_ID.slice(0, 8).toUpperCase();
+  persistMeta({ phase: 'payment', mp_reference: refCode });
+
   appendMessage('ai',
     `Código de referencia: **${refCode}** — guardalo por si necesitás consultar.\n\n`
     + `Un diseñador revisará tu diseño y se contactará con vos en las próximas 24-48 horas para coordinar ajustes finales.`
   );
-  persistMeta({ phase: 'payment', mp_reference: refCode });
 
-  section.hidden = false;
-  section.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-
-  document.getElementById('payment-brand').textContent    = state.brief?.nombre_marca || '—';
-  document.getElementById('payment-template').textContent = state.selectedPreview?.name || '—';
-
-  // Mostrar preview del diseño seleccionado en la sección de pago
-  renderPaymentPreview();
-
-  const mpBtn = document.getElementById('mp-btn');
-  if (mpBtn) {
-    mpBtn.href = MP_LINK;
-    mpBtn.addEventListener('click', () => track('pago_click'), { once: true });
-  }
-
-  document.getElementById('confirm-payment-btn')?.addEventListener('click', handlePaymentConfirm, { once: true });
+  const widget = buildPaymentWidget();
+  appendWidget(widget);
 }
 
-function renderPaymentPreview() {
-  if (!state.selectedPreview?.html) return;
-
-  // Crear o encontrar el contenedor de preview en la sección de pago
-  let previewWrap = document.getElementById('payment-preview-wrap');
-  if (!previewWrap) {
-    const section = document.getElementById('payment-section');
-    if (!section) return;
-    previewWrap = document.createElement('div');
-    previewWrap.id = 'payment-preview-wrap';
-    previewWrap.className = 'payment-preview-wrap';
-    // Insertar antes del botón de pago
-    const mpBtn = section.querySelector('#mp-btn') || section.querySelector('.payment-actions');
-    if (mpBtn) {
-      mpBtn.parentNode.insertBefore(previewWrap, mpBtn);
-    } else {
-      section.appendChild(previewWrap);
-    }
-  }
-
-  previewWrap.innerHTML = `
-    <p class="payment-preview-label">Vista previa del diseño seleccionado:</p>
-    <div class="payment-preview-iframe-wrap">
-      <iframe
-        title="Vista previa — ${state.selectedPreview.name}"
-        scrolling="no"
-        sandbox="allow-same-origin"
-        loading="lazy">
-      </iframe>
+function buildPaymentWidget() {
+  const widget = document.createElement('div');
+  widget.className = 'chat-payment-widget';
+  widget.innerHTML = `
+    <div class="cpw-preview-wrap">
+      <iframe title="Vista previa — ${escapeHtml(state.selectedPreview?.name || '')}" scrolling="no" sandbox="allow-same-origin" loading="lazy"></iframe>
     </div>
-    <p class="payment-preview-note">Este diseño puede modificarse cuando un diseñador se comunique con vos.</p>`;
+    <div class="cpw-summary">
+      <div class="cpw-row"><span>Marca</span><span class="cpw-brand-value">${escapeHtml(state.brief?.nombre_marca || '—')}</span></div>
+      <div class="cpw-row"><span>Diseño</span><span class="cpw-template-value">${escapeHtml(state.selectedPreview?.name || '—')}</span></div>
+      <div class="cpw-row"><span>Hosting</span><span>GitHub Pages — gratis</span></div>
+      <div class="cpw-row"><span>Entrega</span><span>48–72hs hábiles</span></div>
+      <div class="cpw-row cpw-row--total"><span>Total</span><span>$40.000 ARS</span></div>
+    </div>
+    <p class="cpw-label">¿Cómo preferís pagar?</p>
+    <div class="cpw-methods">
+      <button class="btn-secondary cpw-method-btn" type="button" data-method="credito">Tarjeta de crédito</button>
+      <button class="btn-secondary cpw-method-btn" type="button" data-method="debito">Tarjeta de débito</button>
+      <button class="btn-secondary cpw-method-btn" type="button" data-method="transferencia">Transferencia</button>
+    </div>`;
 
-  const iframe = previewWrap.querySelector('iframe');
-  renderPreviewInIframe(iframe, state.selectedPreview.html);
+  if (state.selectedPreview?.html) {
+    renderPreviewInIframe(widget.querySelector('.cpw-preview-wrap iframe'), state.selectedPreview.html);
+  }
+
+  widget.querySelectorAll('.cpw-method-btn').forEach(btn => {
+    btn.addEventListener('click', () => handlePaymentMethodSelect(btn.dataset.method, widget), { once: true });
+  });
+
+  return widget;
 }
 
-async function handlePaymentConfirm() {
+async function handlePaymentMethodSelect(method, widgetEl) {
   if (state.phase !== PHASE.PAYMENT) return;
   state.phase = PHASE.NOTIFYING;
+  track('pago_click', method);
 
-  const btn = document.getElementById('confirm-payment-btn');
-  if (btn) { btn.disabled = true; btn.textContent = 'Enviando...'; }
+  widgetEl.querySelectorAll('.cpw-method-btn').forEach(b => { b.disabled = true; });
+  widgetEl.querySelector(`.cpw-method-btn[data-method="${method}"]`)?.classList.add('cpw-method-btn--selected');
 
-  appendMessage('system', 'Confirmación recibida. Enviando tu pedido...');
+  if (method === 'transferencia') {
+    appendMessage('ai',
+      'Perfecto, transferí a:\n\n'
+      + `**Alias:** ${TRANSFER_INFO.alias}\n`
+      + `**CBU:** ${TRANSFER_INFO.cbu}\n`
+      + `**Titular:** ${TRANSFER_INFO.titular}\n\n`
+      + 'Apenas Martín vea el ingreso te confirma por WhatsApp.'
+    );
+  } else {
+    appendMessage('ai', `Perfecto, dejamos registrado el pago con ${PAYMENT_METHOD_LABELS[method]}. Martín te contacta para coordinar el cobro.`);
+  }
+
+  appendMessage('system', 'Enviando tu pedido...');
 
   try {
-    await sendNotification(state.brief, state.selectedPreview?.html || '', getClientData(), state.selectedPreview?.name || '');
+    await sendNotification(state.brief, state.selectedPreview?.html || '', getClientData(), state.selectedPreview?.name || '', state.selectedPreview?.dsnId || null, method);
     state.phase = PHASE.DONE;
     saveSession({ phase: PHASE.DONE });
     track('pago_confirmado', state.brief?.rubro);
-    showSuccessSection();
+    showOrderReceivedSlide();
   } catch (err) {
     console.error('Notify error:', err);
     appendMessage('system', 'No se pudo enviar la notificación. Escribinos a hola@martinduarte.com con tu nombre de marca.');
-    if (btn) { btn.disabled = false; btn.textContent = 'Reintentar'; }
+    widgetEl.querySelectorAll('.cpw-method-btn').forEach(b => { b.disabled = false; });
+    widgetEl.querySelector(`.cpw-method-btn[data-method="${method}"]`)?.classList.remove('cpw-method-btn--selected');
     state.phase = PHASE.PAYMENT;
   }
 }
 
-// ─── Sección de éxito ──────────────────────────────────────────────────────────
+// ─── Pedido recibido ────────────────────────────────────────────────────────────
 
-function showSuccessSection() {
-  const section = document.getElementById('success-section');
-  if (!section) return;
-  section.hidden = false;
-  section.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+function showOrderReceivedSlide() {
+  const container = document.getElementById('chat-messages');
+  if (!container) return;
 
-  document.getElementById('success-brand').textContent   = state.brief?.nombre_marca || 'tu marca';
-  document.getElementById('success-contact').textContent = state.brief?.contacto || getClientData()?.telefono || 'tu contacto';
+  const slide = document.createElement('div');
+  slide.className = 'order-received-slide';
+  slide.innerHTML = `
+    <div class="ors-icon" role="img" aria-label="Éxito">✓</div>
+    <h3 class="ors-title">¡Pedido recibido!</h3>
+    <p class="ors-text">
+      Martín recibió el brief de <strong>${escapeHtml(state.brief?.nombre_marca || 'tu marca')}</strong> y va a revisar el diseño.<br>
+      Te contactamos al <strong>${escapeHtml(state.brief?.contacto || getClientData()?.telefono || 'tu contacto')}</strong> en las próximas 24–48hs.
+    </p>`;
+
+  container.appendChild(slide);
+  container.scrollTop = container.scrollHeight;
+  setInputEnabled(false);
 }
 
 // ─── Utilidades de UI ──────────────────────────────────────────────────────────

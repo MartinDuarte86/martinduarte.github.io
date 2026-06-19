@@ -21,7 +21,7 @@
 import { test, expect } from '@playwright/test';
 import {
   openFlow, completePrequalification, completeRegistration,
-  sendAndWait, passEvaluation, completeFullChat,
+  sendAndWait, passEvaluation, completeFullChat, completeSectionsToContacto,
   waitForDesigns, selectFirstDesign,
 } from './helpers.js';
 
@@ -157,17 +157,17 @@ test.describe('Auditoría — 10 Casos de Uso', () => {
     await request.post('/api/_test/seed-dsn', { data: { designs: SEED_DESIGNS } });
 
     await startChat(page);
-    await completeFullChat(page);
+    await completeSectionsToContacto(page);
 
-    // Aparece el carrusel DSN con los diseños sembrados
+    // Aparece el carrusel DSN con los diseños sembrados — antes de preguntar color
     const dsnWidget = page.locator('.chat-carousel-widget:not(.chat-carousel-widget--new)');
     await expect(dsnWidget).toBeVisible({ timeout: 20_000 });
     await expect(dsnWidget.locator('.ccw-card')).toHaveCount(2);
 
     // Elegir el primero → pago directo, sin generación
     await dsnWidget.locator('.ccw-select-btn').first().click({ force: true });
-    await page.waitForSelector('#payment-section:not([hidden])', { timeout: 10_000 });
-    await expect(page.locator('#payment-template')).toContainText('Minimalista');
+    await page.waitForSelector('.chat-payment-widget', { timeout: 10_000 });
+    await expect(page.locator('.cpw-template-value')).toContainText('Minimalista');
   });
 
   // ── UC-08 ───────────────────────────────────────────────────────────────────
@@ -175,15 +175,17 @@ test.describe('Auditoría — 10 Casos de Uso', () => {
     await request.post('/api/_test/seed-dsn', { data: { designs: SEED_DESIGNS } });
 
     await startChat(page);
-    await completeFullChat(page);
+    await completeSectionsToContacto(page);
 
     const dsnWidget = page.locator('.chat-carousel-widget:not(.chat-carousel-widget--new)');
     await expect(dsnWidget).toBeVisible({ timeout: 20_000 });
 
-    // El input sigue habilitado (fix anti-lockout) y el texto libre cuenta como rechazo
+    // El input sigue habilitado (fix anti-lockout) y el texto libre cuenta como rechazo,
+    // pasando directo a responder la sección Diseño con ese mismo texto (1er turno).
     await expect(page.locator('#chat-input')).toBeEnabled();
-    await page.fill('#chat-input', 'Ninguno me convence, quiero algo más moderno');
-    await page.click('#send-btn');
+    await sendAndWait(page, 'Ninguno me convence, quiero algo más moderno');
+    // El mock pide un segundo turno antes de devolver el brief de diseño completo.
+    await sendAndWait(page, 'Colores fríos, estilo minimalista');
 
     // Se generan diseños nuevos
     await waitForDesigns(page);
@@ -192,21 +194,13 @@ test.describe('Auditoría — 10 Casos de Uso', () => {
   // ── UC-09 ───────────────────────────────────────────────────────────────────
   test('UC-09: venta completa — generación SSE con skeletons, selección, pago y éxito', async ({ page }) => {
     await startChat(page);
-    await passEvaluation(page);
-    const pairMsgs = [
-      ['Lucía Cortes, peluquería a domicilio', 'Cortes y coloración con productos premium'],
-      ['Es personal, lo hago sola',             'Más de 6 años, comencé con amigas'],
-      ['Corte, coloración y tratamientos',      'No muestro precios, se consultan por WA'],
-      ['Sí quiero testimonios',                 'Sí, son testimonios reales'],
-      ['WA: 1123456789, IG: @luciacortes',     'Zona Norte GBA, lunes a sábado 9-18hs'],
-    ];
-    for (const [m1, m2] of pairMsgs) {
-      await sendAndWait(page, m1);
-      await sendAndWait(page, m2);
-    }
+    await completeSectionsToContacto(page);
 
-    // Último mensaje (diseño) enviado a mano para atrapar el estado de generación en vivo
-    await page.fill('#chat-input', 'Prefiero colores suaves, blanco y rosa');
+    // Sin diseños sembrados, el repaso cae directo a la pregunta de color (arranca
+    // limpia, 2 turnos). El primero responde la intro; el segundo —enviado a mano
+    // para atrapar el estado de generación en vivo— entrega el brief y dispara la SSE.
+    await sendAndWait(page, 'Prefiero colores suaves, blanco y rosa');
+    await page.fill('#chat-input', 'Algo moderno y minimalista, sin recargar');
     await page.click('#send-btn');
 
     // Durante la generación: skeletons visibles con 3 slots
@@ -218,10 +212,10 @@ test.describe('Auditoría — 10 Casos de Uso', () => {
 
     // Selección → pago → confirmación → éxito (la VENTA, objetivo final)
     await selectFirstDesign(page);
-    await expect(page.locator('#payment-brand')).not.toHaveText('—');
-    await page.click('#confirm-payment-btn');
-    await page.waitForSelector('#success-section:not([hidden])', { timeout: 15_000 });
-    await expect(page.locator('#success-section')).toBeVisible();
+    await expect(page.locator('.cpw-brand-value')).not.toHaveText('—');
+    await page.click('.cpw-method-btn[data-method="transferencia"]');
+    await page.waitForSelector('.order-received-slide', { timeout: 15_000 });
+    await expect(page.locator('.order-received-slide')).toBeVisible();
   });
 
   // ── UC-10 ───────────────────────────────────────────────────────────────────

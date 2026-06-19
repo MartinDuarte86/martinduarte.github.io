@@ -80,28 +80,44 @@ export async function passEvaluation(page, msg = 'Tengo una peluquería a domici
   await sendAndWait(page, msg);
 }
 
-/** Completa el flujo completo de chat (evaluación + 6 secciones). */
-export async function completeFullChat(page) {
+/**
+ * Completa las 5 secciones del wizard (Hero…Contacto) y se detiene justo antes
+ * de la pregunta de color. Desde ahí el flujo puede ir a dos lados:
+ * - Sin diseños previos sembrados: cae directo a la pregunta de color (completeFullChat).
+ * - Con diseños previos sembrados (/api/_test/seed-dsn): aparece el carrusel DSN
+ *   antes de preguntar color — los tests de ese caso interactúan con el widget
+ *   directamente en vez de llamar a completeFullChat.
+ */
+export async function completeSectionsToContacto(page) {
   await passEvaluation(page);
   // El mensaje de evaluación queda en state.messages cuando hero arranca,
   // por lo que el mock lo cuenta como turn=1 y completa Hero con sólo 1
   // mensaje del usuario. El m2 de cada sección se convierte en el m1 de
-  // la siguiente. Para la última sección (Diseño), el segundo mensaje
-  // llegaría con el input ya deshabilitado (generación iniciada), así que
-  // sólo se envía 1 mensaje — suficiente para que el mock devuelva el JSON.
+  // la siguiente — EXCEPTO el último par: Contacto completa con su propio
+  // m1 (arrastre de Testimonios) y no debe arrastrar un m2 colgante hacia
+  // DSN_REVIEW (que no es una sección de 2 turnos como las demás y lo
+  // tomaría como rechazo de texto libre del carrusel).
   const pairMsgs = [
     ['Lucía Cortes, peluquería a domicilio', 'Cortes y coloración con productos premium'],
     ['Es personal, lo hago sola',             'Más de 6 años, comencé con amigas'],
     ['Corte, coloración y tratamientos',      'No muestro precios, se consultan por WA'],
     ['Sí quiero testimonios',                 'Sí, son testimonios reales'],
-    ['WA: 1123456789, IG: @luciacortes',     'Zona Norte GBA, lunes a sábado 9-18hs'],
   ];
   for (const [m1, m2] of pairMsgs) {
     await completeSection(page, m1, m2);
   }
-  // Último mensaje completa la sección Diseño y dispara la generación.
-  // sendAndWait espera el carrusel via Promise.race antes de retornar.
+  await sendAndWait(page, 'WA: 1123456789, IG: @luciacortes');
+}
+
+/** Completa el flujo completo de chat (evaluación + 6 secciones), sin diseños previos. */
+export async function completeFullChat(page) {
+  await completeSectionsToContacto(page);
+  // Sin diseños previos sembrados, el repaso de diseños anteriores cae directo
+  // a la pregunta de color, que ahora arranca limpia (turno 0) — se necesitan
+  // 2 mensajes para completarla: el primero responde la intro (turno 1), el
+  // segundo entrega el brief de diseño y dispara la generación (turno 2).
   await sendAndWait(page, 'Prefiero colores suaves, blanco y rosa');
+  await sendAndWait(page, 'Algo moderno y minimalista, sin recargar');
 }
 
 // ── Generación y selección de diseño ─────────────────────────────────────────
@@ -117,7 +133,7 @@ export async function selectFirstDesign(page) {
   await waitForDesigns(page);
   // Button is in .ccw-card-footer — always visible (mobile-first, no overlay trick).
   await page.locator('.chat-carousel-widget--new .ccw-select-btn').first().click({ force: true });
-  await page.waitForSelector('#payment-section:not([hidden])', { timeout: 10_000 });
+  await page.waitForSelector('.chat-payment-widget', { timeout: 10_000 });
 }
 
 // ── Flujo completo hasta el pago ──────────────────────────────────────────────

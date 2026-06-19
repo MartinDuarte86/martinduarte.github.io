@@ -28,12 +28,9 @@ export default async function handler(req, res) {
       });
     }
 
-    let query = supabase
-      .from('design_sets')
-      .select('id, rubro, template_name, html_preview, created_at')
-      .eq('visible_en_carousel', true)
-      .order('created_at', { ascending: false })
-      .limit(6);
+    const LIMIT = 5;
+    // Pool amplio para poder elegir al azar entre varios candidatos sin sesgar por fecha.
+    const POOL = 50;
 
     if (rubro) {
       const { data: sameRubro } = await supabase
@@ -42,33 +39,48 @@ export default async function handler(req, res) {
         .eq('visible_en_carousel', true)
         .eq('rubro', rubro)
         .order('created_at', { ascending: false })
-        .limit(6);
+        .limit(LIMIT);
 
-      if (sameRubro && sameRubro.length >= 3) {
+      if (sameRubro && sameRubro.length >= LIMIT) {
         return res.status(200).json({ designs: formatDesigns(sameRubro) });
       }
 
       const existingIds = (sameRubro || []).map(d => d.id);
-      const needed      = 6 - (sameRubro?.length || 0);
-      const { data: others } = await supabase
+      const needed       = LIMIT - (sameRubro?.length || 0);
+      const { data: othersPool } = await supabase
         .from('design_sets')
         .select('id, rubro, template_name, html_preview, created_at')
         .eq('visible_en_carousel', true)
         .not('id', 'in', `(${existingIds.join(',') || '00000000-0000-0000-0000-000000000000'})`)
-        .order('created_at', { ascending: false })
-        .limit(needed);
+        .limit(POOL);
 
-      return res.status(200).json({ designs: formatDesigns([...(sameRubro || []), ...(others || [])]) });
+      const others = shuffle(othersPool || []).slice(0, needed);
+      return res.status(200).json({ designs: formatDesigns([...(sameRubro || []), ...others]) });
     }
 
-    const { data, error } = await query;
+    const { data: pool, error } = await supabase
+      .from('design_sets')
+      .select('id, rubro, template_name, html_preview, created_at')
+      .eq('visible_en_carousel', true)
+      .limit(POOL);
     if (error) throw error;
-    return res.status(200).json({ designs: formatDesigns(data || []) });
+
+    const randomFive = shuffle(pool || []).slice(0, LIMIT);
+    return res.status(200).json({ designs: formatDesigns(randomFive) });
 
   } catch (err) {
     console.error('[get-dsn-html]', err.message);
     return res.status(500).json({ error: 'Error al recuperar diseños' });
   }
+}
+
+function shuffle(arr) {
+  const a = arr.slice();
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
 }
 
 function formatDesigns(designs) {

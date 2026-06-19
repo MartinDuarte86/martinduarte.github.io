@@ -3,8 +3,8 @@
  *
  * Extiende el flujo 2: el usuario selecciona uno de los 3 diseños generados.
  * Verificamos que:
- * - La sección de pago muestra marca y template correctos
- * - El botón de MercadoPago está presente
+ * - El widget de pago (dentro del chat) muestra marca y template correctos
+ * - Los 3 métodos de pago están presentes
  * - El código de referencia (session_id abreviado) es visible
  */
 
@@ -12,49 +12,50 @@ import { test, expect } from '@playwright/test';
 import { runFullFlowToDesigns, selectFirstDesign } from './helpers.js';
 
 test.describe('Flujo 3 — Diseño nuevo seleccionado', () => {
-  test('seleccionar un diseño abre la sección de pago', async ({ page }) => {
+  test('seleccionar un diseño abre el widget de pago en el chat', async ({ page }) => {
     await runFullFlowToDesigns(page);
     await selectFirstDesign(page);
 
-    await expect(page.locator('#payment-section')).toBeVisible();
+    await expect(page.locator('.chat-payment-widget')).toBeVisible();
   });
 
-  test('sección de pago muestra el nombre de la marca', async ({ page }) => {
+  test('el widget de pago muestra el nombre de la marca', async ({ page }) => {
     await runFullFlowToDesigns(page);
     await selectFirstDesign(page);
 
-    const brand = await page.locator('#payment-brand').textContent();
+    const brand = await page.locator('.cpw-brand-value').textContent();
     // El mock completa con 'Lucía Cortes' o similar como nombre_marca
     expect(brand.trim()).not.toBe('—');
     expect(brand.trim().length).toBeGreaterThan(2);
   });
 
-  test('sección de pago muestra el template elegido', async ({ page }) => {
+  test('el widget de pago muestra el template elegido', async ({ page }) => {
     await runFullFlowToDesigns(page);
     await selectFirstDesign(page);
 
-    const template = await page.locator('#payment-template').textContent();
+    const template = await page.locator('.cpw-template-value').textContent();
     expect(template.trim()).not.toBe('—');
   });
 
-  test('el link de MercadoPago está presente y habilitado', async ({ page }) => {
+  test('los 3 métodos de pago están presentes y habilitados', async ({ page }) => {
     await runFullFlowToDesigns(page);
     await selectFirstDesign(page);
 
-    const mpBtn = page.locator('#mp-btn');
-    await expect(mpBtn).toBeVisible();
-    // En mock el href puede ser # — solo verificamos que existe
-    const href = await mpBtn.getAttribute('href');
-    expect(href).toBeTruthy();
+    const methodBtns = page.locator('.chat-payment-widget .cpw-method-btn');
+    await expect(methodBtns).toHaveCount(3);
+    for (const method of ['credito', 'debito', 'transferencia']) {
+      await expect(page.locator(`.cpw-method-btn[data-method="${method}"]`)).toBeEnabled();
+    }
   });
 
-  test('el botón de pago confirmado lleva al success section', async ({ page }) => {
+  test('elegir transferencia muestra el CBU/alias y lleva a pedido recibido', async ({ page }) => {
     await runFullFlowToDesigns(page);
     await selectFirstDesign(page);
 
-    await page.click('#confirm-payment-btn');
-    await page.waitForSelector('#success-section:not([hidden])', { timeout: 10_000 });
-    await expect(page.locator('#success-section')).toBeVisible();
+    await page.click('.cpw-method-btn[data-method="transferencia"]');
+    await expect(page.locator('#chat-messages')).toContainText(/CBU|alias/i, { timeout: 10_000 });
+    await page.waitForSelector('.order-received-slide', { timeout: 15_000 });
+    await expect(page.locator('.order-received-slide')).toBeVisible();
   });
 
   test('se puede cambiar de diseño antes de confirmar', async ({ page }) => {
@@ -62,13 +63,9 @@ test.describe('Flujo 3 — Diseño nuevo seleccionado', () => {
 
     // Seleccionar primero el diseño 1
     await page.locator('.chat-carousel-widget--new .ccw-select-btn').nth(0).click({ force: true });
-    await page.waitForSelector('#payment-section:not([hidden])');
+    await page.waitForSelector('.chat-payment-widget', { timeout: 10_000 });
 
-    // Volver atrás → seleccionar diseño 2
-    // En la app, seleccionar otro diseño desde previews actualiza la sección de pago
-    // Verificamos que previews aún están accesibles
-
-    // Seleccionar el segundo diseño (si las previews siguen visibles bajo el payment)
+    // Verificamos que las 3 previews generadas siguen accesibles arriba en el chat
     const cards = page.locator('.chat-carousel-widget--new .ccw-card');
     await expect(cards).toHaveCount(3);
   });

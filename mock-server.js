@@ -424,15 +424,16 @@ function mockSaveDsn(body) {
   // Esto evita que dsn/index.json acumule entradas entre tests E2E,
   // lo que causaría que initCarousel() detecte "diseños anteriores"
   // y muestre el carrusel legacy en lugar de generar nuevos diseños.
-  const { rubro, templates } = body;
+  const { rubro, template_name } = body;
   const nextNum = (_dsnCounter++).toString().padStart(3, '0');
   const setId   = `dsn-${nextNum}`;
-  console.log(`  [mock] save-dsn (in-memory): ${setId} (${rubro}) ${(templates || []).length} templates`);
-  return { success: true, id: setId };
+  console.log(`  [mock] save-dsn (in-memory): ${setId} (${rubro}) ${template_name || ''}`);
+  // Forma igual a la API real (api/save-dsn.js): { ok, dsn_id }
+  return { ok: true, dsn_id: setId };
 }
 
 function mockNotify(body) {
-  const { session_id, client_id, nombre_marca, rubro, email_cliente, template_elegido, full_brief, action, trigger } = body;
+  const { session_id, client_id, nombre_marca, rubro, email_cliente, template_elegido, full_brief, action, trigger, dsn_id, metodo_pago } = body;
 
   if (action === 'session_summary') {
     console.log('\n  ┌─ [mock] notify — resumen interno (session_summary) ──────────');
@@ -448,8 +449,9 @@ function mockNotify(body) {
   console.log(`  │  Sesión:   ${session_id} (cliente ${client_id})`);
   console.log(`  │  Marca:    ${nombre_marca}`);
   console.log(`  │  Rubro:    ${rubro}`);
-  console.log(`  │  Template: ${template_elegido || '—'}`);
+  console.log(`  │  Template: ${template_elegido || '—'} (dsn_id=${dsn_id || '—'})`);
   console.log(`  │  Contacto: ${full_brief?.contacto_wsp || full_brief?.email || '—'}`);
+  console.log(`  │  Pago:     ${metodo_pago || '—'}`);
   console.log('  └──────────────────────────────────────────────────────────────\n');
   return { success: true, preview_url: `http://localhost:3000/landing_page/preview.html?session_id=${session_id}` };
 }

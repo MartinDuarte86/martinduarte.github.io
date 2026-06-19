@@ -2,8 +2,8 @@
  * E2E — Flujo 5: Pago realizado (approve)
  *
  * Cubre dos ángulos:
- * A) Frontend: usuario completa el flujo, selecciona diseño y hace click
- *    en "Ya confirmé el pago" → aparece el success section
+ * A) Frontend: usuario completa el flujo, selecciona diseño y elige un método
+ *    de pago → aparece el slide de "pedido recibido"
  * B) Backend: Martin llama /api/approve con un JWT válido → página de éxito
  */
 
@@ -13,27 +13,26 @@ import { runFullFlowToDesigns, selectFirstDesign } from './helpers.js';
 test.describe('Flujo 5 — Pago realizado', () => {
   // ── A) Flujo del cliente ────────────────────────────────────────────────────
 
-  test('A) confirmar pago lleva al success section', async ({ page }) => {
+  test('A) elegir un método de pago lleva al slide de pedido recibido', async ({ page }) => {
     await runFullFlowToDesigns(page);
     await selectFirstDesign(page);
 
-    // Confirmar pago
-    await page.click('#confirm-payment-btn');
-    await page.waitForSelector('#success-section:not([hidden])', { timeout: 15_000 });
+    await page.click('.cpw-method-btn[data-method="credito"]');
+    await page.waitForSelector('.order-received-slide', { timeout: 15_000 });
 
-    await expect(page.locator('#success-section')).toBeVisible();
-    await expect(page.locator('#success-heading')).toContainText('¡Pedido recibido!');
+    await expect(page.locator('.order-received-slide')).toBeVisible();
+    await expect(page.locator('.ors-title')).toContainText('¡Pedido recibido!');
   });
 
-  test('A) success section muestra el nombre de la marca', async ({ page }) => {
+  test('A) el slide de pedido recibido muestra el nombre de la marca', async ({ page }) => {
     await runFullFlowToDesigns(page);
     await selectFirstDesign(page);
-    await page.click('#confirm-payment-btn');
-    await page.waitForSelector('#success-section:not([hidden])');
+    await page.click('.cpw-method-btn[data-method="debito"]');
+    await page.waitForSelector('.order-received-slide');
 
-    const brand = await page.locator('#success-brand').textContent();
-    expect(brand.trim()).not.toBe('tu marca');
-    expect(brand.trim().length).toBeGreaterThan(2);
+    const text = await page.locator('.ors-text strong').first().textContent();
+    expect(text.trim()).not.toBe('tu marca');
+    expect(text.trim().length).toBeGreaterThan(2);
   });
 
   // ── B) Flujo de Martin (approve API) ────────────────────────────────────────

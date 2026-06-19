@@ -22,9 +22,11 @@ function safe(s) {
 
 // Devuelve { sets, error } para que la UI pueda distinguir "no hay diseños"
 // (estado vacío legítimo) de "falló la carga" (mostrar aviso y seguir).
-async function loadDsnIndex() {
+async function loadDsnIndex(rubro) {
   try {
-    const res = await fetch(`/api/get-dsn-html?t=${Date.now()}`, { cache: 'no-store' });
+    const qs = new URLSearchParams({ t: Date.now() });
+    if (rubro) qs.set('rubro', rubro);
+    const res = await fetch(`/api/get-dsn-html?${qs.toString()}`, { cache: 'no-store' });
     if (!res.ok) return { sets: [], error: true };
     const data = await res.json();
     const designs = Array.isArray(data.designs) ? data.designs : [];
@@ -258,8 +260,8 @@ export function buildPreviewsCarouselWidget(previews, { onSelect }) {
   return widget;
 }
 
-export async function initCarousel() {
-  const { sets, error } = await loadDsnIndex();
+export async function initCarousel(rubro) {
+  const { sets, error } = await loadDsnIndex(rubro);
   _carouselSets = sets;
   return { sets, error };
 }

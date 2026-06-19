@@ -162,6 +162,8 @@ export default async function handler(req, res) {
     full_brief,
     html_preview,
     all_previews,
+    dsn_id,
+    metodo_pago,
   } = req.body || {};
 
   if (!session_id || !nombre_marca || !template_elegido) {
@@ -174,8 +176,13 @@ export default async function handler(req, res) {
       await savePreviews(session_id, all_previews);
     }
 
-    // ── 2. Guardar diseño elegido en design_sets ─────────────────────────────
-    if (html_preview && rubro && template_elegido) {
+    // ── 2. Marcar el diseño elegido como vendido en design_sets ──────────────
+    // El diseño ya se guardó al generarse (api/save-dsn.js) o ya existía si era
+    // un diseño anterior reutilizado — acá solo identificamos cuál se vendió.
+    if (dsn_id) {
+      await supabase.from('design_sets').update({ vendido: true }).eq('id', dsn_id);
+    } else if (html_preview && rubro && template_elegido) {
+      // Fallback: no llegó el id (ej. el guardado al generar falló) — lo creamos ahora.
       await supabase.from('design_sets').insert({
         session_id,
         client_id:           client_id || null,
@@ -183,6 +190,7 @@ export default async function handler(req, res) {
         template_name:       template_elegido,
         html_preview,
         visible_en_carousel: true,
+        vendido:             true,
       });
     }
 
@@ -218,6 +226,7 @@ export default async function handler(req, res) {
     }
     if (full_brief?.contacto_wsp)      briefLines.push(`<b>WhatsApp:</b> ${full_brief.contacto_wsp}`);
     if (email_cliente)                 briefLines.push(`<b>Email:</b> ${email_cliente}`);
+    if (metodo_pago)                   briefLines.push(`<b>Método de pago elegido:</b> ${metodo_pago}`);
 
     const { error: emailError } = await resend.emails.send({
       from:    process.env.EMAIL_FROM || 'Landing Bot <noreply@martinduarte.com>',

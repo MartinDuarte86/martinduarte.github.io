@@ -11,7 +11,7 @@
  */
 
 import { test, expect } from '@playwright/test';
-import { openFlow, completePrequalification, completeRegistration, completeFullChat, waitForDesigns } from './helpers.js';
+import { openFlow, completePrequalification, completeRegistration, completeSectionsToContacto, sendAndWait, waitForDesigns } from './helpers.js';
 
 const SEED_DESIGNS = [
   { id: 'dsn-001', rubro: 'peluquería', template_name: 'Moderno Oscuro', created_at: '2026-06-01T00:00:00Z',
@@ -36,7 +36,7 @@ test.describe('Flujo 4 — Diseño rediseñado desde carrusel', () => {
     await openFlow(page);
     await completePrequalification(page);
     await completeRegistration(page, { nombre: 'Elena', apellido: 'Suárez', email: `redesign1.${Date.now()}@example.com` });
-    await completeFullChat(page);
+    await completeSectionsToContacto(page);
 
     // El carrusel de diseños previos (no el de nuevos) aparece como widget en el chat
     const dsnWidget = page.locator('.chat-carousel-widget:not(.chat-carousel-widget--new)');
@@ -48,13 +48,15 @@ test.describe('Flujo 4 — Diseño rediseñado desde carrusel', () => {
     await openFlow(page);
     await completePrequalification(page);
     await completeRegistration(page, { nombre: 'Rita', apellido: 'Gómez', email: `redesign2.${Date.now()}@example.com` });
-    await completeFullChat(page);
+    await completeSectionsToContacto(page);
 
     const dsnWidget = page.locator('.chat-carousel-widget:not(.chat-carousel-widget--new)');
     await expect(dsnWidget).toBeVisible({ timeout: 20_000 });
 
-    // Rechazar diseños anteriores → dispara generación de nuevos
+    // Rechazar diseños anteriores → pasa a preguntar color (arranca limpio, 2 turnos)
     await dsnWidget.locator('.ccw-reject-btn').click();
+    await sendAndWait(page, 'Algo más moderno y colorido');
+    await sendAndWait(page, 'Tonos cálidos, tipografía redondeada');
 
     // Deben aparecer 3 nuevos diseños en el widget de selección
     await waitForDesigns(page);
