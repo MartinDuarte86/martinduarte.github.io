@@ -3,6 +3,7 @@
 import supabase from './_lib/supabase.js';
 import { getPreviews, getCachedRubroTemplate, setCachedRubroTemplate } from './_lib/redis.js';
 import { applyCors } from './_lib/cors.js';
+import { requireSession } from './_lib/session.js';
 
 export default async function handler(req, res) {
   if (applyCors(req, res, 'POST, GET, OPTIONS')) return;
@@ -23,10 +24,14 @@ export default async function handler(req, res) {
   }
 
   if (req.method === 'POST') {
-    const { session_id, client_id, rubro, template_name, html } = req.body || {};
+    // session_id desde la cookie firmada (el front ya no lo manda en el body).
+    const session_id = requireSession(req, res);
+    if (!session_id) return;
 
-    if (!session_id || !rubro || !template_name) {
-      return res.status(400).json({ error: 'session_id, rubro y template_name son requeridos' });
+    const { rubro, template_name, html } = req.body || {};
+
+    if (!rubro || !template_name) {
+      return res.status(400).json({ error: 'rubro y template_name son requeridos' });
     }
 
     let htmlContent = html;
@@ -41,9 +46,17 @@ export default async function handler(req, res) {
       await setCachedRubroTemplate(rubro, template_name, htmlContent).catch(() => {});
     }
 
+    // client_id (FK a clients.id) se resuelve server-side por session_id, no se
+    // confía en uno mandado por el browser — evita el insert huérfano por FK.
+    const { data: ownerClient } = await supabase
+      .from('clients')
+      .select('id')
+      .eq('session_id', session_id)
+      .maybeSingle();
+
     const { data: dsn, error } = await supabase
       .from('design_sets')
-      .insert({ session_id, client_id: client_id || null, rubro, template_name, html_preview: htmlContent })
+      .insert({ session_id, client_id: ownerClient?.id || null, rubro, template_name, html_preview: htmlContent })
       .select('id')
       .single();
 

@@ -2,13 +2,16 @@
 
 import { getBrief, getSessionMeta, getMessages, getPreviews } from './_lib/redis.js';
 import { applyCors } from './_lib/cors.js';
+import { requireSession } from './_lib/session.js';
 
 export default async function handler(req, res) {
   if (applyCors(req, res, 'GET, OPTIONS')) return;
   if (req.method !== 'GET') return res.status(405).json({ error: 'Method not allowed' });
 
-  const { session_id } = req.query;
-  if (!session_id) return res.status(400).json({ error: 'session_id requerido' });
+  // El session_id sale de la cookie firmada, NO del query: así una sesión solo la
+  // puede leer su dueño (cierra el IDOR de lectura / mezcla de conversaciones).
+  const session_id = requireSession(req, res);
+  if (!session_id) return;
 
   try {
     const [meta, brief, messages, previews] = await Promise.all([

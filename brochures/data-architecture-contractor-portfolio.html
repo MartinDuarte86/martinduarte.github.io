@@ -1,0 +1,686 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Arquitectura de Datos — Martin Duarte | Portfolio Contractor 2026</title>
+    <style>
+        /* ── RESET & BASE ─────────────────────────────────────────── */
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        @page { size: A4; margin: 0; }
+
+        body {
+            font-family: 'Poppins', 'Lato', 'Segoe UI', sans-serif;
+            background: #F8FAFC;
+            color: #0F172A;
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+        }
+
+        /* ── PAGE ─────────────────────────────────────────────────── */
+        .page {
+            width: 210mm;
+            min-height: 297mm;
+            padding: 18mm 20mm 28mm 20mm;
+            page-break-after: always;
+            position: relative;
+            background: #F8FAFC;
+        }
+        .page-dark {
+            background: #020617;
+            color: #ffffff;
+        }
+
+        /* ── TYPOGRAPHY ───────────────────────────────────────────── */
+        h1 { font-size: 52pt; font-weight: 900; line-height: 1.0; letter-spacing: -1.5pt; }
+        h2 { font-size: 26pt; font-weight: 800; letter-spacing: -0.5pt; }
+        h2-sm { display: block; font-size: 20pt; font-weight: 800; letter-spacing: -0.3pt; }
+        h3 { font-size: 13pt; font-weight: 700; }
+        p  { line-height: 1.6; }
+
+        /* ── COLORS ───────────────────────────────────────────────── */
+        .text-blue   { color: #2563EB; }
+        .text-slate  { color: #64748B; }
+        .text-muted  { color: #94A3B8; }
+        .text-white  { color: #ffffff; }
+        .text-light  { color: #CBD5E1; }
+
+        /* ── UTILITY ──────────────────────────────────────────────── */
+        .flex        { display: flex; }
+        .flex-col    { flex-direction: column; }
+        .justify-between { justify-content: space-between; }
+        .justify-end { justify-content: flex-end; }
+        .items-start { align-items: flex-start; }
+        .items-end   { align-items: flex-end; }
+        .items-center{ align-items: center; }
+        .gap-2       { gap: 6px; }
+        .gap-3       { gap: 10px; }
+        .gap-4       { gap: 14px; }
+        .gap-6       { gap: 20px; }
+        .gap-8       { gap: 28px; }
+        .flex-wrap   { flex-wrap: wrap; }
+
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+        .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
+        .grid-4 { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 10px; }
+
+        .mb-1  { margin-bottom: 4px;  }
+        .mb-2  { margin-bottom: 8px;  }
+        .mb-3  { margin-bottom: 12px; }
+        .mb-4  { margin-bottom: 16px; }
+        .mb-5  { margin-bottom: 20px; }
+        .mb-6  { margin-bottom: 24px; }
+        .mb-8  { margin-bottom: 32px; }
+        .mb-10 { margin-bottom: 40px; }
+        .mt-1  { margin-top: 4px;  }
+        .mt-2  { margin-top: 8px;  }
+        .mt-3  { margin-top: 12px; }
+        .mt-4  { margin-top: 16px; }
+        .mt-6  { margin-top: 24px; }
+        .mt-8  { margin-top: 32px; }
+
+        /* ── COMPONENTS ───────────────────────────────────────────── */
+        .eyebrow {
+            font-size: 7.5pt;
+            font-weight: 800;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            color: #2563EB;
+        }
+
+        .accent-line {
+            width: 40px;
+            height: 4px;
+            background: #2563EB;
+            border-radius: 2px;
+            margin-bottom: 10px;
+        }
+
+        .bento {
+            background: #ffffff;
+            border: 1px solid #E2E8F0;
+            border-radius: 18px;
+            padding: 18px;
+        }
+        .bento-dark {
+            background: #0F1A2E;
+            border: 1px solid #1E3A5F;
+            border-radius: 18px;
+            padding: 18px;
+        }
+
+        .tag {
+            display: inline-block;
+            padding: 3px 10px;
+            border-radius: 999px;
+            font-size: 7pt;
+            font-weight: 800;
+            letter-spacing: 0.7px;
+            text-transform: uppercase;
+        }
+        .tag-blue   { background: #EFF6FF; color: #2563EB; }
+        .tag-green  { background: #F0FDF4; color: #16A34A; }
+        .tag-amber  { background: #FFFBEB; color: #D97706; }
+        .tag-dark   { background: #0F172A; color: #ffffff; }
+        .tag-slate  { background: #F8FAFC; color: #64748B; border: 1px solid #E2E8F0; }
+
+        .service-number {
+            font-size: 7.5pt;
+            font-weight: 800;
+            color: #2563EB;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+
+        .card-mini {
+            padding: 12px;
+            background: #F8FAFC;
+            border: 1px solid #E2E8F0;
+            border-radius: 14px;
+        }
+        .card-mini-dark {
+            padding: 12px;
+            background: #0F1A2E;
+            border: 1px solid #1E3A5F;
+            border-radius: 14px;
+        }
+
+        .label-small {
+            font-size: 7pt;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            color: #2563EB;
+            margin-bottom: 6px;
+        }
+        .label-small-muted {
+            font-size: 7pt;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            color: #94A3B8;
+            margin-bottom: 6px;
+        }
+
+        .body-sm  { font-size: 9pt; color: #475569; line-height: 1.55; }
+        .body-xs  { font-size: 8pt; color: #64748B; line-height: 1.5;  }
+        .body-xxs { font-size: 7.5pt; color: #64748B; line-height: 1.5; }
+
+        .border-left-blue  { border-left: 4px solid #2563EB; padding-left: 14px; }
+        .border-left-green { border-left: 4px solid #16A34A; padding-left: 14px; }
+        .border-left-amber { border-left: 4px solid #D97706; padding-left: 14px; }
+
+        .divider       { border: none; border-top: 1px solid #E2E8F0; margin: 20px 0; }
+        .divider-dark  { border: none; border-top: 1px solid #1E2D4A; margin: 20px 0; }
+
+        /* ── FOOTER BAR ───────────────────────────────────────────── */
+        .footer-bar {
+            position: absolute;
+            bottom: 14mm;
+            left: 20mm;
+            right: 20mm;
+            border-top: 1px solid #E2E8F0;
+            padding-top: 8px;
+            font-size: 7pt;
+            color: #94A3B8;
+            display: flex;
+            justify-content: space-between;
+            text-transform: uppercase;
+            letter-spacing: 1.2px;
+        }
+        .footer-dark { border-color: #1E2D4A; }
+
+        .logo-text { font-size: 10pt; font-weight: 900; letter-spacing: -0.3px; }
+        .logo-a    { color: #0F172A; }
+        .logo-b    { color: #2563EB; }
+        .logo-a-inv { color: #ffffff; }
+
+        @media print {
+            .page { break-after: page; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════════════════
+     PÁGINA 1 · COVER
+════════════════════════════════════════════════════════════ -->
+<section class="page page-dark flex flex-col justify-between">
+
+    <div>
+        <p class="eyebrow mb-8" style="color:#2563EB;">Portfolio 2026 &middot; Modalidad Contractor</p>
+
+        <h1 style="font-size:58pt; font-weight:900; color:#ffffff; line-height:0.95; letter-spacing:-2pt;">
+            Arquitectura<br>de <span class="text-blue">Datos</span>
+        </h1>
+        <p class="mt-3" style="font-size:11pt; color:#94A3B8; max-width:420px; line-height:1.65;">
+            Diseño arquitecturas de datos que no solo funcionan técnicamente,
+            sino que aceleran las decisiones de negocio de cada organización que las adopta.
+        </p>
+    </div>
+
+    <div class="grid-3 mt-8">
+        <div class="bento-dark">
+            <p class="label-small mb-2">Experiencia</p>
+            <p style="font-size:18pt; font-weight:900; color:#ffffff;">10+ años</p>
+            <p class="body-xxs mt-1" style="color:#64748B;">Proyectos Enterprise en industrias de máxima exigencia</p>
+        </div>
+        <div class="bento-dark">
+            <p class="label-small mb-2">Industrias</p>
+            <p style="font-size:8.5pt; font-weight:700; color:#CBD5E1; line-height:1.7;">
+                Banca Global &middot; Oil &amp; Gas<br>Retail &middot; Fintech
+            </p>
+        </div>
+        <div class="bento-dark">
+            <p class="label-small mb-2">Modalidad</p>
+            <p style="font-size:18pt; font-weight:900; color:#ffffff;">Contractor</p>
+            <p class="body-xxs mt-1" style="color:#64748B;">Proyectos definidos o advisory fractional</p>
+        </div>
+    </div>
+
+    <hr class="divider-dark" style="margin-top:28px;">
+    <div class="flex justify-between items-end">
+        <div>
+            <p class="logo-text"><span class="logo-a-inv">MARTIN</span><span class="logo-b">DUARTE</span></p>
+            <p style="font-size:7.5pt; color:#475569; text-transform:uppercase; letter-spacing:2px; margin-top:4px;">
+                Data Architect &middot; Consultor Senior Independiente
+            </p>
+        </div>
+        <div style="text-align:right; font-size:8pt; color:#475569; line-height:1.8;">
+            <p>martinduarte.com</p>
+            <p>martynduarte@gmail.com</p>
+            <p>+54 11 2379-7308</p>
+        </div>
+    </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════════════════════
+     PÁGINA 2 · ÍNDICE DE SERVICIOS
+════════════════════════════════════════════════════════════ -->
+<section class="page">
+
+    <div class="mb-8">
+        <div class="accent-line"></div>
+        <h2>Portfolio de Servicios</h2>
+        <p class="body-sm mt-2" style="max-width:480px;">
+            Ocho servicios organizados en tres ejes: Diagnóstico y Estrategia,
+            Diseño e Implementación, y Gobierno y Optimización.
+            Cada uno con entregables concretos y alcance definido.
+        </p>
+    </div>
+
+    <!-- Eje 1 -->
+    <div class="flex items-center gap-3 mb-2">
+        <span class="tag tag-blue">Eje 1</span>
+        <p style="font-size:7pt; font-weight:800; color:#94A3B8; text-transform:uppercase; letter-spacing:2px;">Diagnóstico &amp; Estrategia</p>
+    </div>
+    <div class="grid-2 mb-5">
+        <div class="bento flex gap-3 items-start">
+            <p class="service-number" style="margin-top:2px; white-space:nowrap;">01</p>
+            <div>
+                <p style="font-size:9.5pt; font-weight:700; margin-bottom:4px;">Data Architecture Assessment</p>
+                <p class="body-xxs">Diagnóstico integral AS-IS → TO-BE. Punto de partida para cualquier iniciativa de modernización.</p>
+            </div>
+        </div>
+        <div class="bento flex gap-3 items-start">
+            <p class="service-number" style="margin-top:2px; white-space:nowrap;">02</p>
+            <div>
+                <p style="font-size:9.5pt; font-weight:700; margin-bottom:4px;">Data Platform Strategy</p>
+                <p class="body-xxs">Estrategia de plataforma: visión target, criterios tecnológicos, modelo operativo y roadmap por fases.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Eje 2 -->
+    <div class="flex items-center gap-3 mb-2">
+        <span class="tag tag-green">Eje 2</span>
+        <p style="font-size:7pt; font-weight:800; color:#94A3B8; text-transform:uppercase; letter-spacing:2px;">Diseño &amp; Implementación</p>
+    </div>
+    <div class="grid-2 mb-5">
+        <div class="bento flex gap-3 items-start">
+            <p class="service-number" style="margin-top:2px; white-space:nowrap;">03</p>
+            <div>
+                <p style="font-size:9.5pt; font-weight:700; margin-bottom:4px;">Enterprise Data Architecture Blueprint</p>
+                <p class="body-xxs">Arquitectura de referencia empresarial: dominios, principios, estándares e integración.</p>
+            </div>
+        </div>
+        <div class="bento flex gap-3 items-start">
+            <p class="service-number" style="margin-top:2px; white-space:nowrap;">04</p>
+            <div>
+                <p style="font-size:9.5pt; font-weight:700; margin-bottom:4px;">Cloud Data Architecture</p>
+                <p class="body-xxs">Arquitecturas escalables y seguras en AWS, Azure o multi-cloud. Lakehouse, integración y modernización.</p>
+            </div>
+        </div>
+        <div class="bento flex gap-3 items-start">
+            <p class="service-number" style="margin-top:2px; white-space:nowrap;">05</p>
+            <div>
+                <p style="font-size:9.5pt; font-weight:700; margin-bottom:4px;">Data Engineering &amp; Integration</p>
+                <p class="body-xxs">Diseño de pipelines ETL/ELT, interfaces de integración y automatización de flujos de datos.</p>
+            </div>
+        </div>
+        <div class="bento flex gap-3 items-start">
+            <p class="service-number" style="margin-top:2px; white-space:nowrap;">06</p>
+            <div>
+                <p style="font-size:9.5pt; font-weight:700; margin-bottom:4px;">Data Platform Modernization</p>
+                <p class="body-xxs">Migración y modernización de plataformas legacy con estrategia de transición definida.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Eje 3 -->
+    <div class="flex items-center gap-3 mb-2">
+        <span class="tag tag-amber">Eje 3</span>
+        <p style="font-size:7pt; font-weight:800; color:#94A3B8; text-transform:uppercase; letter-spacing:2px;">Gobierno &amp; Optimización</p>
+    </div>
+    <div class="grid-2 mb-5">
+        <div class="bento flex gap-3 items-start">
+            <p class="service-number" style="margin-top:2px; white-space:nowrap;">07</p>
+            <div>
+                <p style="font-size:9.5pt; font-weight:700; margin-bottom:4px;">Data Governance &amp; Data Quality</p>
+                <p class="body-xxs">Framework de gobierno, catálogo de datos, métricas de calidad y modelo de responsabilidades.</p>
+            </div>
+        </div>
+        <div class="bento flex gap-3 items-start">
+            <p class="service-number" style="margin-top:2px; white-space:nowrap;">08</p>
+            <div>
+                <p style="font-size:9.5pt; font-weight:700; margin-bottom:4px;">FinOps &amp; Cloud Cost Optimization</p>
+                <p class="body-xxs">Optimización de costos cloud con visibility, accountability y modelo operativo FinOps.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Fractional callout -->
+    <div class="bento flex gap-4 items-start" style="background:#EFF6FF; border-color:#BFDBFE; margin-top:4px;">
+        <span class="tag tag-dark" style="white-space:nowrap; margin-top:2px;">Advisory</span>
+        <div>
+            <p style="font-size:9.5pt; font-weight:700; margin-bottom:4px;">Fractional Enterprise Data Architect</p>
+            <p class="body-xxs" style="color:#475569;">
+                Modelo de advisory recurrente: seniority arquitectónico continuo sin incorporar un rol full-time.
+                Revisiones periódicas, mentoring, governance y evolución sostenida del roadmap de datos.
+            </p>
+        </div>
+    </div>
+
+    <div class="footer-bar">
+        <p class="logo-text"><span class="logo-a">MARTIN</span><span class="logo-b">DUARTE</span></p>
+        <p>Portfolio de Servicios · 2026</p>
+        <p>Página 02</p>
+    </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════════════════════
+     PÁGINA 3 · EJE 1 — DIAGNÓSTICO & ESTRATEGIA
+════════════════════════════════════════════════════════════ -->
+<section class="page">
+
+    <div class="flex items-center gap-3 mb-8">
+        <span class="tag tag-blue" style="font-size:8pt; padding:4px 14px;">Eje 1</span>
+        <div>
+            <div class="accent-line" style="margin-bottom:0; width:28px;"></div>
+        </div>
+        <h2 style="font-size:22pt;">Diagnóstico &amp; Estrategia</h2>
+    </div>
+
+    <!-- Servicio 01 -->
+    <div class="bento border-left-blue mb-5">
+        <div class="flex justify-between items-start mb-3">
+            <div>
+                <p class="service-number mb-1">Servicio 01</p>
+                <h3 style="font-size:14pt;">Data Architecture Assessment</h3>
+            </div>
+            <span class="tag tag-blue">Servicio de entrada</span>
+        </div>
+        <p class="body-sm mb-4">
+            Diagnóstico integral del estado actual de la arquitectura de datos. Identifica brechas críticas,
+            evalúa capacidades y define una arquitectura target con roadmap de prioridades concreto.
+            Reduce la incertidumbre antes de cualquier inversión en modernización.
+        </p>
+        <div class="grid-3">
+            <div class="card-mini">
+                <p class="label-small">Framework 4 pasos</p>
+                <p class="body-xxs">Contexto de negocio → AS-IS → Evaluación → TO-BE + Roadmap</p>
+            </div>
+            <div class="card-mini">
+                <p class="label-small">Entregables</p>
+                <p class="body-xxs">Mapa AS-IS · Diagnóstico de brechas · Arquitectura target · Roadmap priorizado</p>
+            </div>
+            <div class="card-mini">
+                <p class="label-small">Duración típica</p>
+                <p class="body-xxs">3–4 semanas. Base para Blueprint, Strategy o Modernización.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Servicio 02 -->
+    <div class="bento border-left-blue">
+        <div class="flex justify-between items-start mb-3">
+            <div>
+                <p class="service-number mb-1">Servicio 02</p>
+                <h3 style="font-size:14pt;">Data Platform Strategy</h3>
+            </div>
+            <span class="tag tag-green">Visión &amp; Roadmap</span>
+        </div>
+        <p class="body-sm mb-4">
+            Define la visión target de la plataforma de datos, las capacidades requeridas, los criterios de selección
+            tecnológica, el modelo operativo y un roadmap de evolución por fases. Resuelve la falta de dirección
+            estratégica y el sprawl tecnológico.
+        </p>
+        <div class="grid-2">
+            <div class="card-mini">
+                <p class="label-small">Problemas que resuelve</p>
+                <p class="body-xxs">Sin visión de plataforma · Tool sprawl · Dirección tecnológica poco clara · Analytics o ML sin soporte adecuado</p>
+            </div>
+            <div class="card-mini">
+                <p class="label-small">Entregables</p>
+                <p class="body-xxs">Documento de estrategia · Visión target · Lineamientos tecnológicos · Modelo operativo · Roadmap por fases</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="footer-bar">
+        <p class="logo-text"><span class="logo-a">MARTIN</span><span class="logo-b">DUARTE</span></p>
+        <p>Eje 1 — Diagnóstico &amp; Estrategia</p>
+        <p>Página 03</p>
+    </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════════════════════
+     PÁGINA 4 · EJE 2 — DISEÑO & IMPLEMENTACIÓN
+════════════════════════════════════════════════════════════ -->
+<section class="page">
+
+    <div class="flex items-center gap-3 mb-6">
+        <span class="tag tag-green" style="font-size:8pt; padding:4px 14px;">Eje 2</span>
+        <h2 style="font-size:22pt;">Diseño &amp; Implementación</h2>
+    </div>
+
+    <!-- 03 -->
+    <div class="bento border-left-green mb-4">
+        <div class="flex justify-between items-start mb-2">
+            <p class="service-number">Servicio 03</p>
+        </div>
+        <h3 style="font-size:12pt; margin-bottom:6px;">Enterprise Data Architecture Blueprint</h3>
+        <p class="body-sm mb-3">
+            Arquitectura de referencia empresarial que alinea dominios de información, principios técnicos, estándares e
+            integración. Reduce la deuda arquitectónica y provee una base común para modernización o escala.
+        </p>
+        <div class="flex flex-wrap gap-2">
+            <span class="tag tag-slate">Blueprint lógico y físico</span>
+            <span class="tag tag-slate">Principios y estándares</span>
+            <span class="tag tag-slate">Lineamientos de integración</span>
+            <span class="tag tag-slate">Mapa de dominios y capacidades</span>
+        </div>
+    </div>
+
+    <!-- 04 -->
+    <div class="bento border-left-green mb-4">
+        <div class="flex justify-between items-start mb-2">
+            <div class="flex items-center gap-3">
+                <p class="service-number">Servicio 04</p>
+                <span class="tag tag-green">AWS · Azure · Multi-cloud</span>
+            </div>
+        </div>
+        <h3 style="font-size:12pt; margin-bottom:6px;">Cloud Data Architecture</h3>
+        <p class="body-sm mb-3">
+            Define arquitecturas cloud escalables, seguras e integradas para organizaciones que evalúan lakehouse,
+            integración de sistemas o modernización hacia nube. Incluye patrones de escalabilidad y lineamientos de seguridad.
+        </p>
+        <div class="flex flex-wrap gap-2">
+            <span class="tag tag-slate">Arquitectura cloud target</span>
+            <span class="tag tag-slate">Seguridad e integración</span>
+            <span class="tag tag-slate">Patrones de escalabilidad</span>
+        </div>
+    </div>
+
+    <!-- 05 -->
+    <div class="bento border-left-green mb-4">
+        <p class="service-number mb-1">Servicio 05</p>
+        <h3 style="font-size:12pt; margin-bottom:6px;">Data Engineering &amp; Integration</h3>
+        <p class="body-sm mb-3">
+            Diseño de flujos de datos robustos e interfaces de integración para operaciones y analytics.
+            Elimina procesos manuales, mejora la escalabilidad de pipelines y reduce dependencias entre sistemas.
+        </p>
+        <div class="flex flex-wrap gap-2">
+            <span class="tag tag-slate">Diseño ETL/ELT</span>
+            <span class="tag tag-slate">Mapa de interfaces</span>
+            <span class="tag tag-slate">Automatización de flujos</span>
+            <span class="tag tag-slate">API strategy</span>
+        </div>
+    </div>
+
+    <!-- 06 -->
+    <div class="bento border-left-green">
+        <p class="service-number mb-1">Servicio 06</p>
+        <h3 style="font-size:12pt; margin-bottom:6px;">Data Platform Modernization Program</h3>
+        <p class="body-sm mb-3">
+            Programa estructurado de migración y modernización de plataformas legacy con estrategia
+            de transición clara, criterios de priorización y gestión del cambio integrada.
+        </p>
+        <div class="flex flex-wrap gap-2">
+            <span class="tag tag-slate">Plan de migración</span>
+            <span class="tag tag-slate">Estrategia de transición</span>
+            <span class="tag tag-slate">Priorización de iniciativas</span>
+        </div>
+    </div>
+
+    <div class="footer-bar">
+        <p class="logo-text"><span class="logo-a">MARTIN</span><span class="logo-b">DUARTE</span></p>
+        <p>Eje 2 — Diseño &amp; Implementación</p>
+        <p>Página 04</p>
+    </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════════════════════
+     PÁGINA 5 · EJE 3 + FRACTIONAL
+════════════════════════════════════════════════════════════ -->
+<section class="page">
+
+    <div class="flex items-center gap-3 mb-6">
+        <span class="tag tag-amber" style="font-size:8pt; padding:4px 14px;">Eje 3</span>
+        <h2 style="font-size:22pt;">Gobierno &amp; Optimización</h2>
+    </div>
+
+    <div class="grid-2 mb-8">
+        <!-- 07 -->
+        <div class="bento border-left-amber">
+            <p class="service-number mb-1">Servicio 07</p>
+            <h3 style="font-size:11pt; margin-bottom:8px;">Data Governance &amp; Data Quality</h3>
+            <p class="body-sm mb-3">
+                Framework de gobierno de datos con catálogo, métricas de calidad,
+                modelo de responsabilidades y lineamientos de cumplimiento.
+                Convierte los datos en un activo confiable y auditado.
+            </p>
+            <div class="flex flex-wrap gap-2">
+                <span class="tag" style="background:#FFFBEB; color:#92400E; border:1px solid #FDE68A;">Catálogo de datos</span>
+                <span class="tag" style="background:#FFFBEB; color:#92400E; border:1px solid #FDE68A;">Data quality metrics</span>
+                <span class="tag" style="background:#FFFBEB; color:#92400E; border:1px solid #FDE68A;">Governance framework</span>
+            </div>
+        </div>
+
+        <!-- 08 -->
+        <div class="bento border-left-amber">
+            <p class="service-number mb-1">Servicio 08</p>
+            <h3 style="font-size:11pt; margin-bottom:8px;">FinOps &amp; Cloud Cost Optimization</h3>
+            <p class="body-sm mb-3">
+                Optimización del gasto cloud con visibility total, accountability por equipo
+                y modelo operativo FinOps. Reduce costos sin sacrificar rendimiento ni escalabilidad.
+            </p>
+            <div class="flex flex-wrap gap-2">
+                <span class="tag" style="background:#FFFBEB; color:#92400E; border:1px solid #FDE68A;">Cost visibility</span>
+                <span class="tag" style="background:#FFFBEB; color:#92400E; border:1px solid #FDE68A;">FinOps operating model</span>
+                <span class="tag" style="background:#FFFBEB; color:#92400E; border:1px solid #FDE68A;">Optimización continua</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Fractional -->
+    <hr class="divider" style="margin-bottom:24px;">
+
+    <div class="flex items-center gap-3 mb-5">
+        <span class="tag tag-dark" style="font-size:8pt; padding:4px 14px;">Advisory Continuo</span>
+        <h2 style="font-size:18pt;">Fractional Enterprise Data Architect</h2>
+    </div>
+
+    <div style="background:#020617; border-radius:18px; padding:20px; color:#ffffff;">
+        <p style="font-size:7.5pt; color:#60A5FA; font-weight:800; text-transform:uppercase; letter-spacing:2px; margin-bottom:10px;">
+            Para organizaciones que necesitan criterio senior de manera sostenida
+        </p>
+        <p style="font-size:9pt; color:#CBD5E1; line-height:1.65; margin-bottom:16px;">
+            Actúo como Arquitecto de Datos senior de manera flexible —
+            sin incorporar un rol full-time. Reviso decisiones, valido diseños, acompaño al equipo técnico
+            y sostengo la evolución del roadmap de datos en el tiempo.
+        </p>
+        <div class="grid-4">
+            <div class="card-mini-dark">
+                <p style="font-size:7pt; color:#60A5FA; font-weight:800; text-transform:uppercase; letter-spacing:1px; margin-bottom:6px;">Revisiones</p>
+                <p style="font-size:7.5pt; color:#94A3B8; line-height:1.5;">Periódicas de arquitectura y decisiones clave</p>
+            </div>
+            <div class="card-mini-dark">
+                <p style="font-size:7pt; color:#60A5FA; font-weight:800; text-transform:uppercase; letter-spacing:1px; margin-bottom:6px;">Mentoring</p>
+                <p style="font-size:7.5pt; color:#94A3B8; line-height:1.5;">A perfiles de Data Engineering y Analytics</p>
+            </div>
+            <div class="card-mini-dark">
+                <p style="font-size:7pt; color:#60A5FA; font-weight:800; text-transform:uppercase; letter-spacing:1px; margin-bottom:6px;">Governance</p>
+                <p style="font-size:7.5pt; color:#94A3B8; line-height:1.5;">Participación en comités y validaciones de diseño</p>
+            </div>
+            <div class="card-mini-dark">
+                <p style="font-size:7pt; color:#60A5FA; font-weight:800; text-transform:uppercase; letter-spacing:1px; margin-bottom:6px;">Roadmap</p>
+                <p style="font-size:7.5pt; color:#94A3B8; line-height:1.5;">Ajuste continuo de prioridades y evolución</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="footer-bar">
+        <p class="logo-text"><span class="logo-a">MARTIN</span><span class="logo-b">DUARTE</span></p>
+        <p>Eje 3 + Advisory Fractional</p>
+        <p>Página 05</p>
+    </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════════════════════
+     PÁGINA 6 · PROPUESTA DE VALOR + CONTACTO
+════════════════════════════════════════════════════════════ -->
+<section class="page page-dark flex flex-col justify-between">
+
+    <div>
+        <p class="eyebrow mb-8">¿Por qué trabajar conmigo?</p>
+        <h2 style="font-size:36pt; font-weight:900; color:#ffffff; line-height:1.1; max-width:480px; letter-spacing:-1pt;">
+            El conocimiento es Enterprise.<br>
+            El trato es de consultor
+            <span style="color:#2563EB;">independiente.</span>
+        </h2>
+        <p style="font-size:9.5pt; color:#94A3B8; margin-top:18px; max-width:420px; line-height:1.7;">
+            10+ años ejecutando arquitecturas de datos en industrias de máxima exigencia.
+            Sin estructura de consultora grande ni costos de estructura.
+            Criterio senior aplicado directamente al problema —
+            con entregables concretos y alcance definido.
+        </p>
+    </div>
+
+    <div class="grid-3" style="margin-top:32px;">
+        <div class="bento-dark">
+            <p style="font-size:7pt; color:#60A5FA; font-weight:800; text-transform:uppercase; letter-spacing:2px; margin-bottom:10px;">Claridad</p>
+            <p style="font-size:9pt; color:#CBD5E1; line-height:1.6;">No uso complejidad para impresionar. Uso claridad para resolver.</p>
+        </div>
+        <div class="bento-dark">
+            <p style="font-size:7pt; color:#60A5FA; font-weight:800; text-transform:uppercase; letter-spacing:2px; margin-bottom:10px;">Pragmatismo</p>
+            <p style="font-size:9pt; color:#CBD5E1; line-height:1.6;">Cada decisión técnica se sostiene en la realidad operativa del cliente.</p>
+        </div>
+        <div class="bento-dark">
+            <p style="font-size:7pt; color:#60A5FA; font-weight:800; text-transform:uppercase; letter-spacing:2px; margin-bottom:10px;">Transferencia</p>
+            <p style="font-size:9pt; color:#CBD5E1; line-height:1.6;">El conocimiento queda en la organización, no solo en mis entregables.</p>
+        </div>
+    </div>
+
+    <hr class="divider-dark" style="margin-top:28px;">
+
+    <div class="flex justify-between items-end" style="margin-top:20px;">
+        <div>
+            <p style="font-size:7.5pt; color:#60A5FA; font-weight:800; text-transform:uppercase; letter-spacing:2px; margin-bottom:14px;">Contacto directo</p>
+            <p class="logo-text" style="font-size:20pt;"><span class="logo-a-inv">MARTIN</span><span class="logo-b">DUARTE</span></p>
+            <div style="margin-top:12px; font-size:9pt; color:#64748B; line-height:2;">
+                <p>martinduarte.com</p>
+                <p>martynduarte@gmail.com</p>
+                <p>+54 11 2379-7308</p>
+            </div>
+        </div>
+        <div style="text-align:right;">
+            <p style="font-size:7pt; color:#475569; text-transform:uppercase; letter-spacing:2px; margin-bottom:12px;">Modalidades disponibles</p>
+            <div style="display:inline-block; background:#2563EB; color:#ffffff; padding:8px 20px; border-radius:10px; font-size:9pt; font-weight:700; margin-bottom:8px; width:200px; text-align:center;">
+                Proyecto duración definida
+            </div>
+            <br>
+            <div style="display:inline-block; background:#1E2D4A; color:#94A3B8; padding:8px 20px; border-radius:10px; font-size:9pt; font-weight:700; width:200px; text-align:center;">
+                Advisory fractional
+            </div>
+        </div>
+    </div>
+</section>
+
+</body>
+</html>

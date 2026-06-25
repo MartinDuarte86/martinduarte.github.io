@@ -2,12 +2,20 @@
 
 import supabase from './_lib/supabase.js';
 import { applyCors } from './_lib/cors.js';
+import { issueSessionCookie, clearSessionCookie } from './_lib/session.js';
 
 export default async function handler(req, res) {
   if (applyCors(req, res)) return;
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
   const { action, session_id, email, data } = req.body || {};
+
+  // "Empezar de nuevo": expira la cookie de sesión de este navegador. No necesita
+  // session_id porque solo limpia el estado local de identidad.
+  if (action === 'reset') {
+    clearSessionCookie(res);
+    return res.status(200).json({ ok: true });
+  }
 
   if (!session_id) return res.status(400).json({ error: 'session_id requerido' });
 
@@ -17,18 +25,19 @@ export default async function handler(req, res) {
       if (email) {
         const { data: existing } = await supabase
           .from('clients')
-          .select('id, session_id, estado, nombre_marca')
+          .select('id, estado, nombre_marca')
           .eq('email', email)
           .maybeSingle();
 
+        // Email ya registrado: NO se devuelve el session_id/client_id del registro
+        // ajeno (eso permitía adoptar la sesión de otra persona). Solo se informa el
+        // estado para que el front muestre un mensaje; la única forma de retomar una
+        // sesión es presentando su cookie httpOnly.
         if (existing) {
           return res.status(409).json({
-            error:      'email_exists',
-            session_id: existing.session_id,
-            id:         existing.session_id,
-            client_id:  existing.id,
-            estado:     existing.estado,
-            nombre:     existing.nombre_marca,
+            error:  'email_exists',
+            estado: existing.estado,
+            nombre: existing.nombre_marca,
           });
         }
       }
@@ -48,7 +57,10 @@ export default async function handler(req, res) {
         .single();
 
       if (error) throw error;
-      return res.status(201).json({ ok: true, client_id: client.id });
+      // Ata este session_id al navegador vía cookie firmada httpOnly. A partir de
+      // acá, el acceso a la sesión se autoriza por la cookie, no por el id en el body.
+      issueSessionCookie(res, session_id);
+      return res.status(201).json({ ok: true, client_id: client.id, session_id });
     }
 
     // ── Actualizar estado o brief ──────────────────────────────────────────

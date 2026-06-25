@@ -2,15 +2,21 @@
 
 import { saveBrief, saveSessionMeta, appendMessage, touchSession } from './_lib/redis.js';
 import { applyCors } from './_lib/cors.js';
+import { requireSession } from './_lib/session.js';
 
 export default async function handler(req, res) {
   if (applyCors(req, res)) return;
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
-  const { session_id, type, payload } = req.body || {};
+  // El session_id sale de la cookie firmada, no del body: nadie puede escribir en
+  // la sesión de otro conociendo/forjando su id (cierra el IDOR de escritura).
+  const session_id = requireSession(req, res);
+  if (!session_id) return;
 
-  if (!session_id || !type) {
-    return res.status(400).json({ error: 'session_id y type son requeridos' });
+  const { type, payload } = req.body || {};
+
+  if (!type) {
+    return res.status(400).json({ error: 'type es requerido' });
   }
 
   try {
