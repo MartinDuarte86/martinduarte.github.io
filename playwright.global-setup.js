@@ -1,12 +1,12 @@
-import { writeFileSync, mkdirSync } from 'fs';
-import { join } from 'path';
-
+// Objetivo: setup global de la suite E2E de Playwright.
+// Dependencias: lo referencia playwright.config.js (campo globalSetup).
+// Resultado esperado: arranque limpio del estado compartido entre specs.
+//
+// Antes este archivo reseteaba landing_page/dsn/index.json porque el carrusel
+// "diseños anteriores" se alimentaba de ese archivo en disco. Hoy ese mecanismo
+// es 100% in-memory en el mock (_dsnStore en mock-server.js, vacío por defecto y
+// poblado vía POST /api/_test/seed-dsn), así que no hay nada que resetear en disco.
 export default function globalSetup() {
-  // Reset dsn/index.json before E2E suite so initCarousel() finds no prior designs.
-  // This prevents test pollution: designs generated in one spec would appear as
-  // "previous designs" in the next spec, showing the old-carousel widget instead
-  // of generating fresh ones.
-  const dsnDir = join(process.cwd(), 'landing_page', 'dsn');
-  mkdirSync(dsnDir, { recursive: true });
-  writeFileSync(join(dsnDir, 'index.json'), '[]');
+  // Sin estado en disco que limpiar. El mock arranca con _dsnStore vacío y cada
+  // spec siembra/limpia vía /api/_test/seed-dsn y /api/_test/reset.
 }

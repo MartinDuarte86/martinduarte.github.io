@@ -320,8 +320,10 @@ function mockGeneratedHtml() {
 
 // Sesiones en memoria (se pierden al reiniciar el server, suficiente para testing local)
 const _sessions = new Map(); // session_id → { meta, brief, messages }
-// Clientes en memoria (para conflicto de email en tests)
+// Clientes en memoria (para conflicto de email en tests). No se persiste a disco:
+// el mock replica el contrato de Supabase sin tocar archivos del repo.
 const _clientsByEmail = new Map(); // email → { session_id, estado, nombre_marca }
+let _clientesStore = []; // filas de clientes en memoria (reemplaza el viejo data/clientes.json)
 // Contador para IDs de design sets (no se persiste al disco en modo mock)
 let _dsnCounter = 1;
 // Diseños "anteriores" para el carrusel DSN. Vacío por defecto (los tests del
@@ -340,10 +342,7 @@ function mockSaveClient(body) {
   // Formato nuevo: { action, session_id, email, data }
   // Formato legacy (feedback): { action, session_id, data }
   const { action, session_id, email, data } = body;
-  const filePath = path.join(__dirname, 'landing_page', 'data', 'clientes.json');
-
-  let clientes = [];
-  try { clientes = JSON.parse(fs.readFileSync(filePath, 'utf-8')); } catch {}
+  const clientes = _clientesStore; // mutaciones persisten en memoria mientras viva el proceso
 
   if (action === 'create') {
     // Verificar duplicado
@@ -366,7 +365,6 @@ function mockSaveClient(body) {
     clientes.push(client);
     if (email) _clientsByEmail.set(email, { session_id, clientId, estado: 'en_chat', nombre_marca: data?.nombre_marca || '' });
     console.log(`  [mock] save-client CREATE: session=${session_id} client_id=${clientId} email=${email}`);
-    fs.writeFileSync(filePath, JSON.stringify(clientes, null, 2));
     return { ok: true, client_id: clientId };
   }
 
@@ -374,7 +372,6 @@ function mockSaveClient(body) {
     const idx = clientes.findIndex(c => c.session_id === session_id || c.id === session_id);
     if (idx >= 0 && data?.estado) { clientes[idx].estado = data.estado; }
     if (idx >= 0 && data?.nombre_marca) { clientes[idx].nombre_marca = data.nombre_marca; }
-    fs.writeFileSync(filePath, JSON.stringify(clientes, null, 2));
     console.log(`  [mock] save-client UPDATE: session=${session_id} estado=${data?.estado}`);
     return { ok: true };
   }
@@ -385,7 +382,6 @@ function mockSaveClient(body) {
       clientes[idx].template_elegido = data?.template_elegido;
       clientes[idx].estado = 'diseños_generados';
     }
-    fs.writeFileSync(filePath, JSON.stringify(clientes, null, 2));
     console.log(`  [mock] save-client FEEDBACK: session=${session_id} template=${data?.template_elegido}`);
     return { ok: true };
   }
@@ -426,10 +422,10 @@ function mockApproveReject(action, queryParams) {
 }
 
 function mockSaveDsn(body) {
-  // En modo mock, save-dsn retorna éxito sin escribir al disco.
-  // Esto evita que dsn/index.json acumule entradas entre tests E2E,
-  // lo que causaría que initCarousel() detecte "diseños anteriores"
-  // y muestre el carrusel legacy en lugar de generar nuevos diseños.
+  // En modo mock, save-dsn retorna éxito sin persistir nada (todo in-memory).
+  // Los "diseños anteriores" del carrusel se controlan solo vía _dsnStore
+  // (POST /api/_test/seed-dsn), así que un guardado no contamina specs vecinos
+  // haciendo que initCarousel() detecte diseños previos inesperados.
   const { rubro, template_name } = body;
   const nextNum = (_dsnCounter++).toString().padStart(3, '0');
   const setId   = `dsn-${nextNum}`;
@@ -583,7 +579,7 @@ const server = http.createServer(async (req, res) => {
         return sendJson(res, 200, { ok: true, count: _dsnStore.length });
       }
       if (route === '_test/reset') {
-        _sessions.clear(); _clientsByEmail.clear(); _dsnStore = [];
+        _sessions.clear(); _clientsByEmail.clear(); _dsnStore = []; _clientesStore = [];
         console.log('  [mock] _test/reset: estado limpio');
         return sendJson(res, 200, { ok: true });
       }

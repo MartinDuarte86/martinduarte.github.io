@@ -9,8 +9,11 @@ node_modules/
 # Vercel
 .vercel/
 
-# HTMLs generados localmente por el mock (no versionar, pueden ser grandes)
-landing_page/dsn/dsn-*/
+# Archivos de prospección/LinkedIn — pertenecen a otra herramienta, no a
+# Creator-LandingPage. Se ignoran para no ensuciar este repo (no se versionan acá).
+prospector_empresas.xlsx
+estrategia_prospeccion.md
+.~lock.*#
 
 # Artefactos de testing (Playwright, logs, screenshots de fallo)
 test-results/
