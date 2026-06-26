@@ -1,4 +1,5 @@
 import httpMocks from 'node-mocks-http';
+import { cookieFor } from '../helpers/cookie.js';
 
 // ── Redis mock ───────────────────────────────────────────────────────────────
 
@@ -26,6 +27,16 @@ beforeEach(() => {
   mockAppendMessage.mockClear();
 });
 
+// El session_id ahora sale de la cookie firmada (no del body). Helper para armar
+// un POST autenticado con la cookie de la sesión 'sid'.
+function authedPost(body) {
+  return httpMocks.createRequest({
+    method: 'POST',
+    headers: { cookie: cookieFor('sid') },
+    body,
+  });
+}
+
 // ── Tests ────────────────────────────────────────────────────────────────────
 
 describe('POST /api/save-session', () => {
@@ -43,25 +54,22 @@ describe('POST /api/save-session', () => {
     expect(res.statusCode).toBe(405);
   });
 
-  it('sin session_id → 400', async () => {
+  it('sin cookie de sesión → 401', async () => {
     const req = httpMocks.createRequest({ method: 'POST', body: { type: 'brief' } });
     const res = httpMocks.createResponse();
     await handler(req, res);
-    expect(res.statusCode).toBe(400);
+    expect(res.statusCode).toBe(401);
   });
 
   it('sin type → 400', async () => {
-    const req = httpMocks.createRequest({ method: 'POST', body: { session_id: 'sid' } });
+    const req = authedPost({});
     const res = httpMocks.createResponse();
     await handler(req, res);
     expect(res.statusCode).toBe(400);
   });
 
   it('type brief → llama saveBrief y retorna 200', async () => {
-    const req = httpMocks.createRequest({
-      method: 'POST',
-      body: { session_id: 'sid', type: 'brief', payload: { hero: 'Hola' } },
-    });
+    const req = authedPost({ type: 'brief', payload: { hero: 'Hola' } });
     const res = httpMocks.createResponse();
     await handler(req, res);
 
@@ -70,10 +78,7 @@ describe('POST /api/save-session', () => {
   });
 
   it('type meta → llama saveSessionMeta y retorna 200', async () => {
-    const req = httpMocks.createRequest({
-      method: 'POST',
-      body: { session_id: 'sid', type: 'meta', payload: { phase: 'hero' } },
-    });
+    const req = authedPost({ type: 'meta', payload: { phase: 'hero' } });
     const res = httpMocks.createResponse();
     await handler(req, res);
 
@@ -83,10 +88,7 @@ describe('POST /api/save-session', () => {
 
   it('type message con role y content → llama appendMessage y retorna 200', async () => {
     const msg = { role: 'user', content: 'Hola', section: 'hero' };
-    const req = httpMocks.createRequest({
-      method: 'POST',
-      body: { session_id: 'sid', type: 'message', payload: msg },
-    });
+    const req = authedPost({ type: 'message', payload: msg });
     const res = httpMocks.createResponse();
     await handler(req, res);
 
@@ -95,20 +97,14 @@ describe('POST /api/save-session', () => {
   });
 
   it('type message sin role → 400', async () => {
-    const req = httpMocks.createRequest({
-      method: 'POST',
-      body: { session_id: 'sid', type: 'message', payload: { content: 'Hola' } },
-    });
+    const req = authedPost({ type: 'message', payload: { content: 'Hola' } });
     const res = httpMocks.createResponse();
     await handler(req, res);
     expect(res.statusCode).toBe(400);
   });
 
   it('type message sin content → 400', async () => {
-    const req = httpMocks.createRequest({
-      method: 'POST',
-      body: { session_id: 'sid', type: 'message', payload: { role: 'user' } },
-    });
+    const req = authedPost({ type: 'message', payload: { role: 'user' } });
     const res = httpMocks.createResponse();
     await handler(req, res);
     expect(res.statusCode).toBe(400);
@@ -119,10 +115,7 @@ describe('POST /api/save-session', () => {
       { role: 'user', content: 'A', section: 's1' },
       { role: 'assistant', content: 'B', section: 's1' },
     ];
-    const req = httpMocks.createRequest({
-      method: 'POST',
-      body: { session_id: 'sid', type: 'messages_batch', payload: msgs },
-    });
+    const req = authedPost({ type: 'messages_batch', payload: msgs });
     const res = httpMocks.createResponse();
     await handler(req, res);
 
@@ -131,20 +124,14 @@ describe('POST /api/save-session', () => {
   });
 
   it('type messages_batch con no-array → 400', async () => {
-    const req = httpMocks.createRequest({
-      method: 'POST',
-      body: { session_id: 'sid', type: 'messages_batch', payload: 'not-array' },
-    });
+    const req = authedPost({ type: 'messages_batch', payload: 'not-array' });
     const res = httpMocks.createResponse();
     await handler(req, res);
     expect(res.statusCode).toBe(400);
   });
 
   it('type desconocido → 400', async () => {
-    const req = httpMocks.createRequest({
-      method: 'POST',
-      body: { session_id: 'sid', type: 'unknown' },
-    });
+    const req = authedPost({ type: 'unknown' });
     const res = httpMocks.createResponse();
     await handler(req, res);
     expect(res.statusCode).toBe(400);

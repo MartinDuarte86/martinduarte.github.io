@@ -81,9 +81,30 @@ modelo en [MODELO-DATOS.md](MODELO-DATOS.md).
   OpenRouter para probar conversación real sin tocar Anthropic.
 - E2E levanta `mock-server-test.js` (fuerza `LLM_PROVIDER=mock`).
 
-## Gotcha conocido — `client_id`
+## Identidad de sesión (Fase 1)
 
-El browser generaba un UUID local para `client_id`; Supabase asigna su propio `id`
-al insertar. Toda escritura de FK hacia `design_sets.client_id` debe usar el id
-asignado por el servidor. El fix de identidad de sesión (Fase 1) lo elimina de
-raíz al derivar `client_id` server-side desde la cookie.
+La identidad de una sesión es **server-side** vía una **cookie httpOnly firmada**
+(`api/_lib/session.js`, firmada con `SESSION_SECRET`):
+
+- `save-client.js action=create` emite la cookie atando el `session_id` a ese
+  navegador, y `action=reset` la expira ("empezar de nuevo").
+- `get-session.js`, `save-session.js` y `save-dsn.js` (POST) derivan el
+  `session_id` **de la cookie** vía `requireSession(req,res)` e ignoran cualquier
+  `session_id` del body/query. `claude.js` lee el sid de la cookie para el contexto
+  histórico y el budget (opcional: null antes del registro).
+- Esto cierra el **IDOR** que permitía leer/escribir la sesión de otra persona
+  conociendo o forjando su id (causa de las "conversaciones mezcladas").
+- El front (`validator.js`) ya **no reanuda en silencio** una sesión por
+  `localStorage` (en un dispositivo compartido metía a alguien en la sesión de
+  otro): pregunta de forma explícita y, si dicen que no, limpia cookie + storage.
+  Tampoco adopta una sesión por coincidencia de email.
+
+**Residual conocido:** `notify.js` aún usa el `session_id` del body (severidad baja
+— dispara emails internos a Martín, no exfiltra datos; el cron no tiene cookie).
+
+## Gotcha de `client_id` (resuelto en Fase 1)
+
+El browser generaba un UUID local para `client_id` y un desajuste con el `id` real
+de Supabase rompía la FK de `design_sets` en silencio. Desde la Fase 1,
+`save-dsn.js` resuelve `client_id` server-side por lookup en `clients` usando el
+`session_id` de la cookie — el front ya no manda `client_id`. No reintroducirlo.

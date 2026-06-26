@@ -86,53 +86,47 @@ async function tryRecoverSession() {
     const completedSections = Object.keys(data.brief).filter(k => data.brief[k]);
     if (completedSections.length === 0) return false;
 
-    const confirmed = confirm(
-      `Tenés una sesión en progreso (completaste: ${completedSections.join(', ')}).\n¿Querés continuar donde lo dejaste?`
-    );
+    // La decisión de "retomar vs. empezar de nuevo" ya se tomó de forma explícita
+    // en el gate de registro (validator.js). Acá se restaura directamente, sin un
+    // segundo prompt (antes había dos confirms encadenados).
+    state.fullBrief = data.brief || {};
 
-    if (confirmed) {
-      state.fullBrief = data.brief || {};
-
-      // 1) Repintar TODO el historial visible (los mensajes están en Redis)
-      const history = Array.isArray(data.messages) ? data.messages : [];
-      for (const m of history) {
-        if (m.role === 'user' || m.role === 'assistant') {
-          appendMessage(m.role === 'assistant' ? 'ai' : 'user', m.content);
-        }
+    // 1) Repintar TODO el historial visible (los mensajes están en Redis)
+    const history = Array.isArray(data.messages) ? data.messages : [];
+    for (const m of history) {
+      if (m.role === 'user' || m.role === 'assistant') {
+        appendMessage(m.role === 'assistant' ? 'ai' : 'user', m.content);
       }
-
-      const lastPhase = data.meta?.phase;
-
-      // 2) Reconstruir el contexto conversacional de la sección en curso
-      state.messages = history
-        .filter(m => m.section === lastPhase && (m.role === 'user' || m.role === 'assistant'))
-        .map(m => ({ role: m.role, content: m.content }))
-        .slice(-SECTION_MSG_LIMIT);
-
-      if (lastPhase && (SECTION_ORDER.includes(lastPhase) || lastPhase === PHASE.EVALUATING)) {
-        state.phase = lastPhase;
-        document.getElementById('progress-bar')?.removeAttribute('hidden');
-        updateProgressIndicator(lastPhase);
-        appendSectionDivider(lastPhase);
-        appendMessage('system', 'Retomamos donde lo dejaste 👇');
-
-        const lastMsg = history[history.length - 1];
-        if (lastMsg?.role === 'user' && SECTION_ORDER.includes(lastPhase)) {
-          // El último turno quedó sin respuesta del asistente: completarlo
-          showTyping();
-          try { await handleSectionTurn(lastPhase); } finally { hideTyping(); }
-        } else if (state.messages.length === 0 && SECTION_ORDER.includes(lastPhase)) {
-          // Sección recién abierta sin mensajes propios: relanzar la intro
-          await openSection(lastPhase);
-        }
-        setInputEnabled(true);
-        document.getElementById('chat-input')?.focus();
-      }
-      return true;
-    } else {
-      localStorage.removeItem('lp_session_id');
-      return false;
     }
+
+    const lastPhase = data.meta?.phase;
+
+    // 2) Reconstruir el contexto conversacional de la sección en curso
+    state.messages = history
+      .filter(m => m.section === lastPhase && (m.role === 'user' || m.role === 'assistant'))
+      .map(m => ({ role: m.role, content: m.content }))
+      .slice(-SECTION_MSG_LIMIT);
+
+    if (lastPhase && (SECTION_ORDER.includes(lastPhase) || lastPhase === PHASE.EVALUATING)) {
+      state.phase = lastPhase;
+      document.getElementById('progress-bar')?.removeAttribute('hidden');
+      updateProgressIndicator(lastPhase);
+      appendSectionDivider(lastPhase);
+      appendMessage('system', 'Retomamos donde lo dejaste 👇');
+
+      const lastMsg = history[history.length - 1];
+      if (lastMsg?.role === 'user' && SECTION_ORDER.includes(lastPhase)) {
+        // El último turno quedó sin respuesta del asistente: completarlo
+        showTyping();
+        try { await handleSectionTurn(lastPhase); } finally { hideTyping(); }
+      } else if (state.messages.length === 0 && SECTION_ORDER.includes(lastPhase)) {
+        // Sección recién abierta sin mensajes propios: relanzar la intro
+        await openSection(lastPhase);
+      }
+      setInputEnabled(true);
+      document.getElementById('chat-input')?.focus();
+    }
+    return true;
   } catch (e) {
     console.warn('[session] No se pudo recuperar sesión');
     return false;

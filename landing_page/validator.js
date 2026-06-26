@@ -44,6 +44,23 @@ function loadSession() {
   }
 }
 
+// "Empezar de nuevo": borra la identidad de sesión de este navegador. Limpia el
+// estado local (localStorage) y le pide al server que expire la cookie httpOnly
+// (action 'reset'), que es la que realmente autoriza el acceso a la sesión.
+export function resetSessionIdentity() {
+  try {
+    localStorage.removeItem(SESSION_KEY);
+    localStorage.removeItem('lp_session_id');
+  } catch {}
+  _clientData = null;
+  // Fire-and-forget: expira la cookie de sesión en el server.
+  fetch('/api/save-client', {
+    method:  'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body:    JSON.stringify({ action: 'reset' }),
+  }).catch(() => {});
+}
+
 // ─── UUID simple ────────────────────────────────────────────────────────────────
 
 function generateId() {
@@ -168,24 +185,35 @@ export function initRegistrationForm(onSuccess) {
   const form = document.getElementById('registration-form');
   if (!form) return;
 
-  // Verificar sesión activa en localStorage — saltear formulario si existe
+  // Sesión previa en este navegador: NO se retoma en silencio. En un dispositivo
+  // compartido, saltear el formulario automáticamente metía a una persona dentro
+  // de la sesión de otra (nombre, email, conversación, diseños). Se pregunta de
+  // forma explícita; si dicen que no, se limpia la identidad (cookie + storage) y
+  // se muestra el formulario para empezar de cero.
   const session = loadSession();
   if (session?.id && session?.nombre) {
-    _clientData = {
-      id: session.id,
-      nombre: session.nombre,
-      apellido: session.apellido || '',
-      email: session.email || '',
-      timestamp_inicio: session.timestamp_inicio || new Date().toISOString(),
-      estado: session.phase || 'en_chat',
-    };
+    const retomar = confirm(
+      `¿Retomar la sesión de ${session.nombre}? Aceptá para continuar donde quedaste, o cancelá para empezar de nuevo en este dispositivo.`
+    );
+    if (retomar) {
+      _clientData = {
+        id: session.id,
+        nombre: session.nombre,
+        apellido: session.apellido || '',
+        email: session.email || '',
+        timestamp_inicio: session.timestamp_inicio || new Date().toISOString(),
+        estado: session.phase || 'en_chat',
+      };
 
-    form.hidden = true;
-    const chatSection = document.getElementById('chat-section');
-    if (chatSection) chatSection.removeAttribute('data-locked');
+      form.hidden = true;
+      const chatSection = document.getElementById('chat-section');
+      if (chatSection) chatSection.removeAttribute('data-locked');
 
-    onSuccess(_clientData);
-    return;
+      onSuccess(_clientData);
+      return;
+    }
+    // "Empezar de nuevo": limpiar la identidad de este navegador y caer al form.
+    resetSessionIdentity();
   }
 
   // Sin sesión — mostrar formulario normal
@@ -238,29 +266,12 @@ export function initRegistrationForm(onSuccess) {
       const saveResult = await saveClientViaApi(_clientData);
 
       if (saveResult.conflict) {
-        const { estado, nombre: existingNombre, client_id: existingClientId, id: existingId } = saveResult;
+        const { estado, nombre: existingNombre } = saveResult;
 
-        // Si el proceso está incompleto (en_chat) → restaurar sesión y avanzar
-        if (!estado || estado === 'en_chat') {
-          _clientData = {
-            id: existingClientId || existingId || generateId(),
-            nombre: existingNombre || nombre,
-            apellido,
-            email,
-            telefono,
-            timestamp_inicio: new Date().toISOString(),
-            estado: 'en_chat',
-          };
-          saveSession({ phase: 'en_chat' });
-          form.classList.add('reg-form--done');
-          setTimeout(() => { form.hidden = true; }, 350);
-          const chatSection = document.getElementById('chat-section');
-          if (chatSection) chatSection.removeAttribute('data-locked');
-          onSuccess(_clientData);
-          return;
-        }
-
-        // Si ya generó diseños o pagó → mostrar mensaje informativo
+        // Email ya registrado: NO se adopta la sesión ajena (antes, con estado
+        // 'en_chat', se restauraba el registro de otra persona con solo coincidir
+        // el email — sin verificar que fuera suya). Se informa y se frena; retomar
+        // una sesión propia requiere su cookie (recargar en el mismo navegador).
         setError('reg-email', buildReturnMessage(estado, existingNombre));
         resetBtn(btn, 'Empezar el chat');
         _clientData = null;

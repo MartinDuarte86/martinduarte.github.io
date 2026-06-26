@@ -1,4 +1,5 @@
 import httpMocks from 'node-mocks-http';
+import { cookieFor } from '../helpers/cookie.js';
 
 // ── Redis mock ────────────────────────────────────────────────────────────────
 
@@ -76,10 +77,16 @@ beforeEach(() => {
 // ─── Helper ───────────────────────────────────────────────────────────────────
 
 function makeReq(body = {}) {
+  // El session_id ahora viaja en la cookie firmada (claude.js lo lee de ahí, no
+  // del body). Si el test pide session_id, lo traducimos a una cookie válida.
+  const { session_id, ...rest } = body;
   return httpMocks.createRequest({
     method: 'POST',
-    headers: { 'content-type': 'application/json' },
-    body: { intent: 'chat', messages: [], ...body },
+    headers: {
+      'content-type': 'application/json',
+      ...(session_id ? { cookie: cookieFor(session_id) } : {}),
+    },
+    body: { intent: 'chat', messages: [], ...rest },
   });
 }
 

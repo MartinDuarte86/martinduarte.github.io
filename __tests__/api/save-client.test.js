@@ -90,10 +90,9 @@ describe('POST /api/save-client', () => {
     expect(res._getJSONData()).toMatchObject({ ok: true, client_id: 'generated-id' });
   });
 
-  it('create: email duplicado → 409 con estado/nombre/id', async () => {
+  it('create: email duplicado → 409 informa estado/nombre SIN filtrar la sesión ajena', async () => {
     const existingClient = {
       id: 'existing-id',
-      session_id: 'sess-existing',
       estado: 'en_chat',
       nombre_marca: 'Marca Existente',
     };
@@ -118,10 +117,13 @@ describe('POST /api/save-client', () => {
     expect(res.statusCode).toBe(409);
     const body = res._getJSONData();
     expect(body.error).toBe('email_exists');
-    expect(body.session_id).toBe('sess-existing');
-    expect(body.id).toBe('sess-existing');
     expect(body.estado).toBe('en_chat');
     expect(body.nombre).toBe('Marca Existente');
+    // No debe filtrar el session_id ni el client_id del registro ajeno (eso
+    // permitía adoptar la sesión de otra persona con solo conocer su email).
+    expect(body.session_id).toBeUndefined();
+    expect(body.client_id).toBeUndefined();
+    expect(body.id).toBeUndefined();
   });
 
   it('create sin email no verifica duplicado y crea → 201', async () => {

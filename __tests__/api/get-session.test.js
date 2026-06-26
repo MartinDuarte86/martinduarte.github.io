@@ -1,4 +1,5 @@
 import httpMocks from 'node-mocks-http';
+import { cookieFor } from '../helpers/cookie.js';
 
 // ── Redis mock ───────────────────────────────────────────────────────────────
 
@@ -37,18 +38,18 @@ describe('GET /api/get-session', () => {
     expect(res.statusCode).toBe(405);
   });
 
-  it('sin session_id → 400', async () => {
+  it('sin cookie de sesión → 401', async () => {
     const req = httpMocks.createRequest({ method: 'GET', query: {} });
     const res = httpMocks.createResponse();
     await handler(req, res);
-    expect(res.statusCode).toBe(400);
+    expect(res.statusCode).toBe(401);
   });
 
   it('sesión inexistente (meta y brief null) → 404', async () => {
     mockGetBrief.mockResolvedValue(null);
     mockGetSessionMeta.mockResolvedValue(null);
 
-    const req = httpMocks.createRequest({ method: 'GET', query: { session_id: 'ghost' } });
+    const req = httpMocks.createRequest({ method: 'GET', query: { session_id: 'ghost' }, headers: { cookie: cookieFor('ghost') } });
     const res = httpMocks.createResponse();
     await handler(req, res);
 
@@ -66,7 +67,7 @@ describe('GET /api/get-session', () => {
     mockGetMessages.mockResolvedValue(messages);
     mockGetPreviews.mockResolvedValue(null);
 
-    const req = httpMocks.createRequest({ method: 'GET', query: { session_id: 'sid-123' } });
+    const req = httpMocks.createRequest({ method: 'GET', query: { session_id: 'sid-123' }, headers: { cookie: cookieFor('sid-123') } });
     const res = httpMocks.createResponse();
     await handler(req, res);
 
@@ -82,7 +83,7 @@ describe('GET /api/get-session', () => {
     mockGetSessionMeta.mockResolvedValue({ phase: 'hero' });
     mockGetBrief.mockResolvedValue(null);
 
-    const req = httpMocks.createRequest({ method: 'GET', query: { session_id: 'sid-meta-only' } });
+    const req = httpMocks.createRequest({ method: 'GET', query: { session_id: 'sid-meta-only' }, headers: { cookie: cookieFor('sid-meta-only') } });
     const res = httpMocks.createResponse();
     await handler(req, res);
 

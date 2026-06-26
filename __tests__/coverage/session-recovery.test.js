@@ -4,6 +4,7 @@
  * usando el UUID de sessionId (como si viniera de localStorage).
  */
 import httpMocks from 'node-mocks-http';
+import { cookieFor } from '../helpers/cookie.js';
 
 // ── Redis mock ────────────────────────────────────────────────────────────────
 
@@ -40,9 +41,12 @@ beforeEach(() => {
 });
 
 function makeReq(sessionId) {
+  // El session_id se autoriza por la cookie firmada; el query queda solo por
+  // compatibilidad histórica (el handler lo ignora).
   return httpMocks.createRequest({
     method: 'GET',
     query: sessionId ? { session_id: sessionId } : {},
+    headers: sessionId ? { cookie: cookieFor(sessionId) } : {},
   });
 }
 
@@ -143,11 +147,11 @@ describe('CU-A01-B: sesión no encontrada', () => {
 // ─── CU-A01-C: validación de input ────────────────────────────────────────────
 
 describe('CU-A01-C: validación de input', () => {
-  test('sin session_id → 400', async () => {
+  test('sin cookie de sesión → 401', async () => {
     const req = makeReq(null);
     const res = httpMocks.createResponse();
     await handler(req, res);
-    expect(res.statusCode).toBe(400);
+    expect(res.statusCode).toBe(401);
   });
 
   test('método POST → 405', async () => {

@@ -14,6 +14,7 @@
 import Anthropic from '@anthropic-ai/sdk';
 import { RATE_LIMITS, checkRateLimit, getBrief, getMessages, touchSession, compressBriefForSection, getSessionCostUsd, trackTokenUsage } from './_lib/redis.js';
 import { applyCors } from './_lib/cors.js';
+import { getSessionId } from './_lib/session.js';
 
 // Habilita respuestas streaming (SSE) en Vercel Node functions
 export const config = { supportsResponseStreaming: true };
@@ -83,9 +84,13 @@ export default async function handler(req, res) {
     messages   = [],
     max_tokens = 1024,
     intent     = 'chat',
-    session_id,
     section,
   } = req.body || {};
+
+  // El session_id (para contexto histórico y budget) sale de la cookie firmada,
+  // no del body: nadie puede inyectar el contexto de la sesión de otro. Puede ser
+  // null antes del registro (fase de evaluación), y los guards de abajo lo toleran.
+  const session_id = getSessionId(req);
 
   // ── Validación de input ────────────────────────────────────────────────────
   if (!VALID_INTENTS.has(intent)) {
