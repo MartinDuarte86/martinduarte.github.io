@@ -146,6 +146,8 @@
     renderQualifierStep(3);
     renderQualifierStep(4);
     renderQualifierStep(5);
+    var firstInput = document.querySelector('#step-1 input');
+    if (firstInput) firstInput.focus();
   };
 
   window.closeBooking = function () {
@@ -169,12 +171,22 @@
     window.setTimeout(function () { window.location.href = calendlyBookingUrl; }, 1200);
   };
 
-  // Cerrar con Esc (mejora de accesibilidad; el foco vuelve al disparador)
+  // Accesibilidad: cerrar con Esc y atrapar el foco dentro del modal (focus trap)
   document.addEventListener('keydown', function (e) {
     var modal = document.getElementById('bookingModal');
-    if (e.key === 'Escape' && modal && !modal.classList.contains('hidden')) {
-      window.closeBooking();
-    }
+    if (!modal || modal.classList.contains('hidden')) return;
+    if (e.key === 'Escape') { window.closeBooking(); return; }
+    if (e.key !== 'Tab') return;
+    var focusables = modal.querySelectorAll(
+      'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])'
+    );
+    var visible = Array.prototype.filter.call(focusables, function (el) {
+      return el.offsetParent !== null; // solo los del paso visible
+    });
+    if (!visible.length) return;
+    var first = visible[0], last = visible[visible.length - 1];
+    if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+    else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
   });
 
   function injectStyles() {

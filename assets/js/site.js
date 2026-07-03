@@ -76,6 +76,7 @@
     }).join('');
 
     return '' +
+      '<header>' +
       '<nav class="fixed w-full z-50 px-6 py-5" aria-label="Principal">' +
         '<div class="max-w-7xl mx-auto flex items-center justify-between bg-white/80 backdrop-blur-xl border border-slate-200/60 rounded-full px-6 md:px-8 py-3.5 shadow-sm">' +
           '<a href="/" class="font-heading font-bold tracking-tighter text-lg flex items-center gap-2" aria-label="Volver al inicio">' +
@@ -93,7 +94,8 @@
           '</div>' +
           '<button type="button" onclick="openBooking()" data-ev="click_agendar" data-ev-label="nav" class="text-[10px] font-black bg-slate-900 text-white px-5 py-3 rounded-full hover:bg-blue-600 transition-all uppercase tracking-widest">Agendar reunión</button>' +
         '</div>' +
-      '</nav>';
+      '</nav>' +
+      '</header>';
   }
 
   // ===== Footer (navegación secundaria / legal) =====
