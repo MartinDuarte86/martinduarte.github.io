@@ -1,0 +1,85 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ===== Sistema de marca (mismos tokens que tenían los <style> inline) ===== */
+:root {
+  --primary: #0F172A;
+  --brand: #2563EB;
+  --bg-light: #F8FAFC;
+  --surface: rgba(255, 255, 255, 0.72);
+  --line: rgba(226, 232, 240, 0.9);
+  --teal: #0F6E56;
+}
+
+body {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  background-color: var(--bg-light);
+  color: var(--primary);
+}
+
+h1, h2, h3, h4, .font-heading {
+  font-family: 'Space Grotesk', sans-serif;
+  letter-spacing: -0.02em;
+}
+
+/* ===== Componentes de marca ===== */
+.bento-card {
+  position: relative;
+  background: linear-gradient(180deg, rgba(255,255,255,0.82), rgba(255,255,255,0.64));
+  border: 1px solid var(--line);
+  border-radius: 2.5rem;
+  transition: all 0.5s cubic-bezier(0.2, 0.8, 0.2, 1);
+  overflow: hidden;
+  backdrop-filter: blur(22px);
+  -webkit-backdrop-filter: blur(22px);
+}
+.bento-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(255,255,255,0.42), rgba(37,99,235,0.05));
+  pointer-events: none;
+}
+.bento-card:hover {
+  border-color: rgba(37, 99, 235, 0.45);
+  transform: translateY(-8px);
+  box-shadow: 0 40px 80px -20px rgba(15, 23, 42, 0.08), 0 0 0 1px rgba(37, 99, 235, 0.08) inset;
+}
+
+.sub-card {
+  border-radius: 2rem;
+  border: 1px solid var(--line);
+  overflow: hidden;
+  transition: all 0.35s ease;
+  background: #fff;
+  display: flex;
+  flex-direction: column;
+}
+.sub-card:hover { box-shadow: 0 30px 60px -25px rgba(15,23,42,.15); }
+
+.logo-tile {
+  width: 4rem;
+  height: 4rem;
+  border-radius: 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 0.95rem;
+  font-weight: 800;
+  letter-spacing: -0.04em;
+  flex-shrink: 0;
+}
+
+.pill { font-size: 12px; font-weight: 800; text-transform: uppercase; letter-spacing: .12em; }
+
+/* FAQ desplegable (patrón <details> anidado) */
+details summary { list-style: none; cursor: pointer; }
+details summary::-webkit-details-marker { display: none; }
+details[open] > summary .chev { transform: rotate(180deg); }
+.chev { transition: transform .25s ease; }
+
+@media print {
+  body { background: #F8FAFC !important; color: #0F172A !important; }
+}
