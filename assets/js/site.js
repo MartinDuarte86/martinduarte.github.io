@@ -19,9 +19,9 @@
   'use strict';
 
   // ===== Parámetros a cargar (reemplazar por los reales; hay guarda) =====
-  var WHATSAPP_NUMBER = '5490000000000';          // ej: 5491122334455
-  var GA4_ID = 'G-XXXXXXXXXX';                     // GA4 Measurement ID
-  var CLARITY_ID = 'CLARITY_PROJECT_ID';           // Microsoft Clarity Project ID
+  var WHATSAPP_NUMBER = '541123797308';            // +54 11 2379-7308
+  var GA4_ID = 'G-XXXXXXXXXX';                     // GA4 Measurement ID (pendiente)
+  var CLARITY_ID = 'xgn3x9yg9x';                   // Microsoft Clarity Project ID
 
   var WHATSAPP_PLACEHOLDER = '5490000000000';
 
