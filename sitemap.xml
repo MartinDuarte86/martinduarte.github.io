@@ -2,5 +2,32 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
     <loc>https://martinduarte.com/</loc>
+    <lastmod>2026-07-03</lastmod>
+    <priority>1.0</priority>
+  </url>
+  <url>
+    <loc>https://martinduarte.com/servicios/arquitectura-de-datos/</loc>
+    <lastmod>2026-07-03</lastmod>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://martinduarte.com/servicios/inteligencia-artificial/</loc>
+    <lastmod>2026-07-03</lastmod>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://martinduarte.com/servicios/automatizaciones/</loc>
+    <lastmod>2026-07-03</lastmod>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://martinduarte.com/servicios/tienda-nube/</loc>
+    <lastmod>2026-07-03</lastmod>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://martinduarte.com/servicios/desarrollo-web/</loc>
+    <lastmod>2026-07-03</lastmod>
+    <priority>0.8</priority>
   </url>
 </urlset>
