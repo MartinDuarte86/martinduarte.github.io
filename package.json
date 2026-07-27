@@ -6,7 +6,9 @@
     "test:e2e": "playwright test",
     "test:e2e:ui": "playwright test --ui",
     "test:all": "npm test && npm run test:integration && npm run test:e2e",
-    "build:css": "tailwindcss -i assets/css/input.css -o assets/css/tailwind.css --minify"
+    "build:css": "tailwindcss -i assets/css/input.css -o assets/css/tailwind.css --minify",
+    "build:ebook": "node scripts/build-ebook-page.mjs",
+    "build:pdf": "node scripts/build-ebook-pdf.mjs"
   },
   "jest": {
     "testEnvironment": "node",

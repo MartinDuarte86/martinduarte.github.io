@@ -6,6 +6,7 @@ module.exports = {
   content: [
     './index.html',
     './servicios/**/*.html',
+    './ebooks/**/*.html',
     './assets/js/*.js'
   ],
   theme: {

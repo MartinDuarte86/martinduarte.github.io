@@ -117,6 +117,9 @@ export const RATE_LIMITS = {
   extraction:      { max: 999, ttl: 3600  },
   redesign:        { max: 8,   ttl: 86400 },
   session_summary: { max: 20,  ttl: 3600  },
+  // Captura de leads de ebooks: un usuario real completa el form una sola vez
+  // (después manda localStorage), así que 10/h por IP es holgado y acota el abuso.
+  lead_capture:    { max: 10,  ttl: 3600  },
 };
 
 export async function checkRateLimit(ip, intent) {

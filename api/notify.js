@@ -6,6 +6,8 @@
 //     por LLM de una sesión que pidió derivación o todavía no completó la compra.
 //   - GET con Authorization: Bearer CRON_SECRET → barrido diario de sesiones
 //     abiertas (Redis `sessions:open`) que quedaron abandonadas, mismo resumen.
+//   - POST { action: 'ebook_lead', ... } → lead capturado por el gate de
+//     /ebooks/**: lo persiste en la tabla `leads` de Supabase y avisa por email.
 // Esto evita sumar un archivo nuevo a api/ — el plan de Vercel (Hobby) ya está
 // en el tope de 12 funciones serverless.
 
@@ -115,6 +117,89 @@ async function handleSessionSummary(req, res) {
   }
 }
 
+// ── Lead capturado por el gate de ebooks (/ebooks/**) ────────────────────────
+// El checkbox de consentimiento del modal es solo UX: la validación que vale es
+// esta. Sin `acepta_marketing === true` no se guarda nada.
+
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+const MAX_FIELD = 120;
+
+function cleanField(value) {
+  return String(value ?? '').trim().slice(0, MAX_FIELD);
+}
+
+async function handleEbookLead(req, res) {
+  const ip = req.headers['x-forwarded-for']?.split(',')[0]?.trim()
+           || req.socket?.remoteAddress
+           || 'unknown';
+  const { allowed } = await checkRateLimit(ip, 'lead_capture');
+  if (!allowed) return res.status(429).json({ error: 'Demasiados envíos. Intentá de nuevo más tarde.' });
+
+  const nombre   = cleanField(req.body?.nombre);
+  const apellido = cleanField(req.body?.apellido);
+  const email    = cleanField(req.body?.email).toLowerCase();
+  const telefono = cleanField(req.body?.telefono);
+
+  if (!nombre || !apellido || !email || !telefono) {
+    return res.status(400).json({ error: 'nombre, apellido, email y telefono son requeridos' });
+  }
+  if (!EMAIL_RE.test(email)) {
+    return res.status(400).json({ error: 'El email no tiene un formato válido' });
+  }
+  if (req.body?.acepta_marketing !== true) {
+    return res.status(400).json({ error: 'Hay que aceptar los términos para acceder al ebook' });
+  }
+
+  const recursoSlug = cleanField(req.body?.recurso_slug) || null;
+  const accion      = req.body?.accion === 'descargar' ? 'descargar' : 'leer';
+
+  const lead = {
+    nombre,
+    apellido,
+    email,
+    telefono,
+    origen: 'ebook',
+    recurso_slug: recursoSlug,
+    accion,
+    acepta_marketing: true,
+    consent_texto_version: cleanField(req.body?.consent_texto_version) || 'v1',
+    ip,
+    user_agent: String(req.headers['user-agent'] || '').slice(0, 300),
+  };
+
+  const { error: dbError } = await supabase.from('leads').insert(lead);
+  if (dbError) {
+    console.error('[notify] Error guardando lead de ebook:', dbError.message);
+    return res.status(500).json({ error: 'No se pudo registrar el lead' });
+  }
+
+  // El lead ya está guardado: si el email falla, se loguea pero la request es OK.
+  // Fallar acá dejaría al usuario sin su ebook por un problema de correo.
+  try {
+    const { error: mailError } = await resend.emails.send({
+      from:    process.env.EMAIL_FROM || 'Landing Bot <noreply@martinduarte.com>',
+      to:      'martynduarte@gmail.com',
+      subject: `[Lead ebook] ${nombre} ${apellido} — ${recursoSlug || 'sin slug'}`,
+      html: `
+        <div style="font-family:sans-serif;max-width:600px;margin:0 auto">
+          <h2>Nuevo lead desde un ebook</h2>
+          <p><b>Nombre:</b> ${escapeHtml(nombre)} ${escapeHtml(apellido)}</p>
+          <p><b>Email:</b> ${escapeHtml(email)}</p>
+          <p><b>Teléfono:</b> ${escapeHtml(telefono)}</p>
+          <hr style="border:1px solid #eee">
+          <p style="color:#666"><b>Ebook:</b> ${escapeHtml(recursoSlug || '—')}</p>
+          <p style="color:#666"><b>Acción:</b> ${escapeHtml(accion)}</p>
+          <p style="color:#666"><b>Consentimiento:</b> aceptado (${escapeHtml(lead.consent_texto_version)})</p>
+        </div>`,
+    });
+    if (mailError) console.error('[notify] Error email lead de ebook:', mailError.message);
+  } catch (err) {
+    console.error('[notify] Excepción enviando email de lead:', err.message);
+  }
+
+  return res.status(200).json({ ok: true });
+}
+
 // ── Barrido diario de sesiones abandonadas (Vercel Cron) ─────────────────────
 
 async function handleCronSweep(req, res) {
@@ -150,6 +235,7 @@ export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
   if (req.body?.action === 'session_summary') return handleSessionSummary(req, res);
+  if (req.body?.action === 'ebook_lead')      return handleEbookLead(req, res);
 
   const {
     session_id,

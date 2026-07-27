@@ -1,0 +1,939 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Por fin vas a entender la Inteligencia Artificial — Ebook | Martín Duarte</title>
+    <meta name="description" content="Ebook gratuito: qué es realmente la inteligencia artificial, cómo funciona por dentro y cómo usarla en tu día a día. Escrito sin tecnicismos, para quien arranca de cero.">
+    <meta name="author" content="Martín Duarte">
+    <meta name="robots" content="index, follow, max-image-preview:large">
+    <meta name="theme-color" content="#0A1120">
+    <link rel="canonical" href="https://martinduarte.com/ebooks/inteligencia-artificial/">
+    <meta property="og:type" content="article">
+    <meta property="og:site_name" content="Martín Duarte">
+    <meta property="og:locale" content="es_AR">
+    <meta property="og:title" content="Por fin vas a entender la Inteligencia Artificial — Ebook gratuito">
+    <meta property="og:description" content="Qué es realmente la IA, cómo funciona por dentro y cómo usarla en tu día a día. Sin tecnicismos.">
+    <meta property="og:url" content="https://martinduarte.com/ebooks/inteligencia-artificial/">
+    <meta property="og:image" content="https://martinduarte.com/assets/martin-profile.jpg">
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1594572872514423" crossorigin="anonymous"></script>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <!--
+      ARCHIVO GENERADO — no editar a mano.
+      Se genera con "npm run build:ebook" (scripts/build-ebook-page.mjs) a partir
+      de ebooks/_fuentes/inteligencia-artificial.src.html. Cualquier cambio va en
+      el fuente o en el script; editar acá se pierde en la próxima corrida.
+      Después de regenerar: "npm run build:pdf", o el PDF queda desincronizado.
+
+      NO cargar /assets/css/tailwind.css ni /assets/js/site.js en esta página.
+      El ebook trae su propio :root, su reset y su tipografía (Fraunces + Inter);
+      el Preflight de Tailwind y las reglas sin scope de input.css
+      (body{font-family:'Plus Jakarta Sans'}, h1..h4{font-family:'Space Grotesk'})
+      pisarían los titulares del ebook. Por eso el nav del sitio se reemplaza acá
+      por el link fijo .eb-back de abajo, estilado en el vocabulario del ebook,
+      y GA4 + Clarity van inlineados (site.js normalmente los carga).
+
+      El PDF de esta página se genera con: npm run build:pdf
+      Si editás este archivo, volvé a correrlo o el PDF queda desincronizado.
+    -->
+<style>
+  :root{
+    --navy:#0A1120; --navy-2:#16213A; --blue:#2563EB; --blue-2:#1D4ED8; --blue-3:#5B8DEF;
+    --blue-soft:#E7EEFD; --blue-line:#9FBCF6;
+    --ink:#0F172A; --ink-soft:#3E4A61; --muted:#64748B;
+    --slate-soft:#EDF1F7; --slate-line:#CBD5E1; --slate-fig:#94A3B8;
+    --paper:#F6F8FC; --card:#FFFFFF; --line:#E3E9F2;
+  }
+  *{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{margin:0; background:var(--paper); color:var(--ink); font-family:'Inter',system-ui,sans-serif; font-size:17px; line-height:1.72; font-weight:400}
+
+  /* ---------- PORTADA ---------- */
+  .cover{position:relative; background:var(--navy); color:#fff; overflow:hidden; padding:72px 32px 64px; text-align:center}
+  .cover .nodes{position:absolute; inset:0; width:100%; height:100%; opacity:.5}
+  .cover .inner{position:relative; max-width:640px; margin:0 auto}
+  .cover .logo{width:104px; height:104px; margin:0 auto 30px; display:block}
+  .cover .eyebrow{font-size:13px; letter-spacing:.22em; text-transform:uppercase; color:var(--blue-3); font-weight:600; margin:0 0 20px}
+  .cover h1{font-family:'Fraunces',serif; font-weight:600; font-size:52px; line-height:1.05; letter-spacing:-.02em; margin:0 0 22px}
+  .cover h1 em{font-style:italic; color:var(--blue-3)}
+  .cover .sub{font-size:19px; line-height:1.55; color:#C4D0E6; margin:0 auto 34px; max-width:520px}
+  .cover .by{display:inline-flex; align-items:center; gap:10px; font-size:15px; color:#fff; border:1px solid rgba(255,255,255,.22); border-radius:999px; padding:9px 18px}
+  .cover .by b{font-weight:600}
+  .cover .free{display:block; margin-top:20px; font-size:13px; letter-spacing:.14em; text-transform:uppercase; color:var(--blue-3); font-weight:600}
+
+  /* ---------- CUERPO ---------- */
+  .wrap{max-width:760px; margin:0 auto; padding:64px 24px 96px}
+
+  .prologo{margin:0 0 8px}
+  .prologo .eyebrow{font-size:13px; letter-spacing:.16em; text-transform:uppercase; color:var(--blue); font-weight:600; margin:0 0 12px}
+  .prologo h2{font-family:'Fraunces',serif; font-weight:600; font-size:34px; margin:0 0 24px; letter-spacing:-.01em}
+  .prologo p{margin:0 0 18px; font-size:17.5px}
+  .prologo .firma{font-family:'Fraunces',serif; font-weight:600; font-size:20px; color:var(--ink); margin:26px 0 0}
+
+  .nodesep{display:flex; align-items:center; justify-content:center; gap:0; margin:52px 0}
+  .nodesep svg{width:140px; height:24px}
+
+  .aviso{font-size:14px; color:var(--muted); border-left:3px solid var(--blue-line); padding:10px 0 10px 16px; margin:0}
+
+  .mesa{margin:56px 0 0}
+  .mesa-num{display:inline-flex; align-items:center; gap:10px; font-size:13px; letter-spacing:.12em; text-transform:uppercase; color:var(--blue); font-weight:600; margin:0 0 10px}
+  .mesa-num .dot{width:27px; height:27px; border-radius:50%; background:var(--blue-soft); color:var(--blue-2); display:inline-flex; align-items:center; justify-content:center; font-size:13px; letter-spacing:0; font-weight:600}
+  h2.q{font-family:'Fraunces',serif; font-weight:600; font-size:30px; line-height:1.14; letter-spacing:-.01em; margin:0 0 18px}
+
+  .frase{background:var(--card); border:1px solid var(--line); border-radius:14px; padding:18px 20px; margin:0 0 22px; box-shadow:0 1px 0 rgba(15,23,42,.03)}
+  .frase .tag{display:block; font-size:12px; letter-spacing:.1em; text-transform:uppercase; color:var(--blue); font-weight:600; margin:0 0 6px}
+  .frase p{margin:0; font-size:17px}
+  .frase b{font-weight:600}
+
+  .mesa p{margin:0 0 16px}
+  .escena-tag{font-size:12px; letter-spacing:.1em; text-transform:uppercase; color:var(--blue-2); font-weight:600; margin:22px 0 8px}
+
+  .ilustracion{background:var(--card); border:1px solid var(--line); border-radius:16px; padding:14px; margin:26px 0}
+  .ilustracion svg{display:block; width:100%; height:auto}
+
+  .pensar{display:flex; gap:12px; align-items:flex-start; background:var(--blue-soft); border-radius:14px; padding:16px 18px; margin:24px 0 0; font-size:16px}
+  .pensar .lbl{flex:none; font-size:12px; letter-spacing:.08em; text-transform:uppercase; color:var(--blue-2); font-weight:600; padding-top:2px}
+  .pensar p{margin:0; color:var(--ink)}
+
+  .sv-t{font-family:'Inter',sans-serif; font-size:14px; font-weight:500; fill:#0F172A}
+  .sv-s{font-family:'Inter',sans-serif; font-size:13px; font-weight:400; fill:#64748B}
+  .sv-blue{font-family:'Inter',sans-serif; font-size:14px; font-weight:500; fill:#1D4ED8}
+
+  .cont{margin:64px 0 0; border-top:1px solid var(--line); padding-top:28px}
+  .cont h3{font-family:'Fraunces',serif; font-weight:600; font-size:22px; margin:0 0 14px}
+  .cont ol{margin:0; padding-left:20px; color:var(--ink-soft)}
+  .cont li{margin:0 0 6px}
+  .cont .done{color:var(--muted); text-decoration:line-through}
+
+  /* ---------- FRONT & BACK MATTER ---------- */
+  .creditos{font-size:13.5px; color:var(--muted); border:1px solid var(--line); border-radius:12px; padding:14px 18px; margin:0 0 44px; background:var(--card); line-height:1.6}
+  .creditos b{color:var(--ink-soft)}
+
+  .block{margin:56px 0 0}
+  .block .eyebrow{font-size:13px; letter-spacing:.16em; text-transform:uppercase; color:var(--blue); font-weight:600; margin:0 0 12px}
+  .block h2{font-family:'Fraunces',serif; font-weight:600; font-size:32px; margin:0 0 20px; letter-spacing:-.01em}
+  .block>p{margin:0 0 16px; font-size:17.5px}
+
+  .toc ol{list-style:none; margin:0; padding:0}
+  .toc li{display:flex; align-items:baseline; gap:14px; padding:10px 0; border-bottom:1px solid var(--line)}
+  .toc li .n{font-family:'Fraunces',serif; color:var(--blue); font-weight:600; font-size:15px; min-width:26px}
+  .toc li .t{flex:1; color:var(--ink)}
+  .toc .group{font-size:12px; letter-spacing:.12em; text-transform:uppercase; color:var(--muted); font-weight:600; margin:26px 0 4px}
+
+  .cta{position:relative; overflow:hidden; background:var(--navy); color:#fff; border-radius:20px; padding:44px 32px; margin:48px 0; text-align:center}
+  .cta .nodes{position:absolute; inset:0; width:100%; height:100%; opacity:.4}
+  .cta h3{font-family:'Fraunces',serif; font-weight:600; font-size:28px; margin:0 0 14px; position:relative}
+  .cta>p{color:#C4D0E6; position:relative; margin:0 auto 24px; max-width:470px}
+  .cta .btn{position:relative; display:inline-block; background:var(--blue); color:#fff; font-weight:600; text-decoration:none; padding:13px 28px; border-radius:999px}
+  .cta .links{position:relative; margin:20px 0 0; font-size:14px; color:#9FB2D6}
+  .cta .links a{color:#fff; text-decoration:none; border-bottom:1px solid rgba(255,255,255,.3)}
+
+  .autor{display:flex; gap:22px; align-items:flex-start; background:var(--card); border:1px solid var(--line); border-radius:16px; padding:24px; margin:8px 0 0}
+  .autor .logo{flex:none; width:76px; height:76px}
+  .autor h3{margin:0 0 8px; font-family:'Fraunces',serif; font-size:20px; font-weight:600}
+  .autor p{margin:0 0 10px; font-size:15.5px; color:var(--ink-soft)}
+  .autor .meta{font-size:14px; color:var(--muted)}
+  .autor .meta a{color:var(--blue); text-decoration:none}
+
+  .glosario .row{display:flex; gap:18px; padding:12px 0; border-bottom:1px solid var(--line)}
+  .glosario .row:first-of-type{border-top:1px solid var(--line)}
+  .glosario .term{flex:none; width:170px; font-weight:600; color:var(--ink); font-size:15.5px}
+  .glosario .def{flex:1; color:var(--ink-soft); font-size:15.5px}
+
+  .colofon{margin:60px 0 0; padding-top:26px; border-top:1px solid var(--line); text-align:center; font-size:13px; color:var(--muted); line-height:1.7}
+  .colofon .logo{width:42px; height:42px; margin:0 auto 12px; display:block; opacity:.85}
+
+  @media (max-width:520px){
+    .wrap{padding:48px 18px 72px}
+    .cover{padding:56px 22px 48px}
+    .cover h1{font-size:38px} .cover .sub{font-size:17px}
+    h2.q{font-size:25px} .prologo h2{font-size:28px} .block h2{font-size:27px}
+    .autor{flex-direction:column; gap:14px}
+    .glosario .row{flex-direction:column; gap:2px}
+    .glosario .term{width:auto}
+  }
+
+  /* ---------- IMPRESION / PDF ----------
+     El original no traia @media print. Estas reglas las consume
+     scripts/build-ebook-pdf.mjs (Chromium print-to-PDF, A4, printBackground). */
+  @media print{
+    @page{size:A4; margin:0}
+    .eb-back{display:none !important}
+    .wrap{max-width:none; padding:26px 34px 34px}
+
+    /* La portada ocupa su propia hoja completa: sin min-height se quedaba en
+       ~61% del A4 y dejaba un tercio de la pagina 1 en blanco. */
+    .cover{min-height:297mm; padding:0 48px; page-break-after:always; break-after:page;
+           display:flex; align-items:center; justify-content:center}
+    .cover .inner{max-width:none}
+
+    /* Ningun titulo huerfano al pie de pagina. */
+    h2.q, .mesa-num, .block h2, .prologo h2, .glosario h2, .cont h2, .toc .group{
+      page-break-after:avoid; break-after:avoid}
+    /* Cajas que se ven rotas si se parten entre dos hojas. */
+    .ilustracion, .frase, .pensar, .autor, .glosario .row, .colofon, .creditos,
+    .cta, .toc li, .cont li{page-break-inside:avoid; break-inside:avoid}
+    .nodesep{margin:34px 0}
+    a{color:inherit; text-decoration:none}
+  }
+</style>
+
+<style>
+  /* Vuelta al sitio: única pieza de chrome, en el lenguaje visual del ebook. */
+  .eb-back{position:fixed; top:16px; left:16px; z-index:50; display:inline-flex; align-items:center;
+    gap:7px; padding:9px 16px; border-radius:999px; background:rgba(255,255,255,.92);
+    backdrop-filter:blur(8px); border:1px solid var(--line); color:var(--blue);
+    font-family:'Inter',system-ui,sans-serif; font-size:12px; font-weight:600;
+    text-decoration:none; box-shadow:0 6px 20px -8px rgba(15,23,42,.35)}
+  .eb-back:hover{background:#fff; border-color:var(--blue-line)}
+
+  /* CTA de descarga al pie (pasa por el gate de ebooks.js). */
+  .eb-cta{margin:48px 0 0; padding:30px 26px; background:var(--blue-soft);
+    border:1px solid var(--blue-line); border-radius:20px; text-align:center}
+  .eb-cta p{margin:0 0 18px; font-size:15px; color:var(--ink-soft)}
+  .eb-cta button{padding:14px 28px; background:var(--blue); color:#fff; border:0; border-radius:12px;
+    font-family:'Inter',system-ui,sans-serif; font-size:13px; font-weight:700; cursor:pointer}
+  .eb-cta button:hover{background:var(--blue-2)}
+  @media print{.eb-cta{display:none}}
+
+  @media (max-width:520px){
+    .eb-back{top:10px; left:10px; padding:8px 13px; font-size:11px}
+  }
+</style>
+</head>
+<body>
+
+<a href="/ebooks/" class="eb-back" data-ev="click_ebook_volver" data-ev-label="inteligencia-artificial">
+  <span aria-hidden="true">←</span> Volver a Ebooks
+</a>
+
+<!-- ================= PORTADA ================= -->
+<header class="cover">
+  <svg class="nodes" viewBox="0 0 800 640" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+    <g stroke="#2563EB" stroke-width="1.1" opacity="0.55">
+      <line x1="90" y1="120" x2="240" y2="80"/>
+      <line x1="240" y1="80" x2="360" y2="180"/>
+      <line x1="360" y1="180" x2="180" y2="260"/>
+      <line x1="180" y1="260" x2="90" y2="120"/>
+      <line x1="560" y1="90" x2="700" y2="180"/>
+      <line x1="700" y1="180" x2="620" y2="320"/>
+      <line x1="620" y1="320" x2="480" y2="240"/>
+      <line x1="480" y1="240" x2="560" y2="90"/>
+      <line x1="360" y1="180" x2="480" y2="240"/>
+      <line x1="150" y1="470" x2="300" y2="540"/>
+      <line x1="300" y1="540" x2="470" y2="500"/>
+      <line x1="470" y1="500" x2="640" y2="560"/>
+      <line x1="620" y1="320" x2="470" y2="500"/>
+      <line x1="180" y1="260" x2="150" y2="470"/>
+    </g>
+    <g fill="#5B8DEF">
+      <circle cx="90" cy="120" r="4"/><circle cx="240" cy="80" r="5"/><circle cx="360" cy="180" r="5.5"/>
+      <circle cx="180" cy="260" r="4"/><circle cx="560" cy="90" r="4.5"/><circle cx="700" cy="180" r="4"/>
+      <circle cx="620" cy="320" r="5"/><circle cx="480" cy="240" r="4.5"/><circle cx="150" cy="470" r="4"/>
+      <circle cx="300" cy="540" r="5"/><circle cx="470" cy="500" r="4.5"/><circle cx="640" cy="560" r="4"/>
+    </g>
+  </svg>
+  <div class="inner">
+    <svg class="logo" viewBox="0 0 240 240" aria-label="Logo MD">
+      <rect x="16" y="16" width="208" height="208" rx="46" fill="#0E1830" stroke="#2A3A5C" stroke-width="1"/>
+      <line x1="72" y1="70" x2="120" y2="52" stroke="#2563EB" stroke-width="2" opacity="0.85"/>
+      <line x1="120" y1="52" x2="170" y2="72" stroke="#2563EB" stroke-width="2" opacity="0.85"/>
+      <line x1="72" y1="70" x2="170" y2="72" stroke="#2563EB" stroke-width="1.4" opacity="0.4"/>
+      <circle cx="72" cy="70" r="5.5" fill="#2563EB"/><circle cx="120" cy="52" r="6.5" fill="#5B8DEF"/><circle cx="170" cy="72" r="5.5" fill="#2563EB"/>
+      <text x="120" y="168" text-anchor="middle" font-family="'Inter',Arial,sans-serif" font-weight="700" font-size="92" letter-spacing="2" fill="#FFFFFF">MD</text>
+    </svg>
+    <p class="eyebrow">E-book gratuito</p>
+    <h1>Por fin vas a entender la <em>Inteligencia Artificial</em></h1>
+    <p class="sub">Los conceptos básicos, explicados desde cero y con ejemplos simples. Sin tecnicismos.</p>
+    <span class="by"><b>por Martín Duarte</b> · Arquitecto de Datos & IA</span>
+    <span class="free">Para quien nunca la entendió</span>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <!-- ================= CRÉDITOS ================= -->
+  <p class="creditos"><b>Por fin vas a entender la Inteligencia Artificial</b> · e-book gratuito · versión 1 · 2026<br>Escrito por Martín Duarte. Podés compartirlo libremente para uso personal; no venderlo ni modificarlo. Los nombres de productos y marcas mencionados pertenecen a sus respectivos dueños.</p>
+
+  <!-- ================= ÍNDICE ================= -->
+  <section class="block toc">
+    <p class="eyebrow">Índice</p>
+    <h2>Lo que vas a encontrar</h2>
+    <p class="group">Para empezar</p>
+    <ol>
+      <li><span class="n">·</span><span class="t">Prólogo — Antes de empezar</span></li>
+      <li><span class="n">·</span><span class="t">Cómo leer este e-book</span></li>
+    </ol>
+    <p class="group">Las 15 mesas del café</p>
+    <ol>
+      <li><span class="n">01</span><span class="t">¿Qué es la inteligencia artificial?</span></li>
+      <li><span class="n">02</span><span class="t">¿Todas las IA son iguales?</span></li>
+      <li><span class="n">03</span><span class="t">¿Qué es un modelo?</span></li>
+      <li><span class="n">04</span><span class="t">¿Puedo elegir qué modelo me atiende?</span></li>
+      <li><span class="n">05</span><span class="t">¿Por qué los modelos tienen números?</span></li>
+      <li><span class="n">06</span><span class="t">¿Qué es un token?</span></li>
+      <li><span class="n">07</span><span class="t">¿Por qué se habla tanto de los tokens?</span></li>
+      <li><span class="n">08</span><span class="t">¿La IA se acuerda de todo lo que le digo?</span></li>
+      <li><span class="n">09</span><span class="t">¿Cómo "piensa" la IA para responder?</span></li>
+      <li><span class="n">10</span><span class="t">¿Qué es un prompt?</span></li>
+      <li><span class="n">11</span><span class="t">¿Por qué a veces la IA dice cosas falsas?</span></li>
+      <li><span class="n">12</span><span class="t">¿Qué son ChatGPT, Claude y Gemini?</span></li>
+      <li><span class="n">13</span><span class="t">¿Solo sirve para chatear?</span></li>
+      <li><span class="n">14</span><span class="t">¿Hay que pagar para usar la IA?</span></li>
+      <li><span class="n">15</span><span class="t">¿Qué cuidados básicos conviene tener?</span></li>
+    </ol>
+    <p class="group">Para cerrar</p>
+    <ol>
+      <li><span class="n">·</span><span class="t">Conclusión — Lo lograste</span></li>
+      <li><span class="n">·</span><span class="t">Seguí aprendiendo</span></li>
+      <li><span class="n">·</span><span class="t">Sobre el autor</span></li>
+      <li><span class="n">·</span><span class="t">Glosario — cada palabra en una línea</span></li>
+    </ol>
+  </section>
+
+  <!-- ================= PRÓLOGO ================= -->
+  <section class="prologo">
+    <p class="eyebrow">Prólogo</p>
+    <h2>Antes de empezar</h2>
+    <p>Me acuerdo perfecto de la sensación. Estás en una charla, o scrolleando el teléfono, y todo el mundo parece hablar un idioma que vos no aprendiste: <em>modelos</em>, <em>tokens</em>, <em>prompts</em>, <em>inteligencia artificial</em> para acá y para allá. Todos parecen entender. Y vos asentís, pero por dentro pensás: "¿en qué momento me perdí esto?".</p>
+    <p>Si alguna vez te pasó, quiero decirte algo desde el principio: no te perdiste nada, y no es tu culpa. La mayoría de lo que se escribe sobre inteligencia artificial está pensado para gente que ya sabe. Se explica rápido, con palabras difíciles, asumiendo un montón de cosas que nadie te enseñó. No es que el tema sea imposible de entender. Es que casi nunca te lo cuentan bien.</p>
+    <p>Yo trabajo con datos y tecnología desde hace años. Empecé dentro de grandes organizaciones y hoy acompaño a empresas y personas como consultor, ayudándolas a ordenar y aprovechar todo esto. Paso mis días entre estas herramientas. Y justamente por eso sé una cosa que a veces se olvida: <b>lo difícil no es la tecnología, lo difícil es empezar sin que nadie te tienda la mano</b>. Yo también estuve del otro lado alguna vez, sin entender nada, y me habría encantado que alguien me lo explicara con calma y con ejemplos.</p>
+    <p>Este e-book es, en el fondo, esa mano que me hubiera gustado tener.</p>
+    <p>Lo escribí para vos, que tenés curiosidad pero sentís que "esto no es para mí". Acá no vas a encontrar tecnicismos, ni fórmulas, ni nada que asuma que ya sabés algo. Vas a encontrar ideas simples, contadas con ejemplos cotidianos, para que al terminar cada tema puedas decir con confianza: "ah, <em>ahora</em> lo entendí". Ese es mi único objetivo. No busco convertirte en experto ni llenarte de detalles complicados: busco que la inteligencia artificial deje de sonarte a idioma extranjero y empiece a sonarte a algo tuyo.</p>
+    <p>Es una puerta de entrada, no un manual técnico. Y como toda puerta, está para que la cruces a tu ritmo, sin apuro y sin miedo a preguntar.</p>
+    <p>Así que ponete cómodo. Vamos a entrar juntos a un café —ya vas a ver por qué— y, sin darte cuenta, vas a terminar entendiendo cosas que hoy te parecen imposibles. No hace falta que sepas nada de antemano. Solo que tengas ganas de entender.</p>
+    <p>Empecemos.</p>
+    <p class="firma">Martín Duarte</p>
+  </section>
+
+  <div class="nodesep"><svg viewBox="0 0 140 24" aria-hidden="true"><line x1="20" y1="12" x2="60" y2="12" stroke="#9FBCF6" stroke-width="1.2"/><line x1="80" y1="12" x2="120" y2="12" stroke="#9FBCF6" stroke-width="1.2"/><circle cx="20" cy="12" r="3" fill="#2563EB"/><circle cx="70" cy="12" r="4.5" fill="#5B8DEF"/><circle cx="120" cy="12" r="3" fill="#2563EB"/></svg></div>
+
+  <section class="block" style="margin-top:0">
+    <p class="eyebrow">Cómo leer este e-book</p>
+    <h2>Un café, quince mesas</h2>
+    <p>Todo lo que viene pasa en un mismo café imaginario, y cada tema es una "mesa". No hace falta leerlo de corrido: podés ir mesa por mesa, a tu ritmo. En cada una vas a encontrar siempre lo mismo, para que no te pierdas: la idea <b>en una frase</b>, después esa idea <b>contada con un ejemplo</b> del café, un <b>dibujo</b> y un <b>cierre para pensar</b>.</p>
+    <p class="aviso">Una aclaración: la IA cambia rápido. Los <b>nombres y versiones</b> concretas (qué modelo es el más nuevo, por ejemplo) conviene verificarlos en la web oficial de cada herramienta. Las <b>ideas</b> de este e-book se mantienen.</p>
+  </section>
+
+  <!-- ============ MESA 01 ============ -->
+  <section class="mesa">
+    <p class="mesa-num"><span class="dot">01</span> La primera mesa</p>
+    <h2 class="q">¿Qué es la inteligencia artificial?</h2>
+    <div class="frase"><span class="tag">En una frase</span><p>La <b>inteligencia artificial</b> es tecnología que hace que una computadora pueda hacer cosas que antes solo hacían las personas: conversar, escribir, entender una foto o responder preguntas. Vos le pedís algo, y algo te responde.</p></div>
+    <p>Imaginá que entrás a un café y te sentás a una mesa. Enseguida se acerca alguien que te va a atender durante toda tu visita. Le pedís lo que querés y, al rato, te lo trae. Le preguntás algo del menú y te contesta. Le pedís una recomendación y te la da.</p>
+    <p class="escena-tag">En nuestro café</p>
+    <p>Esa sensación de que "hay alguien acá que me escucha y me trae lo que necesito" es, en el fondo, lo que hacés cada vez que usás inteligencia artificial. No hay una persona de verdad, claro. Pero ese mozo imaginario nos va a acompañar de acá hasta el final, porque casi todo lo que parece complicado de la IA se vuelve fácil cuando lo pensás como una visita a este café.</p>
+    <div class="ilustracion">
+      <svg viewBox="0 0 640 340" role="img" aria-label="Un café con un cliente y un mozo: el cliente hace un pedido y el mozo trae la respuesta.">
+        <defs><marker id="m1" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M2 1L8 5L2 9" fill="none" stroke="#3E4A61" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></marker></defs>
+        <rect x="30" y="40" width="580" height="270" rx="22" fill="#E7EEFD" stroke="#9FBCF6" stroke-width="1"/>
+        <text class="sv-t" x="56" y="72">El café</text>
+        <text class="sv-s" x="56" y="92">lo que abrís en el celular</text>
+        <circle cx="140" cy="168" r="16" fill="#94A3B8"/>
+        <rect x="121" y="186" width="38" height="50" rx="13" fill="#94A3B8"/>
+        <text class="sv-t" x="140" y="266" text-anchor="middle">vos</text>
+        <rect x="408" y="193" width="36" height="8" rx="3" fill="#2563EB"/>
+        <circle cx="426" cy="188" r="5" fill="#E7EEFD" stroke="#2563EB" stroke-width="1"/>
+        <circle cx="470" cy="160" r="16" fill="#2563EB"/>
+        <rect x="451" y="178" width="38" height="52" rx="13" fill="#2563EB"/>
+        <text class="sv-blue" x="470" y="266" text-anchor="middle">el mozo</text>
+        <text class="sv-s" x="292" y="168" text-anchor="middle">tu pedido</text>
+        <line x1="188" y1="180" x2="396" y2="180" stroke="#3E4A61" stroke-width="1.5" marker-end="url(#m1)"/>
+        <line x1="396" y1="214" x2="188" y2="214" stroke="#3E4A61" stroke-width="1.5" marker-end="url(#m1)"/>
+        <text class="sv-s" x="292" y="232" text-anchor="middle">la respuesta</text>
+      </svg>
+    </div>
+    <div class="pensar"><span class="lbl">Para arrancar</span><p>Pensá en la IA como ese mozo. Vos pedís, él trae. Todo lo demás es entender cómo trabaja.</p></div>
+  </section>
+
+  <!-- ============ MESA 02 ============ -->
+  <section class="mesa">
+    <p class="mesa-num"><span class="dot">02</span> Dos formas de atender</p>
+    <h2 class="q">¿Todas las IA son iguales?</h2>
+    <div class="frase"><span class="tag">En una frase</span><p>No. Hay una IA "de siempre", que <b>hace una sola cosa fija</b> (como recomendarte un video o filtrar el correo no deseado), y una IA <b>generativa</b>, que <b>crea algo nuevo</b> cada vez: un texto, una imagen, una respuesta. Cuando hoy se habla de IA, casi siempre se habla de esta última.</p></div>
+    <p class="escena-tag">En nuestro café</p>
+    <p>Pensalo así. En la entrada del café hay una máquina expendedora: apretás un botón y sale exactamente lo mismo que salió la vez anterior. Es útil, pero siempre entrega lo de siempre. Esa es la IA de toda la vida, la que ya usabas sin saberlo.</p>
+    <p>Adentro, en cambio, hay un cocinero. Le contás qué tenés ganas de comer y te prepara un plato pensado para vos, distinto cada vez. Esa es la IA generativa, la que se volvió famosa y la que vamos a usar en todo este e-book.</p>
+    <div class="ilustracion">
+      <svg viewBox="0 0 640 330" role="img" aria-label="A la izquierda una máquina expendedora que da siempre lo mismo; a la derecha un cocinero que prepara algo nuevo.">
+        <rect x="28" y="40" width="272" height="250" rx="16" fill="#FFFFFF" stroke="#E3E9F2" stroke-width="1"/>
+        <text class="sv-t" x="52" y="72">IA de siempre</text>
+        <text class="sv-s" x="52" y="92">da siempre lo mismo</text>
+        <rect x="98" y="110" width="132" height="150" rx="10" fill="#EDF1F7" stroke="#CBD5E1" stroke-width="1"/>
+        <rect x="112" y="124" width="46" height="30" rx="4" fill="#FFFFFF" stroke="#CBD5E1" stroke-width="1"/>
+        <rect x="170" y="124" width="46" height="30" rx="4" fill="#FFFFFF" stroke="#CBD5E1" stroke-width="1"/>
+        <rect x="112" y="162" width="46" height="30" rx="4" fill="#FFFFFF" stroke="#CBD5E1" stroke-width="1"/>
+        <rect x="170" y="162" width="46" height="30" rx="4" fill="#FFFFFF" stroke="#CBD5E1" stroke-width="1"/>
+        <rect x="112" y="230" width="104" height="14" rx="4" fill="#CBD5E1"/>
+        <rect x="340" y="40" width="272" height="250" rx="16" fill="#E7EEFD" stroke="#9FBCF6" stroke-width="1"/>
+        <text class="sv-t" x="364" y="72">IA generativa</text>
+        <text class="sv-s" x="364" y="92">crea algo nuevo cada vez</text>
+        <rect x="459" y="120" width="34" height="16" rx="5" fill="#FFFFFF" stroke="#9FBCF6" stroke-width="1"/>
+        <circle cx="465" cy="118" r="8" fill="#FFFFFF" stroke="#9FBCF6" stroke-width="1"/>
+        <circle cx="476" cy="115" r="9" fill="#FFFFFF" stroke="#9FBCF6" stroke-width="1"/>
+        <circle cx="487" cy="118" r="8" fill="#FFFFFF" stroke="#9FBCF6" stroke-width="1"/>
+        <circle cx="476" cy="152" r="16" fill="#2563EB"/>
+        <rect x="457" y="170" width="38" height="52" rx="13" fill="#2563EB"/>
+        <ellipse cx="476" cy="248" rx="42" ry="9" fill="#FFFFFF" stroke="#CBD5E1" stroke-width="1"/>
+        <path d="M462 246 q14 -14 28 0" fill="none" stroke="#2563EB" stroke-width="2" stroke-linecap="round"/>
+      </svg>
+    </div>
+    <div class="pensar"><span class="lbl">Para pensar</span><p>La máquina expendedora repite. El cocinero inventa. Cuando digas "IA" en este e-book, pensá en el cocinero.</p></div>
+  </section>
+
+  <!-- ============ MESA 03 ============ -->
+  <section class="mesa">
+    <p class="mesa-num"><span class="dot">03</span> Quién te atiende</p>
+    <h2 class="q">¿Qué es un modelo?</h2>
+    <div class="frase"><span class="tag">En una frase</span><p>Un <b>modelo</b> es la parte que realmente arma las respuestas: el "motor" que hace el trabajo. Cuando le escribís a una IA, el modelo es lo que lee tu pedido y prepara lo que te devuelve.</p></div>
+    <p class="escena-tag">En nuestro café</p>
+    <p>Volvamos al mozo que se acercó a tu mesa. Fijate que, en realidad, él es quien hace todo: escucha tu pedido, va a la cocina, lo prepara y te lo trae. Sin él, no habría café ni respuesta. Ese "alguien que efectivamente prepara lo que pediste" es el modelo.</p>
+    <p>Y acá hay una diferencia que aclara bastante: el café en sí —la mesa, la carta, el lugar— es la aplicación que abrís en el celular (ChatGPT, Claude, Gemini). El que cocina y responde adentro es el modelo. El lugar es uno; quién te atiende puede cambiar.</p>
+    <div class="ilustracion">
+      <svg viewBox="0 0 640 340" role="img" aria-label="Una ventana de aplicación con un mozo adentro: la ventana es la aplicación y el mozo es el modelo.">
+        <rect x="168" y="40" width="304" height="232" rx="18" fill="#FFFFFF" stroke="#9FBCF6" stroke-width="2"/>
+        <line x1="168" y1="76" x2="472" y2="76" stroke="#E3E9F2" stroke-width="1"/>
+        <circle cx="190" cy="58" r="5" fill="#9FBCF6"/>
+        <circle cx="208" cy="58" r="5" fill="#CBD5E1"/>
+        <circle cx="226" cy="58" r="5" fill="#CBD5E1"/>
+        <text class="sv-s" x="320" y="63" text-anchor="middle">ChatGPT · Claude · Gemini</text>
+        <rect x="352" y="150" width="36" height="8" rx="3" fill="#2563EB"/>
+        <circle cx="370" cy="145" r="5" fill="#E7EEFD" stroke="#2563EB" stroke-width="1"/>
+        <circle cx="320" cy="128" r="17" fill="#2563EB"/>
+        <rect x="299" y="147" width="42" height="56" rx="14" fill="#2563EB"/>
+        <line x1="168" y1="58" x2="96" y2="110" stroke="#CBD5E1" stroke-width="1" stroke-dasharray="3 3"/>
+        <circle cx="168" cy="58" r="2.5" fill="#CBD5E1"/>
+        <text class="sv-s" x="36" y="126">la ventana =</text>
+        <text class="sv-blue" x="36" y="146">la aplicación</text>
+        <line x1="320" y1="203" x2="320" y2="300" stroke="#9FBCF6" stroke-width="1" stroke-dasharray="3 3"/>
+        <text class="sv-s" x="320" y="322" text-anchor="middle">el que trabaja adentro = <tspan class="sv-blue" font-weight="500">el modelo</tspan></text>
+      </svg>
+    </div>
+    <div class="pensar"><span class="lbl">Que quede claro</span><p>El café es el lugar; el modelo es el mozo que trabaja adentro. Cuando alguien te diga "usá tal modelo", ya sabés: habla de quién te atiende.</p></div>
+  </section>
+
+  <!-- ============ MESA 04 ============ -->
+  <section class="mesa">
+    <p class="mesa-num"><span class="dot">04</span> No siempre el mismo</p>
+    <h2 class="q">¿Puedo elegir qué modelo me atiende?</h2>
+    <div class="frase"><span class="tag">En una frase</span><p>Sí. Dentro de una misma aplicación suele haber <b>varios modelos</b>: uno más <b>rápido</b> para cosas simples y otro más <b>potente</b> para cosas difíciles. Elegir entre ellos es lo que se llama <b>cambiar de modelo</b>.</p></div>
+    <p class="escena-tag">En nuestro café</p>
+    <p>En este café no hay un solo mozo. Hay varios, y no son iguales. Está el más veloz, que en dos minutos te trae un café: perfecto cuando tenés apuro y lo que pedís es sencillo. Y está el otro, más pausado, que tarda un poco más pero es capaz de prepararte un plato elaborado, de esos que necesitan tiempo y conocimiento.</p>
+    <p>Para algo simple, el rápido te sobra. Para algo difícil, querés al experto. Y lo bueno es que muchas veces vos elegís cuál te atiende según lo que necesites ese día. Eso, tan natural en un café, es exactamente cambiar de modelo.</p>
+    <div class="ilustracion">
+      <svg viewBox="0 0 640 300" role="img" aria-label="Dos mozos para elegir: uno rápido para lo simple y uno experto para lo difícil.">
+        <defs><marker id="m4" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M2 1L8 5L2 9" fill="none" stroke="#3E4A61" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></marker></defs>
+        <text class="sv-s" x="320" y="42" text-anchor="middle">elegís cuál te atiende</text>
+        <line x1="196" y1="56" x2="444" y2="56" stroke="#3E4A61" stroke-width="1.5" marker-start="url(#m4)" marker-end="url(#m4)"/>
+        <line x1="96" y1="150" x2="112" y2="150" stroke="#9FBCF6" stroke-width="2" stroke-linecap="round"/>
+        <line x1="98" y1="140" x2="112" y2="140" stroke="#9FBCF6" stroke-width="2" stroke-linecap="round"/>
+        <line x1="98" y1="160" x2="112" y2="160" stroke="#9FBCF6" stroke-width="2" stroke-linecap="round"/>
+        <circle cx="150" cy="132" r="16" fill="#2563EB"/>
+        <rect x="131" y="150" width="38" height="50" rx="13" fill="#2563EB"/>
+        <text class="sv-t" x="150" y="234" text-anchor="middle">rápido</text>
+        <text class="sv-s" x="150" y="254" text-anchor="middle">para lo simple</text>
+        <rect x="473" y="118" width="34" height="15" rx="5" fill="#FFFFFF" stroke="#94A3B8" stroke-width="1"/>
+        <circle cx="479" cy="116" r="7" fill="#FFFFFF" stroke="#94A3B8" stroke-width="1"/>
+        <circle cx="490" cy="113" r="8" fill="#FFFFFF" stroke="#94A3B8" stroke-width="1"/>
+        <circle cx="501" cy="116" r="7" fill="#FFFFFF" stroke="#94A3B8" stroke-width="1"/>
+        <circle cx="490" cy="146" r="16" fill="#16213A"/>
+        <rect x="471" y="164" width="38" height="50" rx="13" fill="#16213A"/>
+        <text class="sv-t" x="490" y="248" text-anchor="middle">experto</text>
+        <text class="sv-s" x="490" y="268" text-anchor="middle">para lo difícil</text>
+        <text class="sv-s" x="320" y="136" text-anchor="middle">vos elegís</text>
+        <rect x="290" y="150" width="60" height="26" rx="13" fill="#EDF1F7" stroke="#CBD5E1" stroke-width="1"/>
+        <circle cx="303" cy="163" r="9" fill="#2563EB"/>
+      </svg>
+    </div>
+    <div class="pensar"><span class="lbl">Para pensar</span><p>Para preguntar la hora no llamás al chef del restaurante. Con la IA es igual: no siempre necesitás el más potente.</p></div>
+  </section>
+
+  <!-- ============ MESA 05 ============ -->
+  <section class="mesa">
+    <p class="mesa-num"><span class="dot">05</span> El mozo con oficio</p>
+    <h2 class="q">¿Por qué los modelos tienen números, como "4" o "5"?</h2>
+    <div class="frase"><span class="tag">En una frase</span><p>Los números son <b>versiones</b>: generaciones sucesivas del mismo modelo, que va mejorando con el tiempo. En general, a mayor número, más reciente y más capaz.</p></div>
+    <p class="escena-tag">En nuestro café</p>
+    <p>Pensá en tu mozo hace unos años, en su primer día: atento, pero todavía sin oficio. Con el tiempo fue aprendiendo, tomó práctica y hoy hace su trabajo mucho mejor que al principio. Es la misma persona, pero una versión más experimentada.</p>
+    <p>Con los modelos pasa igual. Cuando ves "4.8" o "5" al lado de un nombre, es como decir "el mozo de este año", el que aprendió de las versiones anteriores. Por eso conviene, cada tanto, mirar cuál es la versión más nueva disponible.</p>
+    <div class="ilustracion">
+      <svg viewBox="0 0 640 260" role="img" aria-label="El mismo mozo en tres momentos, cada vez con más experiencia, a lo largo del tiempo.">
+        <defs><marker id="m5" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M2 1L8 5L2 9" fill="none" stroke="#3E4A61" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></marker></defs>
+        <text class="sv-blue" x="140" y="50" text-anchor="middle" font-size="15">★</text>
+        <circle cx="140" cy="92" r="15" fill="#2563EB"/>
+        <rect x="122" y="109" width="36" height="46" rx="12" fill="#2563EB"/>
+        <text class="sv-t" x="140" y="182" text-anchor="middle">hace años</text>
+        <text class="sv-s" x="140" y="200" text-anchor="middle">versión 1</text>
+        <text class="sv-blue" x="320" y="50" text-anchor="middle" font-size="15">★ ★</text>
+        <circle cx="320" cy="92" r="15" fill="#2563EB"/>
+        <rect x="302" y="109" width="36" height="46" rx="12" fill="#2563EB"/>
+        <text class="sv-t" x="320" y="182" text-anchor="middle">después</text>
+        <text class="sv-s" x="320" y="200" text-anchor="middle">versión 2</text>
+        <text class="sv-blue" x="500" y="50" text-anchor="middle" font-size="15">★ ★ ★</text>
+        <circle cx="500" cy="92" r="15" fill="#2563EB"/>
+        <rect x="482" y="109" width="36" height="46" rx="12" fill="#2563EB"/>
+        <text class="sv-t" x="500" y="182" text-anchor="middle">hoy</text>
+        <text class="sv-s" x="500" y="200" text-anchor="middle">versión 3</text>
+        <line x1="60" y1="224" x2="580" y2="224" stroke="#3E4A61" stroke-width="1.5" marker-end="url(#m5)"/>
+        <text class="sv-s" x="320" y="248" text-anchor="middle">el paso del tiempo</text>
+      </svg>
+    </div>
+    <div class="pensar"><span class="lbl">Que quede claro</span><p>Mismo mozo, más oficio. El número no cambia quién es: cuenta cuánto aprendió.</p></div>
+  </section>
+
+  <!-- ============ MESA 06 ============ -->
+  <section class="mesa">
+    <p class="mesa-num"><span class="dot">06</span> El plato en bocados</p>
+    <h2 class="q">¿Qué es un token?</h2>
+    <div class="frase"><span class="tag">En una frase</span><p>Un <b>token</b> es cada pedacito en que la IA corta lo que vos le escribís. No lee la frase entera de un saque: la parte en trocitos y trabaja con esos trocitos, uno por uno.</p></div>
+    <p class="escena-tag">En nuestro café</p>
+    <p>Pensá en una pizza. Entera es difícil de comer y de repartir, así que la cortás en porciones. Recién ahí la servís de a poco y podés contar cuántos pedazos hay.</p>
+    <p>La IA hace lo mismo con tu mensaje: lo corta en pedacitos antes de procesarlo. Cada uno de esos pedacitos es un token. A veces un pedacito es una palabra entera; si la palabra es larga, la parte en varias. No hace falta que los cuentes vos: alcanza con saber que todo se sirve en porciones.</p>
+    <div class="ilustracion">
+      <svg viewBox="0 0 640 300" role="img" aria-label="Una pizza cortada en porciones: cada porción representa un token.">
+        <circle cx="320" cy="140" r="110" fill="#FFFFFF" stroke="#E3E9F2" stroke-width="1"/>
+        <circle cx="320" cy="140" r="92" fill="#E7EEFD" stroke="#9FBCF6" stroke-width="2"/>
+        <g stroke="#9FBCF6" stroke-width="1.5">
+          <line x1="320" y1="140" x2="412" y2="140"/>
+          <line x1="320" y1="140" x2="385" y2="205"/>
+          <line x1="320" y1="140" x2="320" y2="232"/>
+          <line x1="320" y1="140" x2="255" y2="205"/>
+          <line x1="320" y1="140" x2="228" y2="140"/>
+          <line x1="320" y1="140" x2="255" y2="75"/>
+          <line x1="320" y1="140" x2="320" y2="48"/>
+          <line x1="320" y1="140" x2="385" y2="75"/>
+        </g>
+        <g fill="#2563EB">
+          <circle cx="300" cy="108" r="6"/><circle cx="352" cy="126" r="6"/><circle cx="306" cy="176" r="6"/><circle cx="358" cy="178" r="6"/><circle cx="282" cy="148" r="6"/>
+        </g>
+        <text class="sv-t" x="320" y="278" text-anchor="middle">cada porción es <tspan class="sv-blue" font-weight="500">un token</tspan></text>
+      </svg>
+    </div>
+    <div class="pensar"><span class="lbl">Para pensar</span><p>Así como un plato se sirve en bocados, tu frase se sirve en tokens. Es solo la forma en que la IA la corta para poder trabajarla.</p></div>
+  </section>
+
+  <!-- ============ MESA 07 ============ -->
+  <section class="mesa">
+    <p class="mesa-num"><span class="dot">07</span> La cuenta</p>
+    <h2 class="q">¿Por qué se habla tanto de los tokens?</h2>
+    <div class="frase"><span class="tag">En una frase</span><p>Porque los tokens son la forma en que se mide todo: <b>mientras más largo</b> sea tu mensaje y su respuesta, <b>más pedacitos</b> hay de por medio. Y eso influye en cuánto tarda y, cuando se usa para trabajar, en cuánto cuesta.</p></div>
+    <p class="escena-tag">En nuestro café</p>
+    <p>Cuando pagás en un café, la cuenta depende de cuánto pediste: más porciones, cuenta más alta y, además, un poco más de espera mientras las preparan.</p>
+    <p>Con la IA pasa algo parecido. Cada porción (cada token) suma. Por eso un pedido corto sale rápido y barato, y uno muy largo tarda más y, si estás usándola de forma profesional, cuesta más. Para vos, como usuario, la idea a llevarte es simple: los mensajes enormes tienen su precio en tiempo.</p>
+    <div class="ilustracion">
+      <svg viewBox="0 0 640 280" role="img" aria-label="Una cuenta de café: más porciones significan más tiempo y más costo.">
+        <defs><marker id="m7" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M2 1L8 5L2 9" fill="none" stroke="#3E4A61" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></marker></defs>
+        <rect x="270" y="34" width="100" height="180" rx="6" fill="#FFFFFF" stroke="#E3E9F2" stroke-width="1"/>
+        <text class="sv-t" x="320" y="62" text-anchor="middle">cuenta</text>
+        <line x1="286" y1="82" x2="354" y2="82" stroke="#CBD5E1" stroke-width="1"/>
+        <line x1="286" y1="100" x2="354" y2="100" stroke="#CBD5E1" stroke-width="1"/>
+        <line x1="286" y1="118" x2="354" y2="118" stroke="#CBD5E1" stroke-width="1"/>
+        <line x1="286" y1="136" x2="354" y2="136" stroke="#CBD5E1" stroke-width="1"/>
+        <line x1="282" y1="162" x2="358" y2="162" stroke="#9FBCF6" stroke-width="1"/>
+        <text class="sv-blue" x="320" y="192" text-anchor="middle">total</text>
+        <!-- pill tiempo -->
+        <rect x="40" y="108" width="152" height="46" rx="12" fill="#E7EEFD" stroke="#9FBCF6" stroke-width="1"/>
+        <circle cx="68" cy="131" r="11" fill="none" stroke="#2563EB" stroke-width="1.5"/>
+        <line x1="68" y1="131" x2="68" y2="124" stroke="#2563EB" stroke-width="1.5" stroke-linecap="round"/>
+        <line x1="68" y1="131" x2="74" y2="134" stroke="#2563EB" stroke-width="1.5" stroke-linecap="round"/>
+        <text class="sv-t" x="90" y="136">tarda más</text>
+        <line x1="270" y1="128" x2="196" y2="131" stroke="#3E4A61" stroke-width="1.5" marker-end="url(#m7)"/>
+        <!-- pill costo -->
+        <rect x="448" y="108" width="152" height="46" rx="12" fill="#E7EEFD" stroke="#9FBCF6" stroke-width="1"/>
+        <circle cx="476" cy="131" r="11" fill="#FFFFFF" stroke="#2563EB" stroke-width="1.5"/>
+        <text x="476" y="136" text-anchor="middle" style="fill:#2563EB;font-family:'Inter',sans-serif;font-size:13px;font-weight:600">$</text>
+        <text class="sv-t" x="498" y="136">cuesta más</text>
+        <line x1="370" y1="128" x2="444" y2="131" stroke="#3E4A61" stroke-width="1.5" marker-end="url(#m7)"/>
+        <text class="sv-s" x="320" y="252" text-anchor="middle">más porciones = más tiempo y más costo</text>
+      </svg>
+    </div>
+    <div class="pensar"><span class="lbl">Que quede claro</span><p>No tenés que hacer cuentas. Solo recordá: pedidos gigantes, cuentas más grandes.</p></div>
+  </section>
+
+  <!-- ============ MESA 08 ============ -->
+  <section class="mesa">
+    <p class="mesa-num"><span class="dot">08</span> La memoria del mozo</p>
+    <h2 class="q">¿La IA se acuerda de todo lo que le digo?</h2>
+    <div class="frase"><span class="tag">En una frase</span><p>Puede tener presente <b>bastante</b> de una charla, pero <b>no infinito</b>. A eso que puede "tener en la cabeza" en un momento dado se lo llama <b>contexto</b>. Si la conversación se hace muy larga, empieza a olvidar lo primero que le dijiste.</p></div>
+    <p class="escena-tag">En nuestro café</p>
+    <p>Imaginá un mozo con muy buena memoria. Le vas sumando pedidos y se los acuerda todos... hasta cierto punto. Si le seguís hablando sin parar, en algún momento lo primero que le dijiste se le empieza a escapar. Nos pasa a todos en una charla muy larga.</p>
+    <p>La IA funciona igual. Tiene una memoria de trabajo generosa, pero con un límite. Por eso, en charlas muy largas, conviene recordarle lo importante de vez en cuando: no es que no le importe, es que no le entra todo a la vez.</p>
+    <div class="ilustracion">
+      <svg viewBox="0 0 640 270" role="img" aria-label="Un mozo con una nube de pensamiento llena de pedidos; el más viejo se empieza a olvidar.">
+        <defs><marker id="m8" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M2 1L8 5L2 9" fill="none" stroke="#9FBCF6" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></marker></defs>
+        <circle cx="110" cy="150" r="16" fill="#2563EB"/>
+        <rect x="91" y="168" width="38" height="52" rx="13" fill="#2563EB"/>
+        <circle cx="150" cy="126" r="4" fill="#E7EEFD" stroke="#9FBCF6" stroke-width="1"/>
+        <circle cx="172" cy="110" r="6" fill="#E7EEFD" stroke="#9FBCF6" stroke-width="1"/>
+        <rect x="196" y="44" width="384" height="150" rx="22" fill="#E7EEFD" stroke="#9FBCF6" stroke-width="1"/>
+        <text class="sv-s" x="216" y="70">lo que puede tener en la cabeza</text>
+        <rect x="216" y="80" width="200" height="24" rx="6" fill="#FFFFFF" stroke="#9FBCF6" stroke-width="1" opacity="0.4"/>
+        <text class="sv-s" x="226" y="97" opacity="0.5">café (lo primero...)</text>
+        <line x1="316" y1="80" x2="316" y2="36" stroke="#9FBCF6" stroke-width="1.5" stroke-dasharray="4 3" marker-end="url(#m8)" opacity="0.7"/>
+        <rect x="216" y="116" width="200" height="24" rx="6" fill="#FFFFFF" stroke="#9FBCF6" stroke-width="1"/>
+        <text class="sv-t" x="226" y="133">medialuna</text>
+        <rect x="216" y="152" width="200" height="24" rx="6" fill="#FFFFFF" stroke="#9FBCF6" stroke-width="1"/>
+        <text class="sv-t" x="226" y="169">jugo de naranja</text>
+        <text class="sv-s" x="320" y="228" text-anchor="middle">si le hablás mucho, empieza a olvidar lo primero</text>
+      </svg>
+    </div>
+    <div class="pensar"><span class="lbl">Para pensar</span><p>No es memoria para siempre: es memoria de esta charla. Si abrís una conversación nueva, arranca de cero.</p></div>
+  </section>
+
+  <!-- ============ MESA 09 ============ -->
+  <section class="mesa">
+    <p class="mesa-num"><span class="dot">09</span> Lo que suele venir después</p>
+    <h2 class="q">¿Cómo "piensa" la IA para responder?</h2>
+    <div class="frase"><span class="tag">En una frase</span><p>No busca la verdad en una lista: va <b>adivinando qué palabra suele venir después</b>, una tras otra, según todo lo que "leyó" antes. Arma la respuesta de a poco, como quien completa una frase muy conocida.</p></div>
+    <p class="escena-tag">En nuestro café</p>
+    <p>Un mozo con años de oficio sabe, por costumbre, qué suele pasar. Si serviste una sopa de entrada, lo más probable es que después venga un plato principal, no un helado. No lo sabe con certeza: lo sabe porque lo vio miles de veces.</p>
+    <p>La IA hace exactamente eso con las palabras. Por experiencia sabe qué suele seguir a qué, y elige lo más probable. Por eso escribe tan fluido. Y por eso también, a veces, se equivoca: porque "lo más probable" no siempre es "lo correcto".</p>
+    <div class="ilustracion">
+      <svg viewBox="0 0 640 260" role="img" aria-label="Después de la sopa, la opción más probable es el plato principal, por encima de otras.">
+        <rect x="50" y="106" width="110" height="46" rx="10" fill="#EDF1F7" stroke="#CBD5E1" stroke-width="1"/>
+        <text class="sv-t" x="105" y="134" text-anchor="middle">sopa</text>
+        <text class="sv-s" x="105" y="172" text-anchor="middle">esto ya pasó</text>
+        <line x1="160" y1="129" x2="428" y2="88" stroke="#2563EB" stroke-width="3.5" stroke-linecap="round"/>
+        <line x1="160" y1="129" x2="428" y2="140" stroke="#CBD5E1" stroke-width="1.4" stroke-linecap="round"/>
+        <line x1="160" y1="129" x2="428" y2="192" stroke="#CBD5E1" stroke-width="1.4" stroke-linecap="round"/>
+        <rect x="430" y="66" width="180" height="44" rx="10" fill="#2563EB"/>
+        <text x="520" y="93" text-anchor="middle" style="fill:#FFFFFF;font-family:'Inter',sans-serif;font-size:14px;font-weight:500">plato principal</text>
+        <rect x="430" y="120" width="180" height="40" rx="10" fill="#FFFFFF" stroke="#CBD5E1" stroke-width="1"/>
+        <text class="sv-s" x="520" y="145" text-anchor="middle">postre</text>
+        <rect x="430" y="170" width="180" height="40" rx="10" fill="#FFFFFF" stroke="#CBD5E1" stroke-width="1"/>
+        <text class="sv-s" x="520" y="195" text-anchor="middle">ensalada</text>
+      </svg>
+    </div>
+    <div class="pensar"><span class="lbl">Que quede claro</span><p>La IA no consulta una verdad: elige lo más probable. Escribe genial, pero conviene revisar lo importante.</p></div>
+  </section>
+
+  <!-- ============ MESA 10 ============ -->
+  <section class="mesa">
+    <p class="mesa-num"><span class="dot">10</span> El pedido bien hecho</p>
+    <h2 class="q">¿Qué es un prompt?</h2>
+    <div class="frase"><span class="tag">En una frase</span><p>Un <b>prompt</b> es la instrucción o pregunta que le das a la IA. Es, ni más ni menos, <b>tu pedido</b>. Y de cómo lo hagas depende, en gran parte, lo que recibas.</p></div>
+    <p class="escena-tag">En nuestro café</p>
+    <p>Si al mozo le decís "traeme algo rico", te va a traer lo que él crea, y capaz no es lo que tenías en mente. Si en cambio le decís "un café con leche, tibio, sin azúcar", tenés muchas más chances de recibir justo eso.</p>
+    <p>Con la IA es igual. Cuanto más claro y específico sea tu pedido —qué querés, para qué, en qué tono—, mejor va a ser la respuesta. No hay que saber palabras mágicas: hay que pedir bien, como le pedirías a una persona que recién conocés.</p>
+    <div class="ilustracion">
+      <svg viewBox="0 0 640 300" role="img" aria-label="Pedido vago que trae cualquier cosa, frente a pedido claro que trae justo lo pedido.">
+        <rect x="28" y="40" width="272" height="240" rx="16" fill="#FFFFFF" stroke="#E3E9F2" stroke-width="1"/>
+        <text class="sv-t" x="52" y="70">Pedido vago</text>
+        <rect x="52" y="90" width="224" height="40" rx="10" fill="#EDF1F7" stroke="#CBD5E1" stroke-width="1"/>
+        <text class="sv-s" x="164" y="115" text-anchor="middle">«traeme algo rico»</text>
+        <ellipse cx="164" cy="188" rx="52" ry="14" fill="#FFFFFF" stroke="#CBD5E1" stroke-width="1"/>
+        <text x="164" y="188" text-anchor="middle" style="fill:#64748B;font-family:'Inter',sans-serif;font-size:20px;font-weight:600">?</text>
+        <text class="sv-s" x="164" y="240" text-anchor="middle">recibís cualquier cosa</text>
+
+        <rect x="340" y="40" width="272" height="240" rx="16" fill="#E7EEFD" stroke="#9FBCF6" stroke-width="1"/>
+        <text class="sv-t" x="364" y="70">Pedido claro</text>
+        <rect x="364" y="90" width="224" height="40" rx="10" fill="#FFFFFF" stroke="#9FBCF6" stroke-width="1"/>
+        <text class="sv-s" x="476" y="115" text-anchor="middle">«un café con leche, tibio»</text>
+        <ellipse cx="476" cy="188" rx="52" ry="14" fill="#FFFFFF" stroke="#CBD5E1" stroke-width="1"/>
+        <rect x="462" y="158" width="26" height="20" rx="3" fill="#E7EEFD" stroke="#2563EB" stroke-width="1.5"/>
+        <path d="M488 162 q10 6 0 12" fill="none" stroke="#2563EB" stroke-width="1.5"/>
+        <text class="sv-blue" x="476" y="240" text-anchor="middle">recibís lo que querías</text>
+      </svg>
+    </div>
+    <div class="pensar"><span class="lbl">Para pensar</span><p>Tratá tu pedido como si se lo explicaras a alguien que no te conoce. Claro y concreto gana siempre.</p></div>
+  </section>
+
+  <!-- ============ MESA 11 ============ -->
+  <section class="mesa">
+    <p class="mesa-num"><span class="dot">11</span> El mozo que inventa</p>
+    <h2 class="q">¿Por qué a veces la IA dice cosas falsas?</h2>
+    <div class="frase"><span class="tag">En una frase</span><p>A eso se lo llama <b>alucinación</b>: cuando la IA responde algo que suena muy convincente pero es <b>falso o inventado</b>. Pasa porque ella busca lo más probable, no lo más verdadero.</p></div>
+    <p class="escena-tag">En nuestro café</p>
+    <p>Imaginá un mozo que, para no quedar mal, nunca dice "eso no lo tenemos". En vez de eso, con una sonrisa y total seguridad, te trae cualquier cosa como si fuera lo que pediste. Suena convencido, pero se lo inventó.</p>
+    <p>La IA a veces hace eso. Responde con seguridad aunque esté equivocada. No te miente a propósito: simplemente completó con lo que le pareció más probable. Por eso, en temas importantes, conviene verificar lo que dice.</p>
+    <div class="ilustracion">
+      <svg viewBox="0 0 640 260" role="img" aria-label="Un mozo trae con seguridad un plato inventado que no estaba en la carta.">
+        <rect x="70" y="60" width="150" height="44" rx="12" fill="#E7EEFD" stroke="#9FBCF6" stroke-width="1"/>
+        <text class="sv-blue" x="145" y="87" text-anchor="middle">«¡claro que sí!»</text>
+        <path d="M150 104 L150 120 L134 104 Z" fill="#E7EEFD" stroke="#9FBCF6" stroke-width="1"/>
+        <circle cx="150" cy="150" r="16" fill="#2563EB"/>
+        <rect x="131" y="168" width="38" height="52" rx="13" fill="#2563EB"/>
+        <rect x="300" y="176" width="40" height="8" rx="3" fill="#2563EB"/>
+        <line x1="169" y1="188" x2="300" y2="182" stroke="#2563EB" stroke-width="3" stroke-linecap="round"/>
+        <ellipse cx="360" cy="172" rx="54" ry="14" fill="#FFFFFF" stroke="#CBD5E1" stroke-width="1"/>
+        <text x="360" y="172" text-anchor="middle" style="fill:#2563EB;font-family:'Inter',sans-serif;font-size:22px;font-weight:600">?</text>
+        <text class="sv-s" x="360" y="212" text-anchor="middle">esto no estaba en la carta</text>
+      </svg>
+    </div>
+    <div class="pensar"><span class="lbl">Que quede claro</span><p>Que suene seguro no quiere decir que sea cierto. Para datos que importan, verificá siempre.</p></div>
+  </section>
+
+  <!-- ============ MESA 12 ============ -->
+  <section class="mesa">
+    <p class="mesa-num"><span class="dot">12</span> Distintos restaurantes</p>
+    <h2 class="q">¿Qué son ChatGPT, Claude y Gemini?</h2>
+    <div class="frase"><span class="tag">En una frase</span><p>Son las <b>aplicaciones de IA más conocidas</b>, cada una de una empresa distinta. Hacen cosas parecidas —conversar, escribir, responder— pero cada una tiene su estilo y sus puntos fuertes.</p></div>
+    <p class="escena-tag">En nuestro café</p>
+    <p>Hasta ahora hablamos de "el café" en general. En realidad, hay varios cafés en la ciudad. ChatGPT (de la empresa OpenAI), Claude (de Anthropic) y Gemini (de Google) son como tres restaurantes distintos: en todos comés bien, pero cada uno tiene su especialidad y su ambiente.</p>
+    <p>No hay uno que sea "el mejor" para todo. Como con los restaurantes, depende de qué tengas ganas ese día. Lo bueno es que la idea de fondo —pedirle algo a un mozo— es la misma en todos.</p>
+    <div class="ilustracion">
+      <svg viewBox="0 0 640 260" role="img" aria-label="Tres restaurantes distintos, uno por cada aplicación: ChatGPT, Claude y Gemini.">
+        <!-- 1 -->
+        <text class="sv-t" x="105" y="66" text-anchor="middle">ChatGPT</text>
+        <rect x="40" y="80" width="130" height="26" rx="4" fill="#2563EB"/>
+        <rect x="40" y="106" width="130" height="120" rx="6" fill="#FFFFFF" stroke="#E3E9F2" stroke-width="1"/>
+        <rect x="88" y="166" width="34" height="60" rx="4" fill="#EDF1F7" stroke="#CBD5E1" stroke-width="1"/>
+        <rect x="56" y="128" width="30" height="24" rx="3" fill="#E7EEFD" stroke="#9FBCF6" stroke-width="1"/>
+        <rect x="124" y="128" width="30" height="24" rx="3" fill="#E7EEFD" stroke="#9FBCF6" stroke-width="1"/>
+        <!-- 2 -->
+        <text class="sv-t" x="320" y="66" text-anchor="middle">Claude</text>
+        <rect x="255" y="80" width="130" height="26" rx="4" fill="#5B8DEF"/>
+        <rect x="255" y="106" width="130" height="120" rx="6" fill="#FFFFFF" stroke="#E3E9F2" stroke-width="1"/>
+        <rect x="303" y="166" width="34" height="60" rx="4" fill="#EDF1F7" stroke="#CBD5E1" stroke-width="1"/>
+        <rect x="271" y="128" width="30" height="24" rx="3" fill="#E7EEFD" stroke="#9FBCF6" stroke-width="1"/>
+        <rect x="339" y="128" width="30" height="24" rx="3" fill="#E7EEFD" stroke="#9FBCF6" stroke-width="1"/>
+        <!-- 3 -->
+        <text class="sv-t" x="535" y="66" text-anchor="middle">Gemini</text>
+        <rect x="470" y="80" width="130" height="26" rx="4" fill="#16213A"/>
+        <rect x="470" y="106" width="130" height="120" rx="6" fill="#FFFFFF" stroke="#E3E9F2" stroke-width="1"/>
+        <rect x="518" y="166" width="34" height="60" rx="4" fill="#EDF1F7" stroke="#CBD5E1" stroke-width="1"/>
+        <rect x="486" y="128" width="30" height="24" rx="3" fill="#E7EEFD" stroke="#9FBCF6" stroke-width="1"/>
+        <rect x="554" y="128" width="30" height="24" rx="3" fill="#E7EEFD" stroke="#9FBCF6" stroke-width="1"/>
+        <text class="sv-s" x="320" y="250" text-anchor="middle">cada uno es un restaurante distinto, con su estilo</text>
+      </svg>
+    </div>
+    <div class="pensar"><span class="lbl">Para pensar</span><p>Podés probar varios y quedarte con el que más te guste. No te casás con ninguno.</p></div>
+  </section>
+
+  <!-- ============ MESA 13 ============ -->
+  <section class="mesa">
+    <p class="mesa-num"><span class="dot">13</span> El patio de comidas</p>
+    <h2 class="q">¿Solo sirve para chatear?</h2>
+    <div class="frase"><span class="tag">En una frase</span><p>No. Además de los asistentes que conversan, hay <b>herramientas especializadas</b>: unas crean imágenes, otras videos, otras música o ayudan a programar. Cada una es experta en lo suyo.</p></div>
+    <p class="escena-tag">En nuestro café</p>
+    <p>Salgamos un momento del café y entremos a un patio de comidas. Ahí no hay un solo local: hay muchos puestos, y cada uno se dedica a algo. Uno hace solo pizzas, otro solo postres, otro solo jugos.</p>
+    <p>Con la IA pasa lo mismo. Hay puestos para cada cosa: para escribir texto, para generar imágenes, para hacer videos, para música, para código. No tenés que conocerlos todos: alcanza con saber que, para casi cualquier tarea, hay una herramienta pensada para eso.</p>
+    <div class="ilustracion">
+      <svg viewBox="0 0 640 280" role="img" aria-label="Un patio de comidas con un puesto para cada tipo de herramienta: texto, imágenes, video, música y código.">
+        <!-- texto -->
+        <rect x="30" y="70" width="104" height="26" rx="4" fill="#E7EEFD" stroke="#9FBCF6" stroke-width="1"/>
+        <rect x="30" y="96" width="104" height="110" rx="6" fill="#FFFFFF" stroke="#E3E9F2" stroke-width="1"/>
+        <line x1="54" y1="134" x2="110" y2="134" stroke="#2563EB" stroke-width="2"/>
+        <line x1="54" y1="150" x2="110" y2="150" stroke="#2563EB" stroke-width="2"/>
+        <line x1="54" y1="166" x2="92" y2="166" stroke="#2563EB" stroke-width="2"/>
+        <text class="sv-s" x="82" y="228" text-anchor="middle">texto</text>
+        <!-- imágenes -->
+        <rect x="150" y="70" width="104" height="26" rx="4" fill="#E7EEFD" stroke="#9FBCF6" stroke-width="1"/>
+        <rect x="150" y="96" width="104" height="110" rx="6" fill="#FFFFFF" stroke="#E3E9F2" stroke-width="1"/>
+        <rect x="172" y="126" width="60" height="46" rx="4" fill="#EDF1F7" stroke="#9FBCF6" stroke-width="1"/>
+        <circle cx="188" cy="140" r="5" fill="#2563EB"/>
+        <path d="M176 168 L196 148 L214 168 Z" fill="#2563EB"/>
+        <text class="sv-s" x="202" y="228" text-anchor="middle">imágenes</text>
+        <!-- video -->
+        <rect x="270" y="70" width="104" height="26" rx="4" fill="#E7EEFD" stroke="#9FBCF6" stroke-width="1"/>
+        <rect x="270" y="96" width="104" height="110" rx="6" fill="#FFFFFF" stroke="#E3E9F2" stroke-width="1"/>
+        <circle cx="322" cy="150" r="24" fill="#EDF1F7" stroke="#9FBCF6" stroke-width="1"/>
+        <path d="M315 139 L336 150 L315 161 Z" fill="#2563EB"/>
+        <text class="sv-s" x="322" y="228" text-anchor="middle">video</text>
+        <!-- música -->
+        <rect x="390" y="70" width="104" height="26" rx="4" fill="#E7EEFD" stroke="#9FBCF6" stroke-width="1"/>
+        <rect x="390" y="96" width="104" height="110" rx="6" fill="#FFFFFF" stroke="#E3E9F2" stroke-width="1"/>
+        <circle cx="430" cy="168" r="9" fill="#2563EB"/>
+        <line x1="439" y1="168" x2="439" y2="130" stroke="#2563EB" stroke-width="2.5"/>
+        <path d="M439 130 L456 124 L456 134 L439 140 Z" fill="#2563EB"/>
+        <text class="sv-s" x="442" y="228" text-anchor="middle">música</text>
+        <!-- código -->
+        <rect x="510" y="70" width="104" height="26" rx="4" fill="#E7EEFD" stroke="#9FBCF6" stroke-width="1"/>
+        <rect x="510" y="96" width="104" height="110" rx="6" fill="#FFFFFF" stroke="#E3E9F2" stroke-width="1"/>
+        <text x="562" y="158" text-anchor="middle" style="fill:#2563EB;font-family:'Inter',sans-serif;font-size:22px;font-weight:600">&lt;/&gt;</text>
+        <text class="sv-s" x="562" y="228" text-anchor="middle">código</text>
+      </svg>
+    </div>
+    <div class="pensar"><span class="lbl">Para pensar</span><p>Para cada necesidad hay un puesto. No hace falta conocerlos todos, solo saber que existen.</p></div>
+  </section>
+
+  <!-- ============ MESA 14 ============ -->
+  <section class="mesa">
+    <p class="mesa-num"><span class="dot">14</span> Menú gratis y carta premium</p>
+    <h2 class="q">¿Hay que pagar para usar la IA?</h2>
+    <div class="frase"><span class="tag">En una frase</span><p>No para empezar. Casi todas tienen una <b>versión gratuita</b> que alcanza para conocerlas. Los <b>planes pagos</b> suman modelos más potentes, más velocidad y menos límites de uso.</p></div>
+    <p class="escena-tag">En nuestro café</p>
+    <p>Pensá en un menú de degustación gratis: te deja probar lo esencial y decidir si te gusta el lugar. Para la mayoría de la gente, con eso alcanza y sobra.</p>
+    <p>Después está la carta premium: más platos, mejor atención, sin esperas. Es para quien usa mucho la IA o necesita lo más potente. Mi consejo para arrancar: empezá por lo gratis. Solo pasá a pagar cuando sientas que el plan gratuito se te queda corto.</p>
+    <div class="ilustracion">
+      <svg viewBox="0 0 640 300" role="img" aria-label="Un menú gratis con lo esencial frente a una carta premium con más opciones.">
+        <rect x="40" y="40" width="250" height="240" rx="14" fill="#FFFFFF" stroke="#E3E9F2" stroke-width="1"/>
+        <text class="sv-t" x="64" y="74">Menú gratis</text>
+        <rect x="230" y="56" width="40" height="26" rx="13" fill="#EDF1F7" stroke="#CBD5E1" stroke-width="1"/>
+        <text x="250" y="74" text-anchor="middle" style="fill:#64748B;font-family:'Inter',sans-serif;font-size:13px;font-weight:600">$0</text>
+        <line x1="64" y1="112" x2="230" y2="112" stroke="#CBD5E1" stroke-width="1"/>
+        <line x1="64" y1="140" x2="230" y2="140" stroke="#CBD5E1" stroke-width="1"/>
+        <line x1="64" y1="168" x2="200" y2="168" stroke="#CBD5E1" stroke-width="1"/>
+        <text class="sv-s" x="64" y="232">suficiente para empezar</text>
+
+        <rect x="350" y="40" width="250" height="240" rx="14" fill="#E7EEFD" stroke="#9FBCF6" stroke-width="1"/>
+        <text class="sv-t" x="374" y="74">Carta premium</text>
+        <text x="566" y="76" text-anchor="middle" style="fill:#2563EB;font-family:'Inter',sans-serif;font-size:18px;font-weight:600">★</text>
+        <line x1="374" y1="106" x2="576" y2="106" stroke="#9FBCF6" stroke-width="1"/>
+        <line x1="374" y1="130" x2="576" y2="130" stroke="#9FBCF6" stroke-width="1"/>
+        <line x1="374" y1="154" x2="576" y2="154" stroke="#9FBCF6" stroke-width="1"/>
+        <line x1="374" y1="178" x2="576" y2="178" stroke="#9FBCF6" stroke-width="1"/>
+        <line x1="374" y1="202" x2="540" y2="202" stroke="#9FBCF6" stroke-width="1"/>
+        <text class="sv-blue" x="374" y="244">más potente, sin límites</text>
+      </svg>
+    </div>
+    <div class="pensar"><span class="lbl">Que quede claro</span><p>Empezá gratis. Vas a saber solo cuándo (y si) te conviene pasar a un plan pago.</p></div>
+  </section>
+
+  <!-- ============ MESA 15 ============ -->
+  <section class="mesa">
+    <p class="mesa-num"><span class="dot">15</span> Antes de irte del café</p>
+    <h2 class="q">¿Qué cuidados básicos conviene tener?</h2>
+    <div class="frase"><span class="tag">En una frase</span><p>Dos, sobre todo: <b>verificá</b> lo importante (la IA puede equivocarse) y <b>cuidá tu información</b> (no compartas datos sensibles como contraseñas o datos bancarios).</p></div>
+    <p class="escena-tag">En nuestro café</p>
+    <p>Antes de disfrutar el plato, le echás un vistazo: está bueno confiar, pero también mirar lo que te sirven. Con la IA es igual: usá lo que te da, pero revisá los datos importantes antes de darlos por ciertos.</p>
+    <p>Y así como no le dejarías tu tarjeta y tu clave a cualquiera, no le pases a una IA información sensible tuya o de otros. Es una herramienta abierta: tratala con el mismo cuidado con el que tratás tus datos en cualquier lado.</p>
+    <div class="ilustracion">
+      <svg viewBox="0 0 640 280" role="img" aria-label="Dos cuidados: revisar lo que te sirven, y proteger tus datos sensibles.">
+        <!-- revisá -->
+        <ellipse cx="150" cy="150" rx="76" ry="20" fill="#FFFFFF" stroke="#CBD5E1" stroke-width="1"/>
+        <ellipse cx="150" cy="146" rx="60" ry="14" fill="#E7EEFD" stroke="#9FBCF6" stroke-width="1"/>
+        <circle cx="132" cy="144" r="5" fill="#2563EB"/>
+        <circle cx="160" cy="148" r="5" fill="#2563EB"/>
+        <circle cx="196" cy="120" r="24" fill="none" stroke="#2563EB" stroke-width="2.5"/>
+        <line x1="213" y1="137" x2="232" y2="156" stroke="#2563EB" stroke-width="3" stroke-linecap="round"/>
+        <text class="sv-t" x="150" y="212" text-anchor="middle">revisá tu plato</text>
+        <text class="sv-s" x="150" y="232" text-anchor="middle">verificá lo importante</text>
+        <!-- datos -->
+        <rect x="440" y="110" width="120" height="76" rx="8" fill="#FFFFFF" stroke="#CBD5E1" stroke-width="1"/>
+        <rect x="440" y="124" width="120" height="14" fill="#EDF1F7"/>
+        <rect x="454" y="156" width="46" height="10" rx="2" fill="#CBD5E1"/>
+        <path d="M556 96 L586 108 L586 132 Q586 152 556 162 Q526 152 526 132 L526 108 Z" fill="#E7EEFD" stroke="#2563EB" stroke-width="2"/>
+        <path d="M544 128 l9 9 l16 -18" fill="none" stroke="#2563EB" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+        <text class="sv-t" x="500" y="212" text-anchor="middle">cuidá tus datos</text>
+        <text class="sv-s" x="500" y="232" text-anchor="middle">no compartas info sensible</text>
+      </svg>
+    </div>
+    <div class="pensar"><span class="lbl">Para pensar</span><p>Confiá, pero revisá. Y con tus datos, la misma prudencia que tenés en cualquier otro lado.</p></div>
+  </section>
+
+  <div class="nodesep"><svg viewBox="0 0 140 24" aria-hidden="true"><line x1="20" y1="12" x2="60" y2="12" stroke="#9FBCF6" stroke-width="1.2"/><line x1="80" y1="12" x2="120" y2="12" stroke="#9FBCF6" stroke-width="1.2"/><circle cx="20" cy="12" r="3" fill="#2563EB"/><circle cx="70" cy="12" r="4.5" fill="#5B8DEF"/><circle cx="120" cy="12" r="3" fill="#2563EB"/></svg></div>
+
+  <!-- ================= CONCLUSIÓN ================= -->
+  <section class="block">
+    <p class="eyebrow">Conclusión</p>
+    <h2>Lo lograste</h2>
+    <p>Si llegaste hasta acá, pasó algo importante: eso que al principio sonaba a idioma extranjero —modelos, tokens, prompts— ya no te resulta ajeno. Podés escuchar una charla sobre inteligencia artificial y seguir el hilo. Y esa, aunque parezca poco, es la parte más difícil: dejar de sentir que el tema "no es para vos".</p>
+    <p>Si te llevás una sola idea, que sea esta: toda la inteligencia artificial es, en el fondo, como ese mozo del café. Le pedís algo, lo prepara con lo que aprendió y te lo trae. Todo lo demás —los nombres, las versiones, las herramientas— son detalles alrededor de esa idea tan simple.</p>
+    <p>No te convertiste en experto, y no hacía falta. Cruzaste la puerta. El resto se aprende del mismo modo que aprendiste a usar el celular: probando, sin miedo a equivocarte y con curiosidad. Ya tenés lo más importante para empezar.</p>
+  </section>
+
+  <!-- ================= CTA ================= -->
+  <section class="cta">
+    <svg class="nodes" viewBox="0 0 800 300" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+      <g stroke="#2563EB" stroke-width="1.1" opacity="0.6">
+        <line x1="80" y1="70" x2="220" y2="120"/><line x1="220" y1="120" x2="140" y2="230"/>
+        <line x1="620" y1="60" x2="720" y2="160"/><line x1="720" y1="160" x2="600" y2="240"/>
+        <line x1="220" y1="120" x2="600" y2="240"/>
+      </g>
+      <g fill="#5B8DEF">
+        <circle cx="80" cy="70" r="4"/><circle cx="220" cy="120" r="5"/><circle cx="140" cy="230" r="4"/>
+        <circle cx="620" cy="60" r="4"/><circle cx="720" cy="160" r="4.5"/><circle cx="600" cy="240" r="4"/>
+      </g>
+    </svg>
+    <h3>¿Querés seguir aprendiendo?</h3>
+    <p>Comparto seguido ideas para entender y aprovechar la inteligencia artificial sin vueltas, explicadas igual de simple que en este e-book. Si te sirvió, sumate: lo mejor está por venir.</p>
+    <a class="btn" href="https://martinduarte.com">Seguí en martinduarte.com</a>
+    <p class="links">También en <a href="https://www.linkedin.com/in/martinduarte/">LinkedIn</a> · <a href="https://instagram.com/martin_data.z11">Instagram @martin_data.z11</a> · <a href="https://wa.me/541124847981">WhatsApp</a></p>
+  </section>
+
+  <!-- ================= SOBRE EL AUTOR ================= -->
+  <section class="block">
+    <p class="eyebrow">Sobre el autor</p>
+    <div class="autor">
+      <svg class="logo" viewBox="0 0 240 240" aria-label="Logo MD">
+        <rect x="16" y="16" width="208" height="208" rx="46" fill="#0A1120"/>
+        <line x1="72" y1="70" x2="120" y2="52" stroke="#2563EB" stroke-width="2" opacity="0.85"/>
+        <line x1="120" y1="52" x2="170" y2="72" stroke="#2563EB" stroke-width="2" opacity="0.85"/>
+        <circle cx="72" cy="70" r="5.5" fill="#2563EB"/><circle cx="120" cy="52" r="6.5" fill="#5B8DEF"/><circle cx="170" cy="72" r="5.5" fill="#2563EB"/>
+        <text x="120" y="168" text-anchor="middle" font-family="'Inter',Arial,sans-serif" font-weight="700" font-size="92" letter-spacing="2" fill="#FFFFFF">MD</text>
+      </svg>
+      <div>
+        <h3>Martín Duarte</h3>
+        <p>Arquitecto e ingeniero de datos con 15 años de experiencia en datos e inteligencia artificial. Empecé dentro de grandes organizaciones y hoy trabajo como consultor independiente, ayudando a empresas y personas a ordenar sus datos y a aprovechar la inteligencia artificial de forma práctica. Escribí este e-book con una sola idea en la cabeza: que cualquiera pueda entender la IA, sin necesidad de saber nada de tecnología.</p>
+        <p class="meta">Web: <a href="https://martinduarte.com">martinduarte.com</a> · LinkedIn: <a href="https://www.linkedin.com/in/martinduarte/">/martinduarte</a> · Instagram: <a href="https://instagram.com/martin_data.z11">@martin_data.z11</a> · WhatsApp: <a href="https://wa.me/541124847981">+54 11 2484-7981</a></p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= GLOSARIO ================= -->
+  <section class="block glosario">
+    <p class="eyebrow">Glosario</p>
+    <h2>Cada palabra, en una línea</h2>
+    <div class="row"><span class="term">Inteligencia Artificial (IA)</span><span class="def">Tecnología que hace que una computadora haga cosas que antes solo hacían las personas: conversar, escribir, responder.</span></div>
+    <div class="row"><span class="term">IA generativa</span><span class="def">La que crea contenido nuevo (texto, imágenes, audio) en vez de repetir siempre lo mismo. Es la que usás al chatear con la IA.</span></div>
+    <div class="row"><span class="term">Modelo</span><span class="def">El "motor" entrenado que arma las respuestas. Es el mozo que prepara tu pedido dentro de la aplicación.</span></div>
+    <div class="row"><span class="term">Aplicación</span><span class="def">Lo que abrís y usás (ChatGPT, Claude, Gemini). Es el café; por dentro, un modelo hace el trabajo.</span></div>
+    <div class="row"><span class="term">Versión</span><span class="def">Cada generación mejorada de un modelo. A mayor número (4, 5...), más reciente y, en general, más capaz.</span></div>
+    <div class="row"><span class="term">Token</span><span class="def">Cada pedacito en que la IA corta tu texto para poder trabajarlo. Como las porciones de una pizza.</span></div>
+    <div class="row"><span class="term">Contexto</span><span class="def">Lo que la IA puede "tener en la cabeza" durante una charla. Es generoso, pero no infinito.</span></div>
+    <div class="row"><span class="term">Prompt</span><span class="def">La instrucción o pregunta que le das a la IA. Es tu pedido: cuanto más claro, mejor la respuesta.</span></div>
+    <div class="row"><span class="term">Alucinación</span><span class="def">Cuando la IA responde algo falso pero convincente. Por eso conviene verificar lo importante.</span></div>
+    <div class="row"><span class="term">Proveedor</span><span class="def">La empresa detrás de una herramienta: OpenAI (ChatGPT), Anthropic (Claude), Google (Gemini), entre otras.</span></div>
+    <div class="row"><span class="term">Multimodal</span><span class="def">Que puede trabajar con más de un tipo de contenido: no solo texto, también imágenes, audio o video.</span></div>
+  </section>
+
+  <!-- ================= COLOFÓN ================= -->
+  <div class="colofon">
+    <svg class="logo" viewBox="0 0 240 240" aria-label="Logo MD">
+      <rect x="16" y="16" width="208" height="208" rx="46" fill="#0A1120"/>
+      <circle cx="72" cy="70" r="5.5" fill="#2563EB"/><circle cx="120" cy="52" r="6.5" fill="#5B8DEF"/><circle cx="170" cy="72" r="5.5" fill="#2563EB"/>
+      <line x1="72" y1="70" x2="120" y2="52" stroke="#2563EB" stroke-width="2" opacity="0.7"/><line x1="120" y1="52" x2="170" y2="72" stroke="#2563EB" stroke-width="2" opacity="0.7"/>
+      <text x="120" y="168" text-anchor="middle" font-family="'Inter',Arial,sans-serif" font-weight="700" font-size="92" letter-spacing="2" fill="#FFFFFF">MD</text>
+    </svg>
+    Por fin vas a entender la Inteligencia Artificial · versión 1 · 2026<br>© Martín Duarte · martinduarte.com
+  </div>
+
+</div>
+
+<div class="wrap" style="padding-top:0">
+  <div class="eb-cta">
+    <p>¿Querés tenerlo siempre a mano? Descargalo en PDF.</p>
+    <button type="button"
+            data-ebook-action="descargar"
+            data-ebook-slug="inteligencia-artificial"
+            data-ebook-href="/ebooks/inteligencia-artificial/por-fin-vas-a-entender-la-ia.pdf"
+            data-ev="click_ebook_descargar" data-ev-label="lector-ia">
+      Descargar el PDF
+    </button>
+  </div>
+</div>
+
+<div id="ebook-gate"></div>
+<script src="/assets/js/ebooks.js" defer></script>
+
+<!-- GA4 + Clarity inlineados: esta página no carga site.js (ver comentario del head). -->
+<script>
+  (function(){
+    var GA4_ID='G-5WNB92WRGM', CLARITY_ID='xgn3x9yg9x';
+    var ga=document.createElement('script');
+    ga.async=true; ga.src='https://www.googletagmanager.com/gtag/js?id='+GA4_ID;
+    document.head.appendChild(ga);
+    window.dataLayer=window.dataLayer||[];
+    window.gtag=function(){window.dataLayer.push(arguments);};
+    window.gtag('js', new Date());
+    window.gtag('config', GA4_ID);
+    (function(c,l,a,r,i){c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments);};
+      var t=l.createElement(r); t.async=1; t.src='https://www.clarity.ms/tag/'+i;
+      var y=l.getElementsByTagName(r)[0]; y.parentNode.insertBefore(t,y);
+    })(window,document,'clarity','script',CLARITY_ID);
+    // Misma delegación de eventos que site.js, para los data-ev de esta página.
+    document.addEventListener('click', function(e){
+      var el=e.target.closest('[data-ev]');
+      if(el && typeof window.gtag==='function'){
+        window.gtag('event', el.dataset.ev, { label: el.dataset.evLabel || '' });
+      }
+    });
+  })();
+</script>
+</body>
+</html>

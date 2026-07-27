@@ -75,6 +75,11 @@
         '<span aria-hidden="true">' + p.icono + '</span> ' + p.nombre + '</a>';
     }).join('');
 
+    // Los ebooks no son un pilar de servicio: son un recurso propio, y por eso
+    // la entrada vive fuera del dropdown de Servicios. `data-pilar="ebooks"` en
+    // el <body> de /ebooks/** la marca como activa.
+    var ebooksActive = activeSlug === 'ebooks';
+
     return '' +
       '<header>' +
       '<nav class="fixed w-full z-50 px-6 py-5" aria-label="Principal">' +
@@ -83,6 +88,8 @@
             '<span class="text-blue-600" aria-hidden="true">←</span> MARTIN<span class="text-blue-600 font-black">DUARTE</span>' +
           '</a>' +
           '<div class="hidden md:flex items-center gap-8 text-[11px] font-black uppercase tracking-[0.18em] text-slate-500">' +
+            '<a href="/ebooks/" class="' + (ebooksActive ? 'text-blue-600' : 'hover:text-blue-600') +
+              ' transition-colors" data-ev="click_ebooks" data-ev-label="nav">Ebooks</a>' +
             '<div class="nav-wrap relative">' +
               '<button type="button" class="flex items-center gap-1.5 hover:text-blue-600 transition-colors uppercase tracking-[0.18em]" aria-haspopup="true" aria-expanded="false">Servicios' +
                 '<svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>' +
@@ -112,6 +119,7 @@
           '</div>' +
           '<nav class="flex flex-wrap gap-x-6 gap-y-2 text-[11px] font-bold text-slate-500" aria-label="Servicios">' + links + '</nav>' +
           '<div class="flex gap-4 text-[11px] font-black uppercase text-slate-500">' +
+            '<a href="/ebooks/" class="hover:text-blue-600" data-ev="click_ebooks" data-ev-label="footer">Ebooks</a>' +
             '<a href="https://linkedin.com/in/martinduarte" target="_blank" rel="noopener noreferrer" class="hover:text-blue-600">LinkedIn</a>' +
           '</div>' +
         '</div>' +
