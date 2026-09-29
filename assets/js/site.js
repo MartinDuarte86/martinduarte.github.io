@@ -79,6 +79,9 @@
     // la entrada vive fuera del dropdown de Servicios. `data-pilar="ebooks"` en
     // el <body> de /ebooks/** la marca como activa.
     var ebooksActive = activeSlug === 'ebooks';
+    // La tienda (/tienda/) es la puerta de entrada al e-commerce en
+    // shop.martinduarte.com (Shopify). `data-pilar="tienda"` la marca activa.
+    var tiendaActive = activeSlug === 'tienda';
 
     return '' +
       '<header>' +
@@ -90,6 +93,8 @@
           '<div class="hidden md:flex items-center gap-8 text-[11px] font-black uppercase tracking-[0.18em] text-slate-500">' +
             '<a href="/ebooks/" class="' + (ebooksActive ? 'text-blue-600' : 'hover:text-blue-600') +
               ' transition-colors" data-ev="click_ebooks" data-ev-label="nav">Ebooks</a>' +
+            '<a href="/tienda/" class="' + (tiendaActive ? 'text-blue-600' : 'hover:text-blue-600') +
+              ' transition-colors" data-ev="click_tienda" data-ev-label="nav">Tienda</a>' +
             '<div class="nav-wrap relative">' +
               '<button type="button" class="flex items-center gap-1.5 hover:text-blue-600 transition-colors uppercase tracking-[0.18em]" aria-haspopup="true" aria-expanded="false">Servicios' +
                 '<svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>' +
@@ -99,7 +104,13 @@
             '<a href="/#sobre-mi" class="hover:text-blue-600 transition-colors">Sobre mí</a>' +
             '<a href="/#contacto" class="hover:text-blue-600 transition-colors">Contacto</a>' +
           '</div>' +
-          '<button type="button" onclick="openBooking()" data-ev="click_agendar" data-ev-label="nav" class="text-[10px] font-black bg-slate-900 text-white px-5 py-3 rounded-full hover:bg-blue-600 transition-all uppercase tracking-widest">Agendar reunión</button>' +
+          '<div class="flex items-center gap-2">' +
+            // En mobile los links de arriba se ocultan: la tienda queda a un toque.
+            '<a href="/tienda/" class="nav-tienda-m" aria-label="Tienda" title="Tienda" data-ev="click_tienda" data-ev-label="nav-mobile">' +
+              '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="20" r="1.5"/><circle cx="18" cy="20" r="1.5"/><path d="M2 3h3l2.6 12.4a2 2 0 0 0 2 1.6h8.6a2 2 0 0 0 2-1.6L22 7H6"/></svg>' +
+            '</a>' +
+            '<button type="button" onclick="openBooking()" data-ev="click_agendar" data-ev-label="nav" class="text-[10px] font-black bg-slate-900 text-white px-5 py-3 rounded-full hover:bg-blue-600 transition-all uppercase tracking-widest">Agendar reunión</button>' +
+          '</div>' +
         '</div>' +
       '</nav>' +
       '</header>';
@@ -120,6 +131,7 @@
           '<nav class="flex flex-wrap gap-x-6 gap-y-2 text-[11px] font-bold text-slate-500" aria-label="Servicios">' + links + '</nav>' +
           '<div class="flex gap-4 text-[11px] font-black uppercase text-slate-500">' +
             '<a href="/ebooks/" class="hover:text-blue-600" data-ev="click_ebooks" data-ev-label="footer">Ebooks</a>' +
+            '<a href="/tienda/" class="hover:text-blue-600" data-ev="click_tienda" data-ev-label="footer">Tienda</a>' +
             '<a href="https://linkedin.com/in/martinduarte" target="_blank" rel="noopener noreferrer" class="hover:text-blue-600">LinkedIn</a>' +
           '</div>' +
         '</div>' +
@@ -200,7 +212,10 @@
       '.nav-dd{opacity:0;visibility:hidden;transform:translateY(8px);transition:all .2s ease;z-index:100}' +
       '.nav-dd-link{display:block;padding:.55rem .75rem;border-radius:.9rem;color:#475569;font-size:.72rem;font-weight:700;text-transform:none;letter-spacing:normal;text-decoration:none;transition:background .2s ease}' +
       '.nav-dd-link:hover{background:#f1f5f9;color:#0f172a}' +
-      '.nav-dd-link--active{background:#eff6ff;color:#1d4ed8}';
+      '.nav-dd-link--active{background:#eff6ff;color:#1d4ed8}' +
+      // Link a la tienda visible solo en mobile (md:hidden no está compilado en tailwind.css).
+      '.nav-tienda-m{display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;width:2.25rem;height:2.25rem;border-radius:9999px;background:#eff6ff;color:#2563eb}' +
+      '@media (min-width:768px){.nav-tienda-m{display:none}}';
     var s = document.createElement('style');
     s.textContent = css;
     document.head.appendChild(s);
